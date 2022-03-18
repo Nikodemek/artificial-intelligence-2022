@@ -104,10 +104,24 @@ namespace BossPuzzle
 
         public override bool Equals(object? obj)
         {
-            return obj is Board board &&
-                   ColumnSize == board.ColumnSize &&
-                   RowSize == board.RowSize &&
-                   EqualityComparer<int[][]>.Default.Equals(_board, board._board);
+            if (obj is Board board)
+            {
+
+                bool arePropertiesEqual = ColumnSize == board.ColumnSize &&
+                                   RowSize == board.RowSize;
+
+                bool areBoardFieldsEqaul = true;
+                for (int i = 0; i < ColumnSize; i++)
+                {
+                    for (int j = 0; j < RowSize; j++)
+                    {
+                        areBoardFieldsEqaul &= this.At(i, j) == board.At(i, j);
+                    }
+                }
+
+                return arePropertiesEqual && areBoardFieldsEqaul;
+            }
+            return false;
         }
 
         public override int GetHashCode()
