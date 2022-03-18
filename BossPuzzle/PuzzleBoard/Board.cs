@@ -41,6 +41,23 @@ public struct Board
         RowSize = rowLength;
     }
 
+    public bool IsValid()
+    {
+        for (var i = 0; i < RowSize; i++)
+        {
+            for (var j = 0; j < ColumnSize; j++)
+            {
+                var validation = _board[i][j] == i * RowSize + j + 1
+                                 || i == RowSize - 1 && j == ColumnSize - 1 && _board[i][j] == 0;
+                if (validation) continue;
+                
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
     public int At(int row, int column)
     {
         return _board[row][column];

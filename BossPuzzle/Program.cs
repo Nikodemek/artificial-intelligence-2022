@@ -11,6 +11,7 @@ class Program
         var sth = new FileFifteenPuzzleDao("test.file");
         Board board = sth.Read();
         board.Print();
+        Console.WriteLine(board.IsValid());
 
         Console.ReadKey();
     }
