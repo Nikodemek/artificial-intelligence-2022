@@ -102,7 +102,7 @@ namespace BossPuzzle
             Console.WriteLine(sb.ToString());
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is Board board &&
                    ColumnSize == board.ColumnSize &&
