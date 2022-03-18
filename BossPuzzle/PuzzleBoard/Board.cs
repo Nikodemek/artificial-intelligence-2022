@@ -141,4 +141,12 @@ public struct Board
     {
         return !(left == right);
     }
+
+    public enum Direction
+    { 
+        Up,
+        Down,
+        Left,
+        Right,
+    }
 }
