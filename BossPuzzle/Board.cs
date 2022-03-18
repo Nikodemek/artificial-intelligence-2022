@@ -1,142 +1,141 @@
 ﻿using System;
 using System.Text;
 
-namespace BossPuzzle
+namespace BossPuzzle;
+
+public struct Board
 {
-    public struct Board
+    public int ColumnSize { get; init; }
+    public int RowSize { get; init; }
+
+    readonly int[][] _board;
+
+    public Board(int[][] board) : this()
     {
-        public int ColumnSize { get; init; }
-        public int RowSize { get; init; }
+        int columnLength = board.Length;
 
-        readonly int[][] _board;
+        if (columnLength <= 0) throw new ArgumentException("Board cannot be empty!");
 
-        public Board(int[][] board) : this()
+        int rowLength = board[0].Length;
+
+        if (rowLength <= 0) throw new ArgumentException("Rows cannot be empty!");
+
+        this._board = new int[columnLength][];
+
+        for (var i = 0; i < columnLength; i++)
         {
-            int columnLength = board.Length;
+            int newRowLength = board[i].Length;
 
-            if (columnLength <= 0) throw new ArgumentException("Board cannot be empty!");
+            if (newRowLength != rowLength) throw new ArgumentException("Rows sizes must be equal");
 
-            int rowLength = board[0].Length;
+            rowLength = newRowLength;
+            _board[i] = new int[rowLength];
 
-            if (rowLength <= 0) throw new ArgumentException("Rows cannot be empty!");
-
-            this._board = new int[columnLength][];
-
-            for (var i = 0; i < columnLength; i++)
+            for (var j = 0; j < rowLength; j++)
             {
-                int newRowLength = board[i].Length;
+                _board[i][j] = board[i][j];
+            }
+        }
 
-                if (newRowLength != rowLength) throw new ArgumentException("Rows sizes must be equal");
+        ColumnSize = columnLength;
+        RowSize = rowLength;
+    }
 
-                rowLength = newRowLength;
-                _board[i] = new int[rowLength];
+    public int At(int row, int column)
+    {
+        return _board[row][column];
+    }
 
-                for (var j = 0; j < rowLength; j++)
+    public void Print()
+    {
+        if (_board is null) throw new ArgumentException("Board can not be null");
+
+        int xLength = _board.Length;
+
+        if (xLength <= 0) throw new ArgumentException("Board can not be empty");
+
+        int yLength = _board[0].Length;
+
+        for (int i = 0; i < xLength; i++)
+        {
+            if (_board[i].Length != yLength) throw new ArgumentException("Inner arrays should have the same length");
+        }
+
+        string[][] values = new string[xLength][];
+
+        int maxValLen = 0;
+        for (int i = 0; i < xLength; i++)
+        {
+            values[i] = new string[yLength];
+
+            for (int j = 0; j < yLength; j++)
+            {
+                string valueToInsert = _board[i][j].ToString();
+                int valueToInsertLen = valueToInsert.Length;
+
+                values[i][j] = valueToInsert;
+                if (valueToInsertLen > maxValLen) maxValLen = valueToInsertLen;
+            }
+        }
+
+        var sb = new StringBuilder((xLength + 2) * (yLength + 2));
+
+        int maxIndicesLen = (int)Math.Log10(xLength) + 3;
+        sb.Append("".PadLeft(maxIndicesLen, ' '));
+        for (int i = 0; i < yLength; i++)
+        {
+            string valueToInsert = (i + 1).ToString().PadLeft(maxValLen + 2);
+            sb.Append(valueToInsert);
+        }
+        sb.Append('\n');
+        for (int i = 0; i < xLength; i++)
+        {
+            sb.Append((i + 1).ToString().PadRight(maxIndicesLen)).Append('[');
+            for (int j = 0; j < yLength; j++)
+            {
+                string valueToInsert = values[i][j].PadLeft(maxValLen, ' ');
+                sb.Append(' ').Append(valueToInsert).Append(' ');
+            }
+            sb.Append("]\n");
+        }
+
+        Console.WriteLine(sb.ToString());
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is Board board)
+        {
+
+            bool arePropertiesEqual = ColumnSize == board.ColumnSize &&
+                               RowSize == board.RowSize;
+
+            bool areBoardFieldsEqaul = true;
+            for (int i = 0; i < ColumnSize; i++)
+            {
+                for (int j = 0; j < RowSize; j++)
                 {
-                    _board[i][j] = board[i][j];
+                    areBoardFieldsEqaul &= this.At(i, j) == board.At(i, j);
                 }
             }
 
-            ColumnSize = columnLength;
-            RowSize = rowLength;
+            return arePropertiesEqual && areBoardFieldsEqaul;
         }
+        return false;
+    }
 
-        public int At(int row, int column)
-        {
-            return _board[row][column];
-        }
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(ColumnSize, RowSize, _board);
+    }
 
-        public void Print()
-        {
-            if (_board is null) throw new ArgumentException("Board can not be null");
+    public static bool operator ==(Board left, Board right)
+    {
+        return left.Equals(right);
+    }
 
-            int xLength = _board.Length;
-
-            if (xLength <= 0) throw new ArgumentException("Board can not be empty");
-
-            int yLength = _board[0].Length;
-
-            for (int i = 0; i < xLength; i++)
-            {
-                if (_board[i].Length != yLength) throw new ArgumentException("Inner arrays should have the same length");
-            }
-
-            string[][] values = new string[xLength][];
-
-            int maxValLen = 0;
-            for (int i = 0; i < xLength; i++)
-            {
-                values[i] = new string[yLength];
-
-                for (int j = 0; j < yLength; j++)
-                {
-                    string valueToInsert = _board[i][j].ToString();
-                    int valueToInsertLen = valueToInsert.Length;
-
-                    values[i][j] = valueToInsert;
-                    if (valueToInsertLen > maxValLen) maxValLen = valueToInsertLen;
-                }
-            }
-
-            var sb = new StringBuilder((xLength + 2) * (yLength + 2));
-
-            int maxIndicesLen = (int)Math.Log10(xLength) + 3;
-            sb.Append("".PadLeft(maxIndicesLen, ' '));
-            for (int i = 0; i < yLength; i++)
-            {
-                string valueToInsert = (i + 1).ToString().PadLeft(maxValLen + 2);
-                sb.Append(valueToInsert);
-            }
-            sb.Append('\n');
-            for (int i = 0; i < xLength; i++)
-            {
-                sb.Append((i + 1).ToString().PadRight(maxIndicesLen)).Append('[');
-                for (int j = 0; j < yLength; j++)
-                {
-                    string valueToInsert = values[i][j].PadLeft(maxValLen, ' ');
-                    sb.Append(' ').Append(valueToInsert).Append(' ');
-                }
-                sb.Append("]\n");
-            }
-
-            Console.WriteLine(sb.ToString());
-        }
-
-        public override bool Equals(object? obj)
-        {
-            if (obj is Board board)
-            {
-
-                bool arePropertiesEqual = ColumnSize == board.ColumnSize &&
-                                   RowSize == board.RowSize;
-
-                bool areBoardFieldsEqaul = true;
-                for (int i = 0; i < ColumnSize; i++)
-                {
-                    for (int j = 0; j < RowSize; j++)
-                    {
-                        areBoardFieldsEqaul &= this.At(i, j) == board.At(i, j);
-                    }
-                }
-
-                return arePropertiesEqual && areBoardFieldsEqaul;
-            }
-            return false;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(ColumnSize, RowSize, _board);
-        }
-
-        public static bool operator ==(Board left, Board right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(Board left, Board right)
-        {
-            return !(left == right);
-        }
+    public static bool operator !=(Board left, Board right)
+    {
+        return !(left == right);
     }
 }
