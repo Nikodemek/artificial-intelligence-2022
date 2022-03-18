@@ -118,7 +118,7 @@ public struct Board
                 for (int j = 0; j < RowSize; j++)
                 {
                     areBoardFieldsEqaul &= this.At(i, j) == board.At(i, j);
-                    if (!arePropertiesEqual) return false;
+                    if (!areBoardFieldsEqaul) return false;
                 }
             }
 
