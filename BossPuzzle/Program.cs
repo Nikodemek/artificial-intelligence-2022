@@ -1,4 +1,6 @@
 ﻿using System;
+using BossPuzzle.Dao;
+using BossPuzzle.PuzzleBoard;
 
 namespace BossPuzzle;
 
@@ -6,9 +8,9 @@ class Program
 {
     public static void Main()
     {
-        Console.WriteLine("Hello loser");
         var sth = new FileFifteenPuzzleDao("test.file");
-        sth.Read();
+        Board board = sth.Read();
+        board.Print();
 
         Console.ReadKey();
     }

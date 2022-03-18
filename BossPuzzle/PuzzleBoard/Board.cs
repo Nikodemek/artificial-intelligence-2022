@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace BossPuzzle;
+namespace BossPuzzle.PuzzleBoard;
 
 public struct Board
 {

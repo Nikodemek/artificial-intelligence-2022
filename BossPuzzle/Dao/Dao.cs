@@ -1,4 +1,4 @@
-﻿namespace BossPuzzle;
+﻿namespace BossPuzzle.Dao;
 
 public interface IDao<T>
 {
