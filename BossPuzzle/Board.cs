@@ -110,16 +110,19 @@ public struct Board
             bool arePropertiesEqual = ColumnSize == board.ColumnSize &&
                                RowSize == board.RowSize;
 
+            if (!arePropertiesEqual) return false;
+
             bool areBoardFieldsEqaul = true;
             for (int i = 0; i < ColumnSize; i++)
             {
                 for (int j = 0; j < RowSize; j++)
                 {
                     areBoardFieldsEqaul &= this.At(i, j) == board.At(i, j);
+                    if (!arePropertiesEqual) return false;
                 }
             }
 
-            return arePropertiesEqual && areBoardFieldsEqaul;
+            return true;
         }
         return false;
     }
