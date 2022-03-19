@@ -29,8 +29,21 @@ class Program
         var board5 = board.Move(Dir.Up).Move(Dir.Left).Move(Dir.Down).Move(Dir.Right);
         board5.Print();
 
-        Console.WriteLine($"board2 == board = {board2 == board}  //Expected 'true'");
-        Console.WriteLine($"board5 == board = {board5 == board}  //Expected 'false'");
+        Console.WriteLine($"board2 == board = {board2 == board}  //Expected 'True'");
+        Console.WriteLine($"board5 == board = {board5 == board}  //Expected 'False'");
+
+        /*
+        How the fuck do refs work
+
+        int five = 5;
+
+        ref int fiveRef = ref five;
+
+        fiveRef = 6;
+
+        Console.WriteLine($"five = {five}"); // Prints '6'
+        Console.WriteLine($"fiveRef = {fiveRef}"); // Prints '6'
+        */
 
         Console.ReadKey();
     }

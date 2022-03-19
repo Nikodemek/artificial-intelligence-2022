@@ -10,9 +10,8 @@ public struct Board
     public int RowSize { get; init; }
 
     private readonly int[][] _board;
-
-    private int emptyCellRow;
-    private int emptyCellColumn;
+    private readonly int emptyCellRow;
+    private readonly int emptyCellColumn;
 
     public Board(int[][] board)
         : this(board, true)
@@ -109,36 +108,33 @@ public struct Board
     {
         int[][] newBoard = Cloner.DoubleArr(_board);
 
-        int temp;
+        //...oh, that's how
+        ref int changedCell = ref newBoard[0][0];
         switch (dir)
         {
             case Direction.Up:
-                if (row <= 0) break;
-                temp = newBoard[row - 1][column];
-                newBoard[row - 1][column] = _board[row][column];
-                newBoard[row][column] = temp;
+                if (row <= 0) goto default; // GOTO RZONDZI (na wspolbieznym nie bede tak odpierdzielal, ale ladnie to wyglada, a tak btw to w switchach czasami sie widuje goto 'ktorys_przypadek')
+                changedCell = ref newBoard[row - 1][column];
                 break;
             case Direction.Down:
-                if (row >= ColumnSize - 1) break;
-                temp = newBoard[row + 1][column];
-                newBoard[row + 1][column] = _board[row][column];
-                newBoard[row][column] = temp;
+                if (row >= ColumnSize - 1) goto default;
+                changedCell = ref newBoard[row + 1][column];
                 break;
             case Direction.Right:
-                if (column >= RowSize - 1) break;
-                temp = newBoard[row][column + 1];
-                newBoard[row][column + 1] = _board[row][column];
-                newBoard[row][column] = temp;
+                if (column >= RowSize - 1) goto default;
+                changedCell = ref newBoard[row][column + 1];
                 break;
             case Direction.Left:
-                if (column <= 0) break;
-                temp = newBoard[row][column - 1];
-                newBoard[row][column - 1] = _board[row][column];
-                newBoard[row][column] = temp;
+                if (column <= 0) goto default;
+                changedCell = ref newBoard[row][column - 1];
                 break;
             default:
-                throw new ArgumentException("Direction must be one of enum Board.Direction", nameof(dir));
+                return new Board(newBoard, false);
         }
+
+        int temp = changedCell;
+        changedCell = _board[row][column];
+        newBoard[row][column] = temp;
 
         return new Board(newBoard, false);
     }
