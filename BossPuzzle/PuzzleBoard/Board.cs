@@ -13,13 +13,27 @@ public struct Board : ICloneable
     private readonly int _emptyCellRow;
     private readonly int _emptyCellColumn;
 
+    private IPuzzleSolver _puzzleSolver;
+
+    // Puzzle initializer with example solver (just for the reader)
     public Board(int[][] board)
-        : this(board, true)
+        : this(board, new BFS(new []
+        {
+            Direction.Down,
+            Direction.Up,
+            Direction.Left,
+            Direction.Right
+        }), true)
+    { }
+    
+    public Board(int[][] board, IPuzzleSolver puzzleSolver)
+        : this(board, puzzleSolver, true)
     { }
 
-    private Board(int[][] board, bool copyArr)
+    private Board(int[][] board, IPuzzleSolver puzzleSolver, bool copyArr)
         : this()
     {
+        _puzzleSolver = puzzleSolver;
         int columnLength = board.Length;
 
         if (columnLength <= 0) throw new ArgumentException("Board cannot be empty!");
@@ -73,6 +87,11 @@ public struct Board : ICloneable
 
         RowSize = rowLength;
         ColumnSize = columnLength;
+    }
+
+    public void SolvePuzzle()
+    {
+        _puzzleSolver.Solve(this);
     }
 
     public bool IsValid()
@@ -160,14 +179,14 @@ public struct Board : ICloneable
                 changedCell = ref newBoard[row][column - 1];
                 break;
             default:
-                return new Board(newBoard, false);
+                return new Board(newBoard, _puzzleSolver, false);
         }
 
         int temp = changedCell;
         changedCell = _board[row][column];
         newBoard[row][column] = temp;
 
-        return new Board(newBoard, false);
+        return new Board(newBoard, _puzzleSolver,false);
     }
 
     public void Print()
@@ -227,6 +246,11 @@ public struct Board : ICloneable
         Console.WriteLine(sb.ToString());
     }
 
+    public void SetPuzzleSolver(IPuzzleSolver puzzleSolver)
+    {
+        _puzzleSolver = puzzleSolver;
+    }
+
     public override bool Equals(object? obj)
     {
         if (obj is Board board)
@@ -269,7 +293,7 @@ public struct Board : ICloneable
             }
         }
 
-        return new Board(newBoardTable);
+        return new Board(newBoardTable, _puzzleSolver);
     }
 
     public static bool operator ==(Board left, Board right)

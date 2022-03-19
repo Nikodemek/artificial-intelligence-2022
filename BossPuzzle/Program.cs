@@ -13,6 +13,7 @@ class Program
         Board board = sth.Read();
         board.Print();
         Console.WriteLine(board.IsValid());
+        board.SolvePuzzle();
 
         /*var board1 = board.Move(2, 2, Dir.Up);
         board1.Print();
