@@ -36,6 +36,7 @@ public class BFS: IPuzzleSolver
 
                 if (visited.Add(nextBoard.Hash))
                 {
+                    nextBoard.SolvePath.Add(direction);
                     queue.Enqueue(nextBoard);
                 }
             }

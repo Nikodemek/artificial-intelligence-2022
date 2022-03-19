@@ -21,6 +21,8 @@ public struct Board : ICloneable, IEquatable<Board>
     private readonly int _emptyCellRow = -1;
     private readonly int _emptyCellColumn = -1;
 
+    public List<Direction> SolvePath { get; set; }
+
     private ulong _hash = 0;
 
     public Board(int[][] board)
@@ -83,6 +85,8 @@ public struct Board : ICloneable, IEquatable<Board>
 
         RowSize = rowLength;
         ColumnSize = columnLength;
+
+        SolvePath = new List<Direction>();
     }
     
     public bool IsValid()
@@ -174,8 +178,11 @@ public struct Board : ICloneable, IEquatable<Board>
         int temp = changedCell;
         changedCell = _board[row][column];
         newBoard[row][column] = temp;
+        
+        var changedBoard = new Board(newBoard, false);
+        SolvePath.ForEach(direction => changedBoard.SolvePath.Add(direction));
 
-        return new Board(newBoard, false);
+        return changedBoard;
     }
 
     public void Print()
