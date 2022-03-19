@@ -1,4 +1,5 @@
-﻿using BossPuzzle.PuzzleBoard;
+﻿using System.Text;
+using BossPuzzle.PuzzleBoard;
 using BossPuzzle.Utils;
 
 namespace BossPuzzle.Dao;
@@ -44,5 +45,21 @@ public class FileFifteenPuzzleDao : IDao<Board>
         }
 
         return new Board(table);
+    }
+
+    public void Write(Board board)
+    {
+        var stringBuilder = new StringBuilder();
+        using var streamWriter = new StreamWriter(Path.Combine(BaseDataDirPath, _fileName));
+
+        var count = board.GetPath().Length;
+
+        stringBuilder.Append(count);
+        stringBuilder.AppendLine();
+        foreach (var item in board.GetPath())
+        {
+            stringBuilder.Append(item.ToString()[..1]);
+        }
+        streamWriter.Write(stringBuilder);
     }
 }
