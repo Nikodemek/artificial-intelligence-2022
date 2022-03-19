@@ -10,8 +10,8 @@ public struct Board
     public int RowSize { get; init; }
 
     private readonly int[][] _board;
-    private readonly int emptyCellRow;
-    private readonly int emptyCellColumn;
+    private readonly int _emptyCellRow;
+    private readonly int _emptyCellColumn;
 
     public Board(int[][] board)
         : this(board, true)
@@ -48,8 +48,8 @@ public struct Board
 
                     if (value <= 0)
                     {
-                        emptyCellRow = i;
-                        emptyCellColumn = j;
+                        _emptyCellRow = i;
+                        _emptyCellColumn = j;
                     }
                 }
             }
@@ -64,8 +64,8 @@ public struct Board
                 {
                     if (board[i][j] <= 0)
                     {
-                        emptyCellRow = i;
-                        emptyCellColumn = j;
+                        _emptyCellRow = i;
+                        _emptyCellColumn = j;
                     }
                 }
             }
@@ -97,10 +97,41 @@ public struct Board
         return _board[row][column];
     }
 
+    public Direction[] ClarifyMovement(Direction[] directions)
+    {
+        var newDirections = new List<Direction>();
+        foreach (var direction in directions)
+        {
+            switch (direction)
+            {
+                case Direction.Up:
+                    if (_emptyCellRow <= 0) break;
+                    newDirections.Add(direction);
+                    break;
+                case Direction.Down:
+                    if (_emptyCellRow >= ColumnSize - 1) break;
+                    newDirections.Add(direction);
+                    break;
+                case Direction.Right:
+                    if (_emptyCellColumn >= RowSize - 1) break;
+                    newDirections.Add(direction);
+                    break;
+                case Direction.Left:
+                    if (_emptyCellColumn <= 0) break;
+                    newDirections.Add(direction);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }  
+        }
+
+        return newDirections.ToArray();
+    }
+
     // Used to move an empty cell
     public Board Move(Direction dir)
     {
-        return Move(emptyCellRow, emptyCellColumn, dir);
+        return Move(_emptyCellRow, _emptyCellColumn, dir);
     }
 
     // Used to move given cell
