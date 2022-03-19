@@ -20,16 +20,15 @@ public struct Board : ICloneable, IEquatable<Board>
     private readonly int[][] _board;
     private readonly int _emptyCellRow = -1;
     private readonly int _emptyCellColumn = -1;
-
-    public List<Direction> SolvePath { get; set; }
+    private readonly List<Direction> _path;
 
     private ulong _hash = 0;
 
     public Board(int[][] board)
-        : this(board, true)
+        : this(board, true, null)
     { }
 
-    private Board(int[][] board, bool copyArr)
+    private Board(int[][] board, bool copyArr, List<Direction>? path)
         : this()
     {
         int columnLength = board.Length;
@@ -85,8 +84,12 @@ public struct Board : ICloneable, IEquatable<Board>
 
         RowSize = rowLength;
         ColumnSize = columnLength;
+        _path = path is not null ? new List<Direction>(path) : new List<Direction>();
+    }
 
-        SolvePath = new List<Direction>();
+    public Board Solve(IPuzzleSolver solver)
+    {
+        return solver.Solve(this);
     }
     
     public bool IsValid()
@@ -104,6 +107,16 @@ public struct Board : ICloneable, IEquatable<Board>
             }
         }
         return true;
+    }
+
+    public Direction[] GetPath()
+    {
+        return _path.ToArray();
+    }
+
+    public void AddToPath(Direction direction)
+    {
+        _path.Add(direction);
     }
 
     public int At(int row, int column)
@@ -140,23 +153,20 @@ public struct Board : ICloneable, IEquatable<Board>
         return newDirections.ToArray();
     }
 
-    // Used to move an empty cell
     public Board Move(Direction dir)
     {
         return Move(_emptyCellRow, _emptyCellColumn, dir);
     }
 
-    // Used to move given cell
     public Board Move(int row, int column, Direction dir)
     {
         int[][] newBoard = Cloner.DoubleArr(_board);
 
-        //...oh, that's how
         ref int changedCell = ref newBoard[0][0];
         switch (dir)
         {
             case Direction.Up:
-                if (row <= 0) goto default; // GOTO RZONDZI (na wspolbieznym nie bede tak odpierdzielal, ale ladnie to wyglada, a tak btw to w switchach czasami sie widuje goto 'ktorys_przypadek')
+                if (row <= 0) goto default;
                 changedCell = ref newBoard[row - 1][column];
                 break;
             case Direction.Down:
@@ -172,17 +182,14 @@ public struct Board : ICloneable, IEquatable<Board>
                 changedCell = ref newBoard[row][column - 1];
                 break;
             default:
-                return new Board(newBoard, false);
+                return new Board(newBoard, false, _path);
         }
 
         int temp = changedCell;
         changedCell = _board[row][column];
         newBoard[row][column] = temp;
-        
-        var changedBoard = new Board(newBoard, false);
-        SolvePath.ForEach(direction => changedBoard.SolvePath.Add(direction));
 
-        return changedBoard;
+        return new Board(newBoard, false, _path);
     }
 
     public void Print()

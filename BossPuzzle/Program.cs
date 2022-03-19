@@ -2,6 +2,7 @@
 using BossPuzzle.PuzzleBoard;
 
 namespace BossPuzzle;
+using Dir = Board.Direction;
 
 class Program
 {
@@ -11,18 +12,21 @@ class Program
         Board board = sth.Read();
         board.Print();
         
-        var solver = new BFS(new []
+        var bfsUDLR = new BFS(new[]
         {
-            Board.Direction.Up,
-            Board.Direction.Down,
-            Board.Direction.Left,
-            Board.Direction.Right
+            Dir.Up,
+            Dir.Down,
+            Dir.Left,
+            Dir.Right
         });
         
-        board = solver.Solve(board);
-        board.Print();
-        
-        board.SolvePath.ForEach(x => Console.Write(x));
+        var solvedBoard = board.Solve(bfsUDLR);
+        solvedBoard.Print();
+
+        foreach (var item in solvedBoard.GetPath())
+        {
+            Console.Write(item.ToString()[0..1]);
+        }
         Console.WriteLine();
 
         

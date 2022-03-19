@@ -31,14 +31,11 @@ public class BFS: IPuzzleSolver
             foreach (var direction in directions)
             {
                 var nextBoard = currentBoard.Move(direction);
+                nextBoard.AddToPath(direction);
 
                 if (nextBoard.IsValid()) return nextBoard;
 
-                if (visited.Add(nextBoard.Hash))
-                {
-                    nextBoard.SolvePath.Add(direction);
-                    queue.Enqueue(nextBoard);
-                }
+                if (visited.Add(nextBoard.Hash)) queue.Enqueue(nextBoard);
             }
         }
 
