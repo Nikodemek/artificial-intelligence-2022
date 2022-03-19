@@ -15,20 +15,44 @@ public class BFS: IPuzzleSolver
 
     public void Solve(Board board)
     {
-        /*var visited = new HashSet<int> { board.GetHashCode() };
-        var queue = new List<Dir> { board.ClarifyMovement(_directions) };
+        if (board.IsValid())
+        {
+            Console.WriteLine("Cleared.");
+            return;
+        }
+        var visited = new HashSet<int> { board.GetHashCode() };
+        var clearedDirections = board.ClarifyMovement(_directions);
+        var queue = new List<Board>();
+        foreach (var direction in clearedDirections)
+        {
+            var nextBoard = board.Move(direction);
+            if (nextBoard.IsValid())
+            {
+                Console.WriteLine("Cleared.");
+                return;
+            }
+            queue.Add(nextBoard);
+        }
 
         while (queue.Count > 0)
         {
-            var root = queue[0];
+            var currentBoard = queue[0];
             queue.RemoveAt(0);
-            var edges = board.Move(root);
-            for (var edge : edges) {
-                if (!visited.contains(edge)){
-                    visited.add(edge);
-                    queue.add(edge);
+            clearedDirections = currentBoard.ClarifyMovement(_directions);
+            foreach (var direction in clearedDirections)
+            {
+                var nextBoard = board.Move(direction);
+                if (nextBoard.IsValid())
+                {
+                    Console.WriteLine("Cleared.");
+                    return;
+                }
+                var hashedBoard = board.GetHashCode();
+                if (!visited.Contains(hashedBoard)){
+                    visited.Add(hashedBoard);
+                    queue.Add(nextBoard);
                 }
             }
-        }*/
+        }
     }
 }

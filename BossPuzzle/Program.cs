@@ -14,7 +14,7 @@ class Program
         board.Print();
         Console.WriteLine(board.IsValid());
 
-        var board1 = board.Move(2, 2, Dir.Up);
+        /*var board1 = board.Move(2, 2, Dir.Up);
         board1.Print();
 
         var board2 = board1.Move(1, 2, Dir.Down);
@@ -30,7 +30,7 @@ class Program
         board5.Print();
 
         Console.WriteLine($"board2 == board = {board2 == board}  //Expected 'True'");
-        Console.WriteLine($"board5 == board = {board5 == board}  //Expected 'False'");
+        Console.WriteLine($"board5 == board = {board5 == board}  //Expected 'False'");*/
 
         /*
         How the fuck do refs work
@@ -44,6 +44,23 @@ class Program
         Console.WriteLine($"five = {five}"); // Prints '6'
         Console.WriteLine($"fiveRef = {fiveRef}"); // Prints '6'
         */
+
+        var directions = new[]
+        {
+            Dir.Up,
+            Dir.Down,
+            Dir.Right,
+            Dir.Left
+        };
+
+        var visited = new HashSet<int> { board.GetHashCode() };
+        var clearedDirections = board.ClarifyMovement(directions);
+        var queue = new List<Board>();
+        foreach (var direction in clearedDirections)
+        {
+            var nextBoard = board.Move(direction);
+            queue.Add(nextBoard);
+        }
 
         Console.ReadKey();
     }

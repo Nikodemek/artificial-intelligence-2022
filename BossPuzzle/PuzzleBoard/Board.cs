@@ -4,7 +4,7 @@ using BossPuzzle.Utils;
 
 namespace BossPuzzle.PuzzleBoard;
 
-public struct Board
+public struct Board : ICloneable
 {
     public int ColumnSize { get; init; }
     public int RowSize { get; init; }
@@ -257,6 +257,21 @@ public struct Board
         return HashCode.Combine(ColumnSize, RowSize, _board);
     }
 
+    public object Clone()
+    {
+        var newBoardTable = new int[RowSize][];
+        for (var i = 0; i < RowSize; i++)
+        {
+            newBoardTable[i] = new int[ColumnSize];
+            for (var j = 0; j < ColumnSize; j++)
+            {
+                newBoardTable[i][j] = _board[i][j];
+            }
+        }
+
+        return new Board(newBoardTable);
+    }
+
     public static bool operator ==(Board left, Board right)
     {
         return left.Equals(right);
@@ -267,6 +282,8 @@ public struct Board
         return !(left == right);
     }
 
+    
+    
     public enum Direction
     { 
         Up = 0,
