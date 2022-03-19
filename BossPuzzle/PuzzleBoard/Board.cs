@@ -4,14 +4,24 @@ using BossPuzzle.Utils;
 
 namespace BossPuzzle.PuzzleBoard;
 
-public struct Board : ICloneable
+public struct Board : ICloneable, IEquatable<Board>
 {
     public int ColumnSize { get; init; }
     public int RowSize { get; init; }
+    public ulong Hash
+    {
+        get
+        {
+            if (_hash <= 0) _hash = this.ComputeSmartHash();
+            return _hash;
+        }
+    }
 
     private readonly int[][] _board;
-    private readonly int _emptyCellRow;
-    private readonly int _emptyCellColumn;
+    private readonly int _emptyCellRow = -1;
+    private readonly int _emptyCellColumn = -1;
+
+    private ulong _hash = 0;
 
     private IPuzzleSolver _puzzleSolver;
 
@@ -253,27 +263,28 @@ public struct Board : ICloneable
 
     public override bool Equals(object? obj)
     {
-        if (obj is Board board)
-        {
-
-            bool arePropertiesEqual = ColumnSize == board.ColumnSize && 
-                RowSize == board.RowSize;
-
-            if (!arePropertiesEqual) return false;
-
-            bool areBoardFieldsEqaul = true;
-            for (int i = 0; i < ColumnSize; i++)
-            {
-                for (int j = 0; j < RowSize; j++)
-                {
-                    areBoardFieldsEqaul &= this.At(i, j) == board.At(i, j);
-                    if (!areBoardFieldsEqaul) return false;
-                }
-            }
-
-            return true;
-        }
+        if (obj is Board board) return Equals(board);
         return false;
+    }
+
+    public bool Equals(Board other)
+    {
+        bool arePropertiesEqual = ColumnSize == other.ColumnSize &&
+                RowSize == other.RowSize;
+
+        if (!arePropertiesEqual) return false;
+
+        bool areBoardFieldsEqaul = true;
+        for (int i = 0; i < ColumnSize; i++)
+        {
+            for (int j = 0; j < RowSize; j++)
+            {
+                areBoardFieldsEqaul &= this.At(i, j) == other.At(i, j);
+                if (!areBoardFieldsEqaul) return false;
+            }
+        }
+
+        return true;
     }
 
     public override int GetHashCode()
@@ -306,13 +317,44 @@ public struct Board : ICloneable
         return !(left == right);
     }
 
-    
-    
+    private ulong ComputeSmartHash()
+    {
+        const ulong Prime = 31ul;
+
+        int boardSize = RowSize * ColumnSize - 1;
+        ulong hash = 0;
+
+        for (int i = 0; i < RowSize; i++)
+        {
+            for (int j = 0; j < ColumnSize; j++)
+            {
+                hash += MathI.Power(Prime, boardSize--) * (ulong)_board[i][j];
+            }
+        }
+
+        return hash;
+    }
+
     public enum Direction
     { 
         Up = 0,
         Down = 1,
         Right = 2,
         Left = 3,
+    }
+
+    public class Comparer : IEqualityComparer<Board>
+    {
+        public bool Equals(Board x, Board y)
+        {
+            return x.Equals(y);
+        }
+
+        public int GetHashCode(Board obj)
+        {
+            ulong hash = obj.Hash;
+            ulong maxInt32 = (ulong)Int32.MaxValue;
+            return (int)(hash % maxInt32);
+        }
     }
 }

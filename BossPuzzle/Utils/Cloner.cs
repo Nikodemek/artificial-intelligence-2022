@@ -1,42 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BossPuzzle.Utils
+namespace BossPuzzle.Utils;
+
+public static class Cloner
 {
-    public static class Cloner
+    public static T[] SingleArr<T>(T[] arr) where T : IConvertible
     {
-        public static T[] SingleArr<T>(T[] arr) where T : IConvertible
+        int xLength = arr.Length;
+
+        T[] ret = new T[xLength];
+
+        for (var i = 0; i < xLength; i++)
         {
-            int xLength = arr.Length;
-
-            T[] ret = new T[xLength];
-
-            for (var i = 0; i < xLength; i++)
-            {
-                ret[i] = arr[i];
-            }
-
-            return ret;
+            ret[i] = arr[i];
         }
 
-        public static T[][] DoubleArr<T>(T[][] arr) where T : IConvertible
+        return ret;
+    }
+
+    public static T[][] DoubleArr<T>(T[][] arr) where T : IConvertible
+    {
+        int xLength = arr.Length;
+
+        T[][] ret = new T[xLength][];
+
+        for (var i = 0; i < xLength; i++)
         {
-            int xLength = arr.Length;
+            int yLength = arr[i].Length;
+            ret[i] = new T[yLength];
 
-            T[][] ret = new T[xLength][];
-
-            for (var i = 0; i < xLength; i++)
+            for (var j = 0; j < yLength; j++)
             {
-                int yLength = arr[i].Length;
-                ret[i] = new T[yLength];
-
-                for (var j = 0; j < yLength; j++)
-                {
-                    ret[i][j] = arr[i][j];
-                }
+                ret[i][j] = arr[i][j];
             }
-
-            return ret;
         }
+
+        return ret;
     }
 }
