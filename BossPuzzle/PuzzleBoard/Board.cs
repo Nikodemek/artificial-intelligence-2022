@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using BossPuzzle.Utils;
 
 namespace BossPuzzle.PuzzleBoard;
 
@@ -8,9 +9,17 @@ public struct Board
     public int ColumnSize { get; init; }
     public int RowSize { get; init; }
 
-    readonly int[][] _board;
+    private readonly int[][] _board;
 
-    public Board(int[][] board) : this()
+    private int emptyCellRow;
+    private int emptyCellColumn;
+
+    public Board(int[][] board)
+        : this(board, true)
+    { }
+
+    private Board(int[][] board, bool copyArr)
+        : this()
     {
         int columnLength = board.Length;
 
@@ -20,25 +29,51 @@ public struct Board
 
         if (rowLength <= 0) throw new ArgumentException("Rows cannot be empty!");
 
-        this._board = new int[columnLength][];
-
-        for (var i = 0; i < columnLength; i++)
+        if (copyArr)
         {
-            int newRowLength = board[i].Length;
+            this._board = new int[columnLength][];
 
-            if (newRowLength != rowLength) throw new ArgumentException("Rows sizes must be equal");
-
-            rowLength = newRowLength;
-            _board[i] = new int[rowLength];
-
-            for (var j = 0; j < rowLength; j++)
+            for (var i = 0; i < columnLength; i++)
             {
-                _board[i][j] = board[i][j];
+                int newRowLength = board[i].Length;
+
+                if (newRowLength != rowLength) throw new ArgumentException("Rows sizes must be equal");
+
+                rowLength = newRowLength;
+                _board[i] = new int[rowLength];
+
+                for (var j = 0; j < rowLength; j++)
+                {
+                    int value = board[i][j];
+                    _board[i][j] = value;
+
+                    if (value <= 0)
+                    {
+                        emptyCellRow = i;
+                        emptyCellColumn = j;
+                    }
+                }
+            }
+        }
+        else
+        {
+            this._board = board;
+
+            for (var i = 0; i < columnLength; i++)
+            {
+                for (var j = 0; j < rowLength; j++)
+                {
+                    if (board[i][j] <= 0)
+                    {
+                        emptyCellRow = i;
+                        emptyCellColumn = j;
+                    }
+                }
             }
         }
 
-        ColumnSize = columnLength;
         RowSize = rowLength;
+        ColumnSize = columnLength;
     }
 
     public bool IsValid()
@@ -61,6 +96,51 @@ public struct Board
     public int At(int row, int column)
     {
         return _board[row][column];
+    }
+
+    // Used to move an empty cell
+    public Board Move(Direction dir)
+    {
+        return Move(emptyCellRow, emptyCellColumn, dir);
+    }
+
+    // Used to move given cell
+    public Board Move(int row, int column, Direction dir)
+    {
+        int[][] newBoard = Cloner.DoubleArr(_board);
+
+        int temp;
+        switch (dir)
+        {
+            case Direction.Up:
+                if (row <= 0) break;
+                temp = newBoard[row - 1][column];
+                newBoard[row - 1][column] = _board[row][column];
+                newBoard[row][column] = temp;
+                break;
+            case Direction.Down:
+                if (row >= ColumnSize - 1) break;
+                temp = newBoard[row + 1][column];
+                newBoard[row + 1][column] = _board[row][column];
+                newBoard[row][column] = temp;
+                break;
+            case Direction.Right:
+                if (column >= RowSize - 1) break;
+                temp = newBoard[row][column + 1];
+                newBoard[row][column + 1] = _board[row][column];
+                newBoard[row][column] = temp;
+                break;
+            case Direction.Left:
+                if (column <= 0) break;
+                temp = newBoard[row][column - 1];
+                newBoard[row][column - 1] = _board[row][column];
+                newBoard[row][column] = temp;
+                break;
+            default:
+                throw new ArgumentException("Direction must be one of enum Board.Direction", nameof(dir));
+        }
+
+        return new Board(newBoard, false);
     }
 
     public void Print()
@@ -87,7 +167,8 @@ public struct Board
 
             for (int j = 0; j < yLength; j++)
             {
-                string valueToInsert = _board[i][j].ToString();
+                int value = _board[i][j];
+                string valueToInsert = value > 0 ? value.ToString() : String.Empty;
                 int valueToInsertLen = valueToInsert.Length;
 
                 values[i][j] = valueToInsert;
@@ -124,8 +205,8 @@ public struct Board
         if (obj is Board board)
         {
 
-            bool arePropertiesEqual = ColumnSize == board.ColumnSize &&
-                               RowSize == board.RowSize;
+            bool arePropertiesEqual = ColumnSize == board.ColumnSize && 
+                RowSize == board.RowSize;
 
             if (!arePropertiesEqual) return false;
 
@@ -161,9 +242,9 @@ public struct Board
 
     public enum Direction
     { 
-        Up,
-        Down,
-        Left,
-        Right,
+        Up = 0,
+        Down = 1,
+        Right = 2,
+        Left = 3,
     }
 }
