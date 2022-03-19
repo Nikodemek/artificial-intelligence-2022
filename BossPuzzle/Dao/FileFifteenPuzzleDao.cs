@@ -1,4 +1,5 @@
 ﻿using BossPuzzle.PuzzleBoard;
+using BossPuzzle.Utils;
 
 namespace BossPuzzle.Dao;
 
@@ -6,39 +7,38 @@ public class FileFifteenPuzzleDao : IDao<Board>
 {
     private static readonly string BaseDataDirPath = 
         Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "sise_2022");
+            Environment.GetFolderPath(
+                Environment.SpecialFolder.MyDocuments
+                ), 
+            "sise_2022"
+            );
 
-    private readonly string _filename;
+    private readonly string _fileName;
+    private readonly string _filePath;
     
-    public FileFifteenPuzzleDao(string filename)
+    public FileFifteenPuzzleDao(string fileName)
     {
-        this._filename = filename;
+        this._fileName = fileName;
+        _filePath = Path.Combine(BaseDataDirPath, _fileName);
     }
 
     public Board Read()
     {
-        var enumerableData = File.ReadLines(Path.Combine(BaseDataDirPath, _filename));
-        var data = enumerableData.ToArray<string>();
+        var data = File.ReadAllLines(_filePath);
         
         var list = data[0].Split(' ');
-        var a = Convert.ToInt32(list[0]);
-        var b = Convert.ToInt32(list[1]);
-        var table = new int[a][];
-
-        for (var i = 0; i < b; i++)
-        {
-            table[i] = new int[b];
-        }
+        int columnSize = Parser.ToInt32(list[0]);
+        int rowSize = Parser.ToInt32(list[1]);
+        var table = new int[columnSize][];
         
-        for (var i = 0; i < data.Length; i++)
+        for (var i = 0; i < columnSize; i++)
         {
-            if (i == 0) continue;
+            var row = data[i + 1].Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            table[i] = new int[rowSize];
 
-            var row = data[i].Split(' ');
-            for (var j = 0; j < a; j++)
+            for (var j = 0; j < rowSize; j++)
             {
-                var value = Convert.ToInt32(row[j]);
-                table[i - 1][j] = value;
+                table[i][j] = Parser.ToInt32(row[j]);
             }
         
         }

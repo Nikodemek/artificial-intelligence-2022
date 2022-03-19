@@ -43,18 +43,18 @@ public struct Board
 
     public bool IsValid()
     {
+        int size = RowSize * ColumnSize;
+
         for (var i = 0; i < RowSize; i++)
         {
+            int offset = i * RowSize;
             for (var j = 0; j < ColumnSize; j++)
             {
-                var validation = _board[i][j] == i * RowSize + j + 1
-                                 || i == RowSize - 1 && j == ColumnSize - 1 && _board[i][j] == 0;
-                if (validation) continue;
-                
-                return false;
+                bool valid = _board[i][j] == (offset + j + 1) % size;
+
+                if (!valid) return false;
             }
         }
-        
         return true;
     }
 
