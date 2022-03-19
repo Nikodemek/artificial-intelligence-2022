@@ -16,6 +16,11 @@ public struct Board : ICloneable, IEquatable<Board>
             return _hash;
         }
     }
+    public IPuzzleSolver PuzzleSolver
+    {
+        get => _puzzleSolver;
+        set => _puzzleSolver = value;
+    }
 
     private readonly int[][] _board;
     private readonly int _emptyCellRow = -1;
@@ -27,13 +32,16 @@ public struct Board : ICloneable, IEquatable<Board>
 
     // Puzzle initializer with example solver (just for the reader)
     public Board(int[][] board)
-        : this(board, new BFS(new []
+        : this(
+              board, 
+              new BFS(new []
         {
             Direction.Down,
             Direction.Up,
             Direction.Left,
             Direction.Right
-        }), true)
+        }), 
+              true)
     { }
     
     public Board(int[][] board, IPuzzleSolver puzzleSolver)
@@ -99,9 +107,9 @@ public struct Board : ICloneable, IEquatable<Board>
         ColumnSize = columnLength;
     }
 
-    public void SolvePuzzle()
+    public Board SolvePuzzle()
     {
-        _puzzleSolver.Solve(this);
+        return _puzzleSolver.Solve(this);
     }
 
     public bool IsValid()
@@ -128,30 +136,28 @@ public struct Board : ICloneable, IEquatable<Board>
 
     public Direction[] ClarifyMovement(Direction[] directions)
     {
-        var newDirections = new List<Direction>();
+        var newDirections = new List<Direction>(4);
         foreach (var direction in directions)
         {
             switch (direction)
             {
                 case Direction.Up:
-                    if (_emptyCellRow <= 0) break;
-                    newDirections.Add(direction);
+                    if (_emptyCellRow <= 0) continue;
                     break;
                 case Direction.Down:
-                    if (_emptyCellRow >= ColumnSize - 1) break;
-                    newDirections.Add(direction);
+                    if (_emptyCellRow >= ColumnSize - 1) continue;
                     break;
                 case Direction.Right:
-                    if (_emptyCellColumn >= RowSize - 1) break;
-                    newDirections.Add(direction);
+                    if (_emptyCellColumn >= RowSize - 1) continue;
                     break;
                 case Direction.Left:
-                    if (_emptyCellColumn <= 0) break;
-                    newDirections.Add(direction);
+                    if (_emptyCellColumn <= 0) continue;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }  
+
+            newDirections.Add(direction);
         }
 
         return newDirections.ToArray();
@@ -254,11 +260,6 @@ public struct Board : ICloneable, IEquatable<Board>
         }
 
         Console.WriteLine(sb.ToString());
-    }
-
-    public void SetPuzzleSolver(IPuzzleSolver puzzleSolver)
-    {
-        _puzzleSolver = puzzleSolver;
     }
 
     public override bool Equals(object? obj)

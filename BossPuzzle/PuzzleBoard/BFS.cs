@@ -1,8 +1,8 @@
 ﻿using BossPuzzle.Utils;
+using System.Collections.Generic;
 
 namespace BossPuzzle.PuzzleBoard;
 using Dir = Board.Direction;
-
 
 public class BFS: IPuzzleSolver
 {
@@ -13,46 +13,33 @@ public class BFS: IPuzzleSolver
         _directions = Cloner.SingleArr(directions);
     }
 
-    public void Solve(Board board)
+    public Board Solve(Board board)
     {
-        if (board.IsValid())
-        {
-            Console.WriteLine("Cleared.");
-            return;
-        }
-        var visited = new HashSet<int> { board.GetHashCode() };
-        var clearedDirections = board.ClarifyMovement(_directions);
-        var queue = new List<Board>();
-        foreach (var direction in clearedDirections)
-        {
-            var nextBoard = board.Move(direction);
-            if (nextBoard.IsValid())
-            {
-                Console.WriteLine("Cleared.");
-                return;
-            }
-            queue.Add(nextBoard);
-        }
+        var visited = new HashSet<ulong>();
+        var queue = new Queue<Board>();
+
+        visited.Add(board.Hash); 
+        queue.Enqueue(board);
 
         while (queue.Count > 0)
         {
-            var currentBoard = queue[0];
-            queue.RemoveAt(0);
-            clearedDirections = currentBoard.ClarifyMovement(_directions);
-            foreach (var direction in clearedDirections)
+            var currentBoard = queue.Dequeue();
+
+            if (currentBoard.IsValid()) return currentBoard;
+
+            var directions = currentBoard.ClarifyMovement(_directions);
+
+            foreach (var direction in directions)
             {
-                var nextBoard = board.Move(direction);
-                if (nextBoard.IsValid())
-                {
-                    Console.WriteLine("Cleared.");
-                    return;
-                }
-                var hashedBoard = board.GetHashCode();
-                if (!visited.Contains(hashedBoard)){
-                    visited.Add(hashedBoard);
-                    queue.Add(nextBoard);
-                }
+                var nextBoard = currentBoard.Move(direction);
+
+                if (nextBoard.IsValid()) return nextBoard;
+
+                if (visited.Add(nextBoard.Hash)) queue.Enqueue(nextBoard);
+                
             }
         }
+
+        return board;
     }
 }

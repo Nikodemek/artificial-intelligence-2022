@@ -1,9 +1,7 @@
-﻿using System;
-using BossPuzzle.Dao;
+﻿using BossPuzzle.Dao;
 using BossPuzzle.PuzzleBoard;
 
 namespace BossPuzzle;
-using Dir = Board.Direction;
 
 class Program
 {
@@ -13,7 +11,8 @@ class Program
         Board board = sth.Read();
         board.Print();
         Console.WriteLine(board.IsValid());
-        board.SolvePuzzle();
+        board = board.SolvePuzzle();
+        board.Print();
 
         /*var board1 = board.Move(2, 2, Dir.Up);
         board1.Print();
@@ -45,23 +44,6 @@ class Program
         Console.WriteLine($"five = {five}"); // Prints '6'
         Console.WriteLine($"fiveRef = {fiveRef}"); // Prints '6'
         */
-
-        var directions = new[]
-        {
-            Dir.Up,
-            Dir.Down,
-            Dir.Right,
-            Dir.Left
-        };
-
-        var visited = new HashSet<int> { board.GetHashCode() };
-        var clearedDirections = board.ClarifyMovement(directions);
-        var queue = new List<Board>();
-        foreach (var direction in clearedDirections)
-        {
-            var nextBoard = board.Move(direction);
-            queue.Add(nextBoard);
-        }
 
         Console.ReadKey();
     }
