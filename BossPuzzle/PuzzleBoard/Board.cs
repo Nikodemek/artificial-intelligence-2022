@@ -16,11 +16,6 @@ public struct Board : ICloneable, IEquatable<Board>
             return _hash;
         }
     }
-    public IPuzzleSolver PuzzleSolver
-    {
-        get => _puzzleSolver;
-        set => _puzzleSolver = value;
-    }
 
     private readonly int[][] _board;
     private readonly int _emptyCellRow = -1;
@@ -28,30 +23,13 @@ public struct Board : ICloneable, IEquatable<Board>
 
     private ulong _hash = 0;
 
-    private IPuzzleSolver _puzzleSolver;
-
-    // Puzzle initializer with example solver (just for the reader)
     public Board(int[][] board)
-        : this(
-              board, 
-              new BFS(new []
-        {
-            Direction.Down,
-            Direction.Up,
-            Direction.Left,
-            Direction.Right
-        }), 
-              true)
-    { }
-    
-    public Board(int[][] board, IPuzzleSolver puzzleSolver)
-        : this(board, puzzleSolver, true)
+        : this(board, true)
     { }
 
-    private Board(int[][] board, IPuzzleSolver puzzleSolver, bool copyArr)
+    private Board(int[][] board, bool copyArr)
         : this()
     {
-        _puzzleSolver = puzzleSolver;
         int columnLength = board.Length;
 
         if (columnLength <= 0) throw new ArgumentException("Board cannot be empty!");
@@ -106,12 +84,7 @@ public struct Board : ICloneable, IEquatable<Board>
         RowSize = rowLength;
         ColumnSize = columnLength;
     }
-
-    public Board SolvePuzzle()
-    {
-        return _puzzleSolver.Solve(this);
-    }
-
+    
     public bool IsValid()
     {
         int size = RowSize * ColumnSize;
@@ -195,14 +168,14 @@ public struct Board : ICloneable, IEquatable<Board>
                 changedCell = ref newBoard[row][column - 1];
                 break;
             default:
-                return new Board(newBoard, _puzzleSolver, false);
+                return new Board(newBoard, false);
         }
 
         int temp = changedCell;
         changedCell = _board[row][column];
         newBoard[row][column] = temp;
 
-        return new Board(newBoard, _puzzleSolver,false);
+        return new Board(newBoard, false);
     }
 
     public void Print()
@@ -305,7 +278,7 @@ public struct Board : ICloneable, IEquatable<Board>
             }
         }
 
-        return new Board(newBoardTable, _puzzleSolver);
+        return new Board(newBoardTable);
     }
 
     public static bool operator ==(Board left, Board right)

@@ -11,7 +11,14 @@ class Program
         Board board = sth.Read();
         board.Print();
         Console.WriteLine(board.IsValid());
-        board = board.SolvePuzzle();
+        var solver = new BFS(new []
+        {
+            Board.Direction.Up,
+            Board.Direction.Down,
+            Board.Direction.Left,
+            Board.Direction.Right
+        });
+        board = solver.Solve(board);
         board.Print();
 
         /*var board1 = board.Move(2, 2, Dir.Up);
