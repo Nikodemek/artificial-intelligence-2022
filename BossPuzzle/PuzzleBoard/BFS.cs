@@ -15,6 +15,8 @@ public class BFS: IPuzzleSolver
 
     public Board Solve(Board board)
     {
+        if (board.IsValid()) return board;
+
         var visited = new HashSet<ulong>();
         var queue = new Queue<Board>();
 
@@ -24,9 +26,6 @@ public class BFS: IPuzzleSolver
         while (queue.Count > 0)
         {
             var currentBoard = queue.Dequeue();
-
-            if (currentBoard.IsValid()) return currentBoard;
-
             var directions = currentBoard.ClarifyMovement(_directions);
 
             foreach (var direction in directions)
@@ -35,8 +34,10 @@ public class BFS: IPuzzleSolver
 
                 if (nextBoard.IsValid()) return nextBoard;
 
-                if (visited.Add(nextBoard.Hash)) queue.Enqueue(nextBoard);
-                
+                if (visited.Add(nextBoard.Hash))
+                {
+                    queue.Enqueue(nextBoard);
+                }
             }
         }
 
