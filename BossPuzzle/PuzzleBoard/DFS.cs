@@ -16,8 +16,8 @@ public class DFS : IPuzzleSolver
 
     public DFS(Dir[] directions, int depth)
     {
-        _directions = Cloner
-            .SingleArr(directions)
+        _directions = Arrayer
+            .CopySingle(directions)
             .Reverse();
         _depth = depth;
         visited = new HashSet<ulong>();

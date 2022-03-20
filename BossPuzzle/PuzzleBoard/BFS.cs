@@ -10,7 +10,7 @@ public class BFS : IPuzzleSolver
     
     public BFS(Dir[] directions)
     {
-        _directions = Cloner.SingleArr(directions);
+        _directions = Arrayer.CopySingle(directions);
     }
 
     public Board Solve(in Board board)

@@ -1,4 +1,5 @@
 ﻿using BossPuzzle.Dao;
+using BossPuzzle.Utils;
 using BossPuzzle.PuzzleBoard;
 
 namespace BossPuzzle;
@@ -8,9 +9,9 @@ class Program
 {
     public static void Main()
     {
-        var readFile = new FileFifteenPuzzleDao("test.file");
+        /*var readFile = new FileFifteenPuzzleDao("test.file");
         Board board = readFile.Read();
-        board.Print();
+        board.Print();*/
 
         /*var bfsUDLR = new BFS(new[]
         {
@@ -21,10 +22,7 @@ class Program
         });
 
         var solvedBoard = board.Solve(bfsUDLR);
-        solvedBoard.Print();
-
-        var saveFile = new FileFifteenPuzzleDao("test_sol.file");
-        saveFile.Write(solvedBoard);*/
+        solvedBoard.Print();*/
 
         /*
         var dfsUDLR = new DFS(new[]
@@ -36,10 +34,7 @@ class Program
         });
 
         var solvedBoard = board.Solve(dfsUDLR);
-        solvedBoard.Print();
-
-        var saveFile = new FileFifteenPuzzleDao("test_sol.file");
-        saveFile.Write(solvedBoard);*/
+        solvedBoard.Print();*/
 
         /*var rand = Random.Shared;
         var prevBoard = board;
@@ -55,13 +50,16 @@ class Program
             prevBoard = currBoard;
         }*/
 
-        var hamm = new Hammings();
+        /*var hamm = new Hammings();
 
         var solvedBoard = board.Solve(hamm);
-        solvedBoard.Print();
+        solvedBoard.Print();*/
 
         /*var saveFile = new FileFifteenPuzzleDao("test_sol.file");
         saveFile.Write(solvedBoard);*/
+
+        var board = PuzzleGenerator.Generate(4, 4, 1000);
+        board.Print();
 
         Console.ReadKey();
     }

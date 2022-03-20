@@ -135,7 +135,8 @@ public struct Board : ICloneable, IEquatable<Board>
                 int actual = board[i][j];
                 int weigth = size - target;
 
-                dist += (ulong)(Math.Abs(actual - target) * weigth);
+                //dist += (ulong)(Math.Abs(actual - target) * weigth);
+                if (actual != target) dist++;
             }
         }
 
@@ -229,7 +230,7 @@ public struct Board : ICloneable, IEquatable<Board>
 
     public Board Move(int row, int column, Direction dir)
     {
-        short[][] newBoard = Cloner.DoubleArr(_board);
+        short[][] newBoard = Arrayer.CopyDouble(_board);
 
         ref short changedCell = ref newBoard[0][0];
         switch (dir)
