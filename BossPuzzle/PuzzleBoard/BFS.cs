@@ -13,7 +13,7 @@ public class BFS: IPuzzleSolver
         _directions = Cloner.SingleArr(directions);
     }
 
-    public Board Solve(Board board)
+    public Board Solve(in Board board)
     {
         if (board.IsValid()) return board;
 

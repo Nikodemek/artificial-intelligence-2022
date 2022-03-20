@@ -2,5 +2,5 @@
 
 public interface IPuzzleSolver
 {
-    Board Solve(Board board);
+    Board Solve(in Board board);
 }
