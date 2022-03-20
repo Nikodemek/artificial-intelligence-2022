@@ -25,10 +25,15 @@ public static class PuzzleGenerator
         int emptyColumn = columnSize - 1;
 
         var rand = Random.Shared;
+        Dir cancellingDir = Dir.Right;
 
         for (int i = 0; i < steps;)
         {
-            Dir dir = (Dir)rand.Next(4);
+            Dir dir;
+            do
+            {
+                dir = (Dir)rand.Next(4);
+            } while (dir == cancellingDir);
 
             ref short changedCell = ref board[0][0];
             ref short originalCell = ref board[emptyRow][emptyColumn];
@@ -38,21 +43,25 @@ public static class PuzzleGenerator
                     if (emptyRow <= 0) continue;
                     changedCell = ref board[emptyRow - 1][emptyColumn];
                     emptyRow--;
+                    cancellingDir = Dir.Down;
                     break;
                 case Dir.Down:
                     if (emptyRow >= columnSize - 1) continue;
                     changedCell = ref board[emptyRow + 1][emptyColumn];
                     emptyRow++;
+                    cancellingDir = Dir.Up;
                     break;
                 case Dir.Right:
                     if (emptyColumn >= rowSize - 1) continue;
                     changedCell = ref board[emptyRow][emptyColumn + 1];
                     emptyColumn++;
+                    cancellingDir = Dir.Left;
                     break;
                 case Dir.Left:
                     if (emptyColumn <= 0) continue;
                     changedCell = ref board[emptyRow][emptyColumn - 1];
                     emptyColumn--;
+                    cancellingDir = Dir.Right;
                     break;
                 default:
                     continue;

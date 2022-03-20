@@ -2,8 +2,12 @@
 
 public class Hammings : IPuzzleSolver
 {
-    public Hammings()
-    { }
+    private readonly int _maxTries;
+
+    public Hammings(int maxTries)
+    { 
+        _maxTries = maxTries;
+    }
 
     public Board Solve(in Board board)
     {
@@ -30,7 +34,7 @@ public class Hammings : IPuzzleSolver
             }
             currBoard = prevNextBoard;
 
-            if (tries > 30) break;
+            if (tries > _maxTries) break;
         }
 
         Console.WriteLine($"Tries = {tries}");

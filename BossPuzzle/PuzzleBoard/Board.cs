@@ -133,10 +133,10 @@ public struct Board : ICloneable, IEquatable<Board>
             {
                 int target = (offset + j + 1) % size;
                 int actual = board[i][j];
-                int weigth = size - target;
+                int weigth = MathI.Power(size - target, 3);
 
-                //dist += (ulong)(Math.Abs(actual - target) * weigth);
-                if (actual != target) dist++;
+                dist += (ulong)(Math.Abs(actual - target) * weigth);
+                //if (actual != target) dist++;
             }
         }
 

@@ -50,16 +50,16 @@ class Program
             prevBoard = currBoard;
         }*/
 
-        /*var hamm = new Hammings();
+        var board = PuzzleGenerator.Generate(4, 4, 100);
+        board.Print();
 
+        /*var hamm = new Hammings(1200);
         var solvedBoard = board.Solve(hamm);
+        if (solvedBoard.IsValid()) Console.WriteLine("SOLVED!!");
         solvedBoard.Print();*/
 
         /*var saveFile = new FileFifteenPuzzleDao("test_sol.file");
         saveFile.Write(solvedBoard);*/
-
-        var board = PuzzleGenerator.Generate(4, 4, 1000);
-        board.Print();
 
         Console.ReadKey();
     }
