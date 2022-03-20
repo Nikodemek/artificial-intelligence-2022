@@ -14,7 +14,9 @@ public class DFS : IPuzzleSolver
 
     public DFS(Dir[] directions, int depth)
     {
-        _directions = Cloner.SingleArr(directions);
+        _directions = Cloner.SingleArr(directions)
+                            .Reverse()
+                            .ToArray();
         _depth = depth;
     }
 
@@ -35,6 +37,7 @@ public class DFS : IPuzzleSolver
             }
 
             var currentBoard = stack.Pop();
+            // this is the only place that should define board as visited
             if (!visited.Add(currentBoard.Hash)) continue;
             
             var directions = currentBoard.ClarifyMovement(_directions);
@@ -45,7 +48,7 @@ public class DFS : IPuzzleSolver
                 nextBoard.AddToPath(direction);
                 
                 if (nextBoard.IsValid()) return nextBoard;
-
+                
                 if (!visited.Contains(nextBoard.Hash)) stack.Push(nextBoard);
             }
         }
