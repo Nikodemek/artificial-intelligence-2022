@@ -50,13 +50,19 @@ class Program
             prevBoard = currBoard;
         }*/
 
-        var board = PuzzleGenerator.Generate(4, 4, 100);
-        board.Print();
+
+        /*var hamm = new Hammings();
+
 
         /*var hamm = new Hammings(1200);
         var solvedBoard = board.Solve(hamm);
-        if (solvedBoard.IsValid()) Console.WriteLine("SOLVED!!");
+
         solvedBoard.Print();*/
+        
+        var manh = new Manhattans();
+
+        var solvedBoard = board.Solve(manh);
+        solvedBoard.Print();
 
         /*var saveFile = new FileFifteenPuzzleDao("test_sol.file");
         saveFile.Write(solvedBoard);*/

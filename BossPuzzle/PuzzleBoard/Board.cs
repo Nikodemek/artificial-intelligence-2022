@@ -10,6 +10,7 @@ public struct Board : ICloneable, IEquatable<Board>
     public short RowSize { get; init; }
     public ulong Hash { get; init; }
     public ulong Hammings { get; init; }
+    public ulong Manhattans { get; init; }
 
     private readonly short[][] _board;
     private readonly short _emptyCellRow = -1;
@@ -79,6 +80,7 @@ public struct Board : ICloneable, IEquatable<Board>
         ColumnSize = (short)columnLength;
         Hash = ComputeSmartHash(board, rowLength, columnLength);
         Hammings = HammigsDistance(board, rowLength, columnLength);
+        Manhattans = ManhattanDistance(board, rowLength, columnLength);
 
         _path = path ?? new List<Direction>();
         _correctHash = correctHash ?? ComputeCorrectHash(rowLength, columnLength);
@@ -125,18 +127,39 @@ public struct Board : ICloneable, IEquatable<Board>
     {
         ulong dist = 0;
 
-        int size = rowSize * columnSize;
+        var size = rowSize * columnSize;
         for (var i = 0; i < rowSize; i++)
         {
-            int offset = i * rowSize;
+            var offset = i * rowSize;
             for (var j = 0; j < columnSize; j++)
             {
-                int target = (offset + j + 1) % size;
+                var target = (offset + j + 1) % size;
                 int actual = board[i][j];
-                int weigth = MathI.Power(size - target, 3);
 
-                dist += (ulong)(Math.Abs(actual - target) * weigth);
-                //if (actual != target) dist++;
+                if (actual != target)
+                {
+                    dist += 1;
+                }
+            }
+        }
+
+        return dist;
+    }
+    
+    private static ulong ManhattanDistance(short[][] board, int rowSize, int columnSize)
+    {
+        ulong dist = 0;
+
+        for (var i = 0; i < rowSize; i++)
+        {
+            for (var j = 0; j < columnSize; j++)
+            {
+                int actual = board[i][j];
+                
+                var targetI = actual % rowSize - 1;
+                var targetJ = actual / rowSize;
+                
+                dist += (ulong) (Math.Abs(i - targetI) + Math.Abs(j - targetJ));
             }
         }
 
