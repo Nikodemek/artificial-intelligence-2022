@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace BossPuzzle.PuzzleBoard;
 using Dir = Board.Direction;
 
-public class BFS: IPuzzleSolver
+public class BFS : IPuzzleSolver
 {
     private readonly Dir[] _directions;
     

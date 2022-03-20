@@ -9,6 +9,7 @@ public struct Board : ICloneable, IEquatable<Board>
     public short ColumnSize { get; init; }
     public short RowSize { get; init; }
     public ulong Hash { get; init; }
+    public ulong Hammings { get; init; }
 
     private readonly short[][] _board;
     private readonly short _emptyCellRow = -1;
@@ -77,6 +78,7 @@ public struct Board : ICloneable, IEquatable<Board>
         RowSize = (short)rowLength;
         ColumnSize = (short)columnLength;
         Hash = ComputeSmartHash(board, rowLength, columnLength);
+        Hammings = HammigsDistance(board, rowLength, columnLength);
 
         _path = path ?? new List<Direction>();
         _correctHash = correctHash ?? ComputeCorrectHash(rowLength, columnLength);
@@ -119,6 +121,27 @@ public struct Board : ICloneable, IEquatable<Board>
         return hash;
     }
 
+    private static ulong HammigsDistance(short[][] board, int rowSize, int columnSize)
+    {
+        ulong dist = 0;
+
+        int size = rowSize * columnSize;
+        for (var i = 0; i < rowSize; i++)
+        {
+            int offset = i * rowSize;
+            for (var j = 0; j < columnSize; j++)
+            {
+                int target = (offset + j + 1) % size;
+                int actual = board[i][j];
+                int weigth = size - target;
+
+                dist += (ulong)(Math.Abs(actual - target) * weigth);
+            }
+        }
+
+        return dist;
+    }
+
     public Board Solve(IPuzzleSolver solver)
     {
         return solver.Solve(this);
@@ -156,6 +179,18 @@ public struct Board : ICloneable, IEquatable<Board>
     public int At(int row, int column)
     {
         return _board[row][column];
+    }
+
+    public Direction[] ClarifyMovement()
+    {
+        return ClarifyMovement(
+            new[] {
+                Direction.Up, 
+                Direction.Down, 
+                Direction.Left, 
+                Direction.Right,
+            }
+            );
     }
 
     public Direction[] ClarifyMovement(Direction[] directions)
