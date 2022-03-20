@@ -55,9 +55,14 @@ class Program
             prevBoard = currBoard;
         }*/
 
-        var hamm = new Hammings();
+        /*var hamm = new Hammings();
 
         var solvedBoard = board.Solve(hamm);
+        solvedBoard.Print();*/
+        
+        var manh = new Manhattans();
+
+        var solvedBoard = board.Solve(manh);
         solvedBoard.Print();
 
         /*var saveFile = new FileFifteenPuzzleDao("test_sol.file");
