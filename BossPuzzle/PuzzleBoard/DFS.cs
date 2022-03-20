@@ -9,7 +9,7 @@ public class DFS : IPuzzleSolver
     private readonly Dir[] _directions;
 
     public DFS(Dir[] directions)
-        : this(directions, 20)
+        : this(directions, 100)
     { }
 
     public DFS(Dir[] directions, int depth)
@@ -25,7 +25,6 @@ public class DFS : IPuzzleSolver
         var visited = new HashSet<ulong>();
         var stack = new Stack<Board>();
 
-        visited.Add(board.Hash);
         stack.Push(board);
 
         while (stack.Count > 0)
@@ -36,17 +35,18 @@ public class DFS : IPuzzleSolver
             }
 
             var currentBoard = stack.Pop();
-            visited.Add(board.Hash);
+            if (!visited.Add(currentBoard.Hash)) continue;
+            
             var directions = currentBoard.ClarifyMovement(_directions);
 
             foreach (var direction in directions)
             {
                 var nextBoard = currentBoard.Move(direction);
                 nextBoard.AddToPath(direction);
-
+                
                 if (nextBoard.IsValid()) return nextBoard;
 
-                if (visited.Add(nextBoard.Hash)) stack.Push(nextBoard);
+                if (!visited.Contains(nextBoard.Hash)) stack.Push(nextBoard);
             }
         }
 
