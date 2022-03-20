@@ -18,13 +18,12 @@ public class DFS : IPuzzleSolver
         _depth = depth;
     }
 
-    public Board Solve(in Board board)
+    public Board Solve(Board board)
     {
         if (board.IsValid()) return board;
 
         var visited = new HashSet<ulong>();
         var stack = new Stack<Board>();
-
         visited.Add(board.Hash);
         stack.Push(board);
 
@@ -52,22 +51,6 @@ public class DFS : IPuzzleSolver
                 }
             }
         }
-
-        /*while (stack.Count > 0)
-        {
-            var currentBoard = stack.Pop();
-            var directions = currentBoard.ClarifyMovement(_directions);
-
-            foreach (var direction in directions)
-            {
-                var nextBoard = currentBoard.Move(direction);
-                nextBoard.AddToPath(direction);
-
-                if (nextBoard.IsValid()) return nextBoard;
-
-                if (visited.Add(nextBoard.Hash)) stack.Push(nextBoard);
-            }
-        }*/
 
         return board;
     }
