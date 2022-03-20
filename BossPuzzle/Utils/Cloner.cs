@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace BossPuzzle.Utils;
+﻿namespace BossPuzzle.Utils;
 
 public static class Cloner
 {
@@ -10,12 +7,10 @@ public static class Cloner
         int xLength = arr.Length;
 
         T[] ret = new T[xLength];
-
         for (var i = 0; i < xLength; i++)
         {
             ret[i] = arr[i];
         }
-
         return ret;
     }
 
@@ -24,7 +19,6 @@ public static class Cloner
         int xLength = arr.Length;
 
         T[][] ret = new T[xLength][];
-
         for (var i = 0; i < xLength; i++)
         {
             int yLength = arr[i].Length;
@@ -35,7 +29,16 @@ public static class Cloner
                 ret[i][j] = arr[i][j];
             }
         }
-
         return ret;
+    }
+
+    public static T[] Reverse<T>(this T[] arr)
+    {
+        int length = arr.Length;
+        for (var i = 0; i < length / 2; i++)
+        {
+            (arr[i], arr[length - i - 1]) = (arr[length - i - 1], arr[i]);
+        }
+        return arr;
     }
 }

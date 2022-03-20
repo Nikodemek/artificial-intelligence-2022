@@ -8,4 +8,9 @@ public static class Parser
     {
         return Int32.Parse(s, NumberStyles.Integer, CultureInfo.InvariantCulture);
     }
+
+    public static short ToInt16(string s)
+    {
+        return Int16.Parse(s, NumberStyles.Integer, CultureInfo.InvariantCulture);
+    }
 }

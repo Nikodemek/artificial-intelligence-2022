@@ -9,14 +9,14 @@ public class DFS : IPuzzleSolver
     private readonly Dir[] _directions;
 
     public DFS(Dir[] directions)
-        : this(directions, 100)
+        : this(directions, 12)
     { }
 
     public DFS(Dir[] directions, int depth)
     {
-        _directions = Cloner.SingleArr(directions)
-                            .Reverse()
-                            .ToArray();
+        _directions = Cloner
+            .SingleArr(directions)
+            .Reverse();
         _depth = depth;
     }
 
@@ -31,17 +31,17 @@ public class DFS : IPuzzleSolver
 
         while (stack.Count > 0)
         {
-            if (stack.Count > _depth)
+            while (stack.Count > _depth)
             {
-                stack.Pop();
+                var poppedBoard = stack.Pop();
+                if (poppedBoard.IsValid()) return poppedBoard;
             }
 
             var currentBoard = stack.Pop();
-            // this is the only place that should define board as visited
+            
             if (!visited.Add(currentBoard.Hash)) continue;
             
             var directions = currentBoard.ClarifyMovement(_directions);
-
             foreach (var direction in directions)
             {
                 var nextBoard = currentBoard.Move(direction);

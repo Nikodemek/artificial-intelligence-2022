@@ -30,16 +30,16 @@ public class FileFifteenPuzzleDao : IDao<Board>
         var list = data[0].Split(' ');
         int columnSize = Parser.ToInt32(list[0]);
         int rowSize = Parser.ToInt32(list[1]);
-        var table = new int[columnSize][];
+        var table = new short[columnSize][];
         
         for (var i = 0; i < columnSize; i++)
         {
             var row = data[i + 1].Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            table[i] = new int[rowSize];
+            table[i] = new short[rowSize];
 
             for (var j = 0; j < rowSize; j++)
             {
-                table[i][j] = Parser.ToInt32(row[j]);
+                table[i][j] = Parser.ToInt16(row[j]);
             }
         
         }
