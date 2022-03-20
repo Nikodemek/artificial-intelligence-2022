@@ -6,29 +6,21 @@ namespace BossPuzzle.PuzzleBoard;
 
 public struct Board : ICloneable, IEquatable<Board>
 {
-    public int ColumnSize { get; init; }
-    public int RowSize { get; init; }
-    public ulong Hash
-    {
-        get
-        {
-            if (_hash <= 0) _hash = this.ComputeSmartHash();
-            return _hash;
-        }
-    }
+    public short ColumnSize { get; init; }
+    public short RowSize { get; init; }
+    public ulong Hash { get; init; }
 
-    private readonly int[][] _board;
-    private readonly int _emptyCellRow = -1;
-    private readonly int _emptyCellColumn = -1;
+    private readonly short[][] _board;
+    private readonly short _emptyCellRow = -1;
+    private readonly short _emptyCellColumn = -1;
     private readonly List<Direction> _path;
+    private readonly ulong? _correctHash;
 
-    private ulong _hash = 0;
-
-    public Board(int[][] board)
-        : this(board, true, null)
+    public Board(short[][] board)
+        : this(board, true, null, null)
     { }
 
-    private Board(int[][] board, bool copyArr, List<Direction>? path)
+    private Board(short[][] board, bool copyArr, List<Direction>? path, ulong? correctHash)
         : this()
     {
         int columnLength = board.Length;
@@ -41,7 +33,7 @@ public struct Board : ICloneable, IEquatable<Board>
 
         if (copyArr)
         {
-            this._board = new int[columnLength][];
+            this._board = new short[columnLength][];
 
             for (var i = 0; i < columnLength; i++)
             {
@@ -50,17 +42,17 @@ public struct Board : ICloneable, IEquatable<Board>
                 if (newRowLength != rowLength) throw new ArgumentException("Rows sizes must be equal");
 
                 rowLength = newRowLength;
-                _board[i] = new int[rowLength];
+                _board[i] = new short[rowLength];
 
                 for (var j = 0; j < rowLength; j++)
                 {
-                    int value = board[i][j];
+                    short value = (short)board[i][j];
                     _board[i][j] = value;
 
                     if (value <= 0)
                     {
-                        _emptyCellRow = i;
-                        _emptyCellColumn = j;
+                        _emptyCellRow = (short)i;
+                        _emptyCellColumn = (short)j;
                     }
                 }
             }
@@ -75,16 +67,56 @@ public struct Board : ICloneable, IEquatable<Board>
                 {
                     if (board[i][j] <= 0)
                     {
-                        _emptyCellRow = i;
-                        _emptyCellColumn = j;
+                        _emptyCellRow = (short)i;
+                        _emptyCellColumn = (short)j;
                     }
                 }
             }
         }
 
-        RowSize = rowLength;
-        ColumnSize = columnLength;
-        _path = path is not null ? new List<Direction>(path) : new List<Direction>();
+        RowSize = (short)rowLength;
+        ColumnSize = (short)columnLength;
+        Hash = ComputeSmartHash(board, rowLength, columnLength);
+
+        _path = path ?? new List<Direction>();
+        _correctHash = correctHash ?? ComputeCorrectHash(rowLength, columnLength);
+    }
+
+    private static ulong ComputeCorrectHash(int rowSize, int columnSize)
+    {
+        var correctArray = new short[rowSize][];
+        
+        int size = rowSize * columnSize;
+        for (var i = 0; i < rowSize; i++)
+        {
+            int offset = i * rowSize;
+            correctArray[i] = new short[columnSize];
+
+            for (var j = 0; j < columnSize; j++)
+            {
+                correctArray[i][j] = (short)((offset + j + 1) % size);
+            }
+        }
+
+        return ComputeSmartHash(correctArray, rowSize, columnSize);
+    }
+
+    private static ulong ComputeSmartHash(short[][] board, int rowSize, int columnSize)
+    {
+        const ulong Prime = 31ul;
+
+        int boardSize = rowSize * columnSize - 1;
+        ulong hash = 0;
+
+        for (int i = 0; i < rowSize; i++)
+        {
+            for (int j = 0; j < columnSize; j++)
+            {
+                hash += MathI.Power(Prime, boardSize--) * (ulong)board[i][j];
+            }
+        }
+
+        return hash;
     }
 
     public Board Solve(IPuzzleSolver solver)
@@ -94,8 +126,9 @@ public struct Board : ICloneable, IEquatable<Board>
     
     public bool IsValid()
     {
-        int size = RowSize * ColumnSize;
+        if (Hash != _correctHash) return false;
 
+        int size = RowSize * ColumnSize;
         for (var i = 0; i < RowSize; i++)
         {
             int offset = i * RowSize;
@@ -106,6 +139,7 @@ public struct Board : ICloneable, IEquatable<Board>
                 if (!valid) return false;
             }
         }
+
         return true;
     }
 
@@ -160,9 +194,9 @@ public struct Board : ICloneable, IEquatable<Board>
 
     public Board Move(int row, int column, Direction dir)
     {
-        int[][] newBoard = Cloner.DoubleArr(_board);
+        short[][] newBoard = Cloner.DoubleArr(_board);
 
-        ref int changedCell = ref newBoard[0][0];
+        ref short changedCell = ref newBoard[0][0];
         switch (dir)
         {
             case Direction.Up:
@@ -182,14 +216,29 @@ public struct Board : ICloneable, IEquatable<Board>
                 changedCell = ref newBoard[row][column - 1];
                 break;
             default:
-                return new Board(newBoard, false, _path);
+                return new Board(newBoard, false, _path, _correctHash);
         }
 
-        int temp = changedCell;
+        short temp = changedCell;
         changedCell = _board[row][column];
         newBoard[row][column] = temp;
 
-        return new Board(newBoard, false, _path);
+        return new Board(newBoard, false, _path, _correctHash);
+    }
+
+    public object Clone()
+    {
+        var newBoardTable = new short[RowSize][];
+        for (var i = 0; i < RowSize; i++)
+        {
+            newBoardTable[i] = new short[ColumnSize];
+            for (var j = 0; j < ColumnSize; j++)
+            {
+                newBoardTable[i][j] = _board[i][j];
+            }
+        }
+
+        return new Board(newBoardTable);
     }
 
     public void Print()
@@ -280,21 +329,6 @@ public struct Board : ICloneable, IEquatable<Board>
         return HashCode.Combine(ColumnSize, RowSize, _board);
     }
 
-    public object Clone()
-    {
-        var newBoardTable = new int[RowSize][];
-        for (var i = 0; i < RowSize; i++)
-        {
-            newBoardTable[i] = new int[ColumnSize];
-            for (var j = 0; j < ColumnSize; j++)
-            {
-                newBoardTable[i][j] = _board[i][j];
-            }
-        }
-
-        return new Board(newBoardTable);
-    }
-
     public static bool operator ==(Board left, Board right)
     {
         return left.Equals(right);
@@ -303,24 +337,6 @@ public struct Board : ICloneable, IEquatable<Board>
     public static bool operator !=(Board left, Board right)
     {
         return !(left == right);
-    }
-
-    private ulong ComputeSmartHash()
-    {
-        const ulong Prime = 31ul;
-
-        int boardSize = RowSize * ColumnSize - 1;
-        ulong hash = 0;
-
-        for (int i = 0; i < RowSize; i++)
-        {
-            for (int j = 0; j < ColumnSize; j++)
-            {
-                hash += MathI.Power(Prime, boardSize--) * (ulong)_board[i][j];
-            }
-        }
-
-        return hash;
     }
 
     public enum Direction

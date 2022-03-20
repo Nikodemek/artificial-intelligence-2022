@@ -11,14 +11,14 @@ public class DFS : IPuzzleSolver
     private int _recursionDepth;
 
     public DFS(Dir[] directions)
-        : this(directions, 20)
+        : this(directions, 12)
     { }
 
     public DFS(Dir[] directions, int depth)
     {
-        _directions = Cloner.SingleArr(directions)
-                            .Reverse()
-                            .ToArray();
+        _directions = Cloner
+            .SingleArr(directions)
+            .Reverse();
         _depth = depth;
         visited = new HashSet<ulong>();
         _recursionDepth = 0;
@@ -54,7 +54,6 @@ public class DFS : IPuzzleSolver
             }
 
             var directions = currentBoard.ClarifyMovement(_directions);
-
             foreach (var direction in directions)
             {
                 var nextBoard = currentBoard.Move(direction);
