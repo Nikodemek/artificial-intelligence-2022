@@ -11,7 +11,8 @@ public readonly struct Board : ICloneable, IEquatable<Board>
     public short ColumnSize { get; init; }
     public short RowSize { get; init; }
     public ulong Hash { get; init; }
-    public ulong Hammings { get; init; }
+    public int Hammings { get; init; }
+    public ulong Manhattans { get; init; }
 
     private readonly short[][] _board;
     private readonly short _emptyCellRow = -1;
@@ -144,13 +145,16 @@ public readonly struct Board : ICloneable, IEquatable<Board>
             var offset = i * rowSize;
             for (var j = 0; j < columnSize; j++)
             {
-                var target = (offset + j + 1) % size;
-                int actual = board[i][j];
+                int value = board[i][j];
+                int target = (offset + j + 1) % size;
 
-                if (actual != target)
-                {
-                    dist += 1;
-                }
+                if (value == target) continue;
+
+                int normalised = (value <= 0 ? (value + size) : value) - 1;
+                (int targetRow, int targetColumn) = MathI.DivRem(normalised, rowSize);
+                int deviation = Math.Abs(i - targetRow) + Math.Abs(j - targetColumn);
+
+                dist += MathI.Power(Strength, deviation);
             }
         }
 
@@ -161,8 +165,10 @@ public readonly struct Board : ICloneable, IEquatable<Board>
     {
         ulong dist = 0;
 
+        var size = rowSize * columnSize;
         for (var i = 0; i < rowSize; i++)
         {
+            var offset = i * rowSize;
             for (var j = 0; j < columnSize; j++)
             {
                 int target = (offset + j + 1) % size;
