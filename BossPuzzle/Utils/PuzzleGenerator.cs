@@ -5,24 +5,24 @@ using Dir = Board.Direction;
 
 public static class PuzzleGenerator
 {
-    public static Board Generate(short rowSize, short columnSize, int steps)
+    public static Board Generate(long rowSize, long columnSize, int steps)
     {
-        var board = new short[rowSize][];
+        var board = new long[rowSize][];
 
-        int size = rowSize * columnSize;
+        long size = rowSize * columnSize;
         for (var i = 0; i < rowSize; i++)
         {
-            int offset = i * rowSize;
-            board[i] = new short[columnSize];
+            long offset = i * rowSize;
+            board[i] = new long[columnSize];
 
             for (var j = 0; j < columnSize; j++)
             {
-                board[i][j] = (short)((offset + j + 1) % size);
+                board[i][j] = (long)((offset + j + 1) % size);
             }
         }
 
-        int emptyRow = rowSize - 1;
-        int emptyColumn = columnSize - 1;
+        long emptyRow = rowSize - 1;
+        long emptyColumn = columnSize - 1;
 
         var rand = Random.Shared;
         Dir cancellingDir = Dir.Right;
@@ -35,8 +35,8 @@ public static class PuzzleGenerator
                 dir = (Dir)rand.Next(4);
             } while (dir == cancellingDir);
 
-            ref short changedCell = ref board[0][0];
-            ref short originalCell = ref board[emptyRow][emptyColumn];
+            ref long changedCell = ref board[0][0];
+            ref long originalCell = ref board[emptyRow][emptyColumn];
             switch (dir)
             {
                 case Dir.Up:

@@ -4,8 +4,10 @@ using BossPuzzle.Utils;
 
 namespace BossPuzzle.PuzzleBoard;
 
-public struct Board : ICloneable, IEquatable<Board>
+public readonly struct Board : ICloneable, IEquatable<Board>
 {
+    public static uint instances = 0;
+
     public short ColumnSize { get; init; }
     public short RowSize { get; init; }
     public ulong Hash { get; init; }
@@ -82,6 +84,8 @@ public struct Board : ICloneable, IEquatable<Board>
 
         _path = path ?? new List<Direction>();
         _correctHash = correctHash ?? ComputeCorrectHash(rowLength, columnLength);
+
+        instances++;
     }
 
     private static ulong ComputeCorrectHash(int rowSize, int columnSize)
@@ -121,6 +125,12 @@ public struct Board : ICloneable, IEquatable<Board>
         return hash;
     }
 
+    //
+    // 4 3 2 3 4     6 5 4 3 4     5 4 5 6 7     0 1 2 3 4
+    // 3 2 1 2 3     5 4 3 2 3     4 3 4 5 6     1 2 3 4 5
+    // 2 1 0 1 2     4 3 2 1 2     3 2 3 4 5     2 3 4 5 6
+    // 3 2 1 2 3     3 2 1 0 1     2 1 2 3 4     3 4 5 6 7
+    // 4 3 2 3 4     4 3 2 1 2     1 0 1 2 3     4 5 6 7 8
     private static ulong HammigsDistance(short[][] board, int rowSize, int columnSize)
     {
         ulong dist = 0;
@@ -135,8 +145,8 @@ public struct Board : ICloneable, IEquatable<Board>
                 int actual = board[i][j];
                 int weigth = MathI.Power(size - target, 3);
 
-                dist += (ulong)(Math.Abs(actual - target) * weigth);
-                //if (actual != target) dist++;
+                //dist += (ulong)(Math.Abs(actual - target) * weigth);
+                if (actual != target) dist++;
             }
         }
 

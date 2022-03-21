@@ -10,10 +10,13 @@ class Program
     public static void Main()
     {
         /*var readFile = new FileFifteenPuzzleDao("test.file");
-        Board board = readFile.Read();
-        board.Print();*/
+        var board = readFile.Read();*/
+        var board = PuzzleGenerator.Generate(4, 4, 20);
+        board.Print();
 
-        /*var bfsUDLR = new BFS(new[]
+        /*IPuzzleSolver solver = new Hammings(1200);*/
+
+        IPuzzleSolver solver = new BFS(new[]
         {
             Dir.Up,
             Dir.Down,
@@ -21,20 +24,13 @@ class Program
             Dir.Right
         });
 
-        var solvedBoard = board.Solve(bfsUDLR);
-        solvedBoard.Print();*/
-
-        /*
-        var dfsUDLR = new DFS(new[]
+        /*IPuzzleSolver solver = new DFS(new[]
         {
             Dir.Up,
             Dir.Down,
             Dir.Left,
             Dir.Right
-        });
-
-        var solvedBoard = board.Solve(dfsUDLR);
-        solvedBoard.Print();*/
+        });*/
 
         /*var rand = Random.Shared;
         var prevBoard = board;
@@ -50,13 +46,10 @@ class Program
             prevBoard = currBoard;
         }*/
 
-        var board = PuzzleGenerator.Generate(4, 4, 100);
-        board.Print();
-
-        /*var hamm = new Hammings(1200);
-        var solvedBoard = board.Solve(hamm);
+        var solvedBoard = board.Solve(solver);
         if (solvedBoard.IsValid()) Console.WriteLine("SOLVED!!");
-        solvedBoard.Print();*/
+        solvedBoard.Print();
+        Console.WriteLine($"{Board.instances} created Board instances");
 
         /*var saveFile = new FileFifteenPuzzleDao("test_sol.file");
         saveFile.Write(solvedBoard);*/
