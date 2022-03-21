@@ -23,4 +23,10 @@ public static class MathI
         }
         return result;
     }
+
+    public static (int result, int reminder) DivRem(int n, int divisor)
+    {
+        return (Math.DivRem(n, divisor, out int rem), rem);
+    }
+
 }

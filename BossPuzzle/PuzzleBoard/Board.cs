@@ -11,7 +11,7 @@ public readonly struct Board : ICloneable, IEquatable<Board>
     public short ColumnSize { get; init; }
     public short RowSize { get; init; }
     public ulong Hash { get; init; }
-    public ulong Hammings { get; init; }
+    public int Hammings { get; init; }
 
     private readonly short[][] _board;
     private readonly short _emptyCellRow = -1;
@@ -125,15 +125,17 @@ public readonly struct Board : ICloneable, IEquatable<Board>
         return hash;
     }
 
-    //
-    // 4 3 2 3 4     6 5 4 3 4     5 4 5 6 7     0 1 2 3 4
-    // 3 2 1 2 3     5 4 3 2 3     4 3 4 5 6     1 2 3 4 5
-    // 2 1 0 1 2     4 3 2 1 2     3 2 3 4 5     2 3 4 5 6
-    // 3 2 1 2 3     3 2 1 0 1     2 1 2 3 4     3 4 5 6 7
-    // 4 3 2 3 4     4 3 2 1 2     1 0 1 2 3     4 5 6 7 8
-    private static ulong HammigsDistance(short[][] board, int rowSize, int columnSize)
+    // Cos takiego probuje osiagnac tym kodem (0 to jest poprawne miejsce dla liczby).
+    //     4 3 2 3 4     6 5 4 3 4     5 4 5 6 7     0 1 2 3 4
+    //     3 2 1 2 3     5 4 3 2 3     4 3 4 5 6     1 2 3 4 5
+    //     2 1 0 1 2     4 3 2 1 2     3 2 3 4 5     2 3 4 5 6
+    //     3 2 1 2 3     3 2 1 0 1     2 1 2 3 4     3 4 5 6 7
+    //     4 3 2 3 4     4 3 2 1 2     1 0 1 2 3     4 5 6 7 8
+    private static int HammigsDistance(short[][] board, int rowSize, int columnSize)
     {
-        ulong dist = 0;
+        const int Strength = 3;
+
+        int dist = 0;
 
         int size = rowSize * columnSize;
         for (var i = 0; i < rowSize; i++)
@@ -141,12 +143,16 @@ public readonly struct Board : ICloneable, IEquatable<Board>
             int offset = i * rowSize;
             for (var j = 0; j < columnSize; j++)
             {
+                int value = board[i][j];
                 int target = (offset + j + 1) % size;
-                int actual = board[i][j];
-                int weigth = MathI.Power(size - target, 3);
 
-                //dist += (ulong)(Math.Abs(actual - target) * weigth);
-                if (actual != target) dist++;
+                if (value == target) continue;
+
+                int normalised = (value <= 0 ? (value + size) : value) - 1;
+                (int targetRow, int targetColumn) = MathI.DivRem(normalised, rowSize);
+                int deviation = Math.Abs(i - targetRow) + Math.Abs(j - targetColumn);
+
+                dist += MathI.Power(Strength, deviation);
             }
         }
 
