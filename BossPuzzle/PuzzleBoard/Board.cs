@@ -11,7 +11,7 @@ public readonly struct Board : ICloneable, IEquatable<Board>
     public short ColumnSize { get; init; }
     public short RowSize { get; init; }
     public ulong Hash { get; init; }
-    public int Hammings { get; init; }
+    public ulong Hammings { get; init; }
 
     private readonly short[][] _board;
     private readonly short _emptyCellRow = -1;
@@ -81,6 +81,7 @@ public readonly struct Board : ICloneable, IEquatable<Board>
         ColumnSize = (short)columnLength;
         Hash = ComputeSmartHash(board, rowLength, columnLength);
         Hammings = HammigsDistance(board, rowLength, columnLength);
+        Manhattans = ManhattanDistance(board, rowLength, columnLength);
 
         _path = path ?? new List<Direction>();
         _correctHash = correctHash ?? ComputeCorrectHash(rowLength, columnLength);
@@ -137,22 +138,39 @@ public readonly struct Board : ICloneable, IEquatable<Board>
 
         int dist = 0;
 
-        int size = rowSize * columnSize;
+        var size = rowSize * columnSize;
         for (var i = 0; i < rowSize; i++)
         {
-            int offset = i * rowSize;
+            var offset = i * rowSize;
             for (var j = 0; j < columnSize; j++)
             {
-                int value = board[i][j];
+                var target = (offset + j + 1) % size;
+                int actual = board[i][j];
+
+                if (actual != target)
+                {
+                    dist += 1;
+                }
+            }
+        }
+
+        return dist;
+    }
+    
+    private static ulong ManhattanDistance(short[][] board, int rowSize, int columnSize)
+    {
+        ulong dist = 0;
+
+        for (var i = 0; i < rowSize; i++)
+        {
+            for (var j = 0; j < columnSize; j++)
+            {
                 int target = (offset + j + 1) % size;
+                int actual = board[i][j];
+                int weigth = MathI.Power(size - target, 3);
 
-                if (value == target) continue;
-
-                int normalised = (value <= 0 ? (value + size) : value) - 1;
-                (int targetRow, int targetColumn) = MathI.DivRem(normalised, rowSize);
-                int deviation = Math.Abs(i - targetRow) + Math.Abs(j - targetColumn);
-
-                dist += MathI.Power(Strength, deviation);
+                dist += (ulong)(Math.Abs(actual - target) * weigth);
+                //if (actual != target) dist++;
             }
         }
 

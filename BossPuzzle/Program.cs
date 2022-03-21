@@ -47,11 +47,10 @@ class Program
             prevBoard = currBoard;
         }*/
 
-        var solvedBoard = board.Solve(solver);
+        /*var hamm = new Hammings(1200);
+        var solvedBoard = board.Solve(hamm);
         if (solvedBoard.IsValid()) Console.WriteLine("SOLVED!!");
-        solvedBoard.Print();
-        Console.WriteLine($"Hammings distance = {solvedBoard.Hammings}");
-        Console.WriteLine($"Created {Board.instances} Board instances");
+        solvedBoard.Print();*/
 
         /*var saveFile = new FileFifteenPuzzleDao("test_sol.file");
         saveFile.Write(solvedBoard);*/
