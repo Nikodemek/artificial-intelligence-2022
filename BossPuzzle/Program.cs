@@ -15,7 +15,7 @@ class Program
         var board = PuzzleGenerator.Generate(4, 4, 6);
         board.Print();
         Console.WriteLine($"Hammings distance = {board.Hammings}");
-
+        
         IPuzzleSolver solver = new Astar(Atype.Manhattan);
 
         /*IPuzzleSolver solver = new BFS(new[]

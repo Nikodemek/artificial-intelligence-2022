@@ -35,31 +35,31 @@ public class Astar : IPuzzleSolver
             tries++;
 
             var dists = currBoard.ClarifyMovement();
+            int distLength = dists.Length;
 
-            var prevNextBoard = currBoard;
-            foreach (var dist in dists)
+            var possibilities = new Board[distLength];
+
+            int minIndex = 0;
+            for (var i = 0; i < distLength; i++)
             {
-                var nextBoard = currBoard.Move(dist);
-                ulong prevDistance = 0; 
-                ulong nextDistance = 0;
+                var nextBoard = currBoard.Move(dists[i]);
+                possibilities[i] = nextBoard;
+
+                int distance = 0;
                 switch (_atype)
                 {
-                    case Atype.Manhattan:
-                        prevDistance = prevNextBoard.Manhattans;
-                        nextDistance = nextBoard.Manhattans;
-                        break;
                     case Atype.Hamming:
-                        prevDistance = prevNextBoard.Manhattans;
-                        nextDistance = nextBoard.Manhattans;
+                        distance = nextBoard.Hammings;
+                        break;
+                    case Atype.Manhattan:
+                        distance = nextBoard.Manhattans;
                         break;
                 }
 
-                if (prevDistance > nextDistance)
-                {
-                    prevNextBoard = nextBoard;
-                }
+                if (distance < minIndex) minIndex = i;
             }
-            currBoard = prevNextBoard;
+
+            currBoard = possibilities[minIndex];
 
             if (tries > _maxTries) break;
         }

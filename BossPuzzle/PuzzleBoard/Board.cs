@@ -12,7 +12,7 @@ public readonly struct Board : ICloneable, IEquatable<Board>
     public short RowSize { get; init; }
     public ulong Hash { get; init; }
     public int Hammings { get; init; }
-    public ulong Manhattans { get; init; }
+    public int Manhattans { get; init; }
 
     private readonly short[][] _board;
     private readonly short _emptyCellRow = -1;
@@ -153,16 +153,16 @@ public readonly struct Board : ICloneable, IEquatable<Board>
         return dist;
     }
     
-    private static ulong ManhattanDistance(short[][] board, int rowSize, int columnSize)
+    private static int ManhattanDistance(short[][] board, int rowSize, int columnSize)
     {
         const int Strength = 2;
 
-        ulong dist = 0;
+        int dist = 0;
 
-        var size = rowSize * columnSize;
+        int size = rowSize * columnSize;
         for (var i = 0; i < rowSize; i++)
         {
-            var offset = i * rowSize;
+            int offset = i * rowSize;
             for (var j = 0; j < columnSize; j++)
             {
                 int value = board[i][j];
@@ -174,7 +174,7 @@ public readonly struct Board : ICloneable, IEquatable<Board>
                 (int targetRow, int targetColumn) = MathI.DivRem(normalised, rowSize);
                 int deviation = Math.Abs(i - targetRow) + Math.Abs(j - targetColumn);
 
-                dist += (ulong)MathI.Power(Strength, deviation);
+                dist += MathI.Power(Strength, deviation);
             }
         }
 
