@@ -4,6 +4,7 @@ using BossPuzzle.PuzzleBoard;
 
 namespace BossPuzzle;
 using Dir = Board.Direction;
+using Atype = Astar.Atype;
 
 class Program
 {
@@ -11,11 +12,11 @@ class Program
     {
         /*var readFile = new FileFifteenPuzzleDao("test.file");
         var board = readFile.Read();*/
-        var board = PuzzleGenerator.Generate(4, 4, 100);
+        var board = PuzzleGenerator.Generate(4, 4, 6);
         board.Print();
         Console.WriteLine($"Hammings distance = {board.Hammings}");
 
-        IPuzzleSolver solver = new Hammings(50000);
+        IPuzzleSolver solver = new Astar(Atype.Manhattan);
 
         /*IPuzzleSolver solver = new BFS(new[]
         {
@@ -33,24 +34,9 @@ class Program
             Dir.Right
         });*/
 
-        /*var rand = Random.Shared;
-        var prevBoard = board;
-
-        for (int i = 0; i < 10; i++)
-        {
-            Dir dir = (Dir)rand.Next(4);
-            var currBoard = prevBoard.Move(dir);
-
-            Console.WriteLine($"Hamming's distance = {currBoard.Hammings}");
-            currBoard.Print();
-
-            prevBoard = currBoard;
-        }*/
-
-        /*var hamm = new Hammings(1200);
-        var solvedBoard = board.Solve(hamm);
+        var solvedBoard = board.Solve(solver);
         if (solvedBoard.IsValid()) Console.WriteLine("SOLVED!!");
-        solvedBoard.Print();*/
+        solvedBoard.Print();
 
         /*var saveFile = new FileFifteenPuzzleDao("test_sol.file");
         saveFile.Write(solvedBoard);*/
