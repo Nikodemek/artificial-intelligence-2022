@@ -5,22 +5,14 @@ public class Astar : IPuzzleSolver
     private readonly int _maxTries;
     private readonly Atype _atype;
 
-    public Astar(Atype atype, int maxTries)
-    {
-        _maxTries = maxTries;
-        _atype = atype;
-    }
-
     public Astar(Atype atype)
         : this(atype, 10_000)
     { }
 
-
-
-    public enum Atype
+    public Astar(Atype atype, int maxTries)
     {
-        Hamming = 0,
-        Manhattan = 1,
+        _maxTries = maxTries;
+        _atype = atype;
     }
 
     public Board Solve(in Board board)
@@ -37,13 +29,24 @@ public class Astar : IPuzzleSolver
             var dists = currBoard.ClarifyMovement();
             int distLength = dists.Length;
 
-            var possibilities = new Board[distLength];
+            int currDistance = 0; 
+            switch (_atype)
+            {
+                case Atype.Hamming:
+                    currDistance = currBoard.Hammings;
+                    break;
+                case Atype.Manhattan:
+                    currDistance = currBoard.Manhattans;
+                    break;
+            }
+
+            var possibleBoards = new Board[distLength];
 
             int minIndex = 0;
             for (var i = 0; i < distLength; i++)
             {
                 var nextBoard = currBoard.Move(dists[i]);
-                possibilities[i] = nextBoard;
+                possibleBoards[i] = nextBoard;
 
                 int distance = 0;
                 switch (_atype)
@@ -56,15 +59,21 @@ public class Astar : IPuzzleSolver
                         break;
                 }
 
-                if (distance < minIndex) minIndex = i;
+                if (distance < currDistance) minIndex = i;
             }
 
-            currBoard = possibilities[minIndex];
+            currBoard = possibleBoards[minIndex];
 
             if (tries > _maxTries) break;
         }
 
         Console.WriteLine($"Tries = {tries}");
         return currBoard;
+    }
+
+    public enum Atype
+    {
+        Hamming = 0,
+        Manhattan = 1,
     }
 }
