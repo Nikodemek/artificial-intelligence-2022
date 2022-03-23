@@ -135,9 +135,29 @@ public readonly struct Board : ICloneable, IEquatable<Board>
     //     4 3 2 3 4     4 3 2 1 2     1 0 1 2 3     4 5 6 7 8
     private static int HammigsDistance(short[][] board, int rowSize, int columnSize)
     {
-        const int Strength = 3;
-
         int dist = 0;
+
+        var size = rowSize * columnSize;
+        for (var i = 0; i < rowSize; i++)
+        {
+            var offset = i * rowSize;
+            for (var j = 0; j < columnSize; j++)
+            {
+                int value = board[i][j];
+                int target = (offset + j + 1) % size;
+
+                if (value != target) dist++;
+            }
+        }
+
+        return dist;
+    }
+    
+    private static ulong ManhattanDistance(short[][] board, int rowSize, int columnSize)
+    {
+        const int Strength = 2;
+
+        ulong dist = 0;
 
         var size = rowSize * columnSize;
         for (var i = 0; i < rowSize; i++)
@@ -154,29 +174,7 @@ public readonly struct Board : ICloneable, IEquatable<Board>
                 (int targetRow, int targetColumn) = MathI.DivRem(normalised, rowSize);
                 int deviation = Math.Abs(i - targetRow) + Math.Abs(j - targetColumn);
 
-                dist += MathI.Power(Strength, deviation);
-            }
-        }
-
-        return dist;
-    }
-    
-    private static ulong ManhattanDistance(short[][] board, int rowSize, int columnSize)
-    {
-        ulong dist = 0;
-
-        var size = rowSize * columnSize;
-        for (var i = 0; i < rowSize; i++)
-        {
-            var offset = i * rowSize;
-            for (var j = 0; j < columnSize; j++)
-            {
-                int target = (offset + j + 1) % size;
-                int actual = board[i][j];
-                int weigth = MathI.Power(size - target, 3);
-
-                dist += (ulong)(Math.Abs(actual - target) * weigth);
-                //if (actual != target) dist++;
+                dist += (ulong)MathI.Power(Strength, deviation);
             }
         }
 
