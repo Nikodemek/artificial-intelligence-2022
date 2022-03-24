@@ -13,7 +13,7 @@ class Program
         /*var readFile = new FileFifteenPuzzleDao("test.file");
         var board = readFile.Read();*/
 
-        var board = PuzzleGenerator.Generate(4, 4, 7);
+        var board = PuzzleGenerator.Generate(4, 4, 5);
         board.Print();
         Console.WriteLine($"Hammings distance = {board.Hammings}");
         Console.WriteLine($"Manhattan distance = {board.Manhattans}");
@@ -36,9 +36,9 @@ class Program
             Dir.Right
         });*/
 
-        /*var solvedBoard = board.Solve(solver);
+        var solvedBoard = board.Solve(solver);
         if (solvedBoard.IsValid()) Console.WriteLine("SOLVED!!");
-        solvedBoard.Print();*/
+        solvedBoard.Print();
 
         /*var saveFile = new FileFifteenPuzzleDao("test_sol.file");
         saveFile.Write(solvedBoard);*/
