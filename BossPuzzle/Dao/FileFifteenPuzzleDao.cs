@@ -19,7 +19,7 @@ public class FileFifteenPuzzleDao : IDao<Board>
     
     public FileFifteenPuzzleDao(string fileName)
     {
-        this._fileName = fileName;
+        _fileName = fileName;
         _filePath = Path.Combine(BaseDataDirPath, _fileName);
     }
 
@@ -47,18 +47,19 @@ public class FileFifteenPuzzleDao : IDao<Board>
         return new Board(table);
     }
 
-    public void Write(Board board)
+    public void Write(in Board board)
     {
         var stringBuilder = new StringBuilder();
-        using var streamWriter = new StreamWriter(Path.Combine(BaseDataDirPath, _fileName));
+        using var streamWriter = new StreamWriter(_filePath);
 
-        var count = board.GetPath().Length;
+        var path = board.GetPath();
+        int pathLength = path.Length;
 
-        stringBuilder.Append(count);
+        stringBuilder.Append(pathLength);
         stringBuilder.AppendLine();
-        foreach (var item in board.GetPath())
+        foreach (var item in path)
         {
-            stringBuilder.Append(item.ToString()[..1]);
+            stringBuilder.Append(item.ToString()[0]);
         }
         streamWriter.Write(stringBuilder);
     }

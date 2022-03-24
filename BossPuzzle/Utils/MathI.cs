@@ -24,6 +24,16 @@ public static class MathI
         return result;
     }
 
+    public static uint Power(uint n, int pow)
+    {
+        uint result = 1;
+        for (int i = 0; i < pow; i++)
+        {
+            result *= n;
+        }
+        return result;
+    }
+
     public static (int result, int reminder) DivRem(int n, int divisor)
     {
         return (Math.DivRem(n, divisor, out int rem), rem);

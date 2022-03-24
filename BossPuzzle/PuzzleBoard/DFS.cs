@@ -80,7 +80,7 @@ public class DFS : IPuzzleSolver
         foreach (var direction in directions)
         {
             var nextBoard = board.Move(direction);
-            nextBoard.AddToPath(direction);
+            //nextBoard.AddToPath(direction);
         
             if (nextBoard.IsValid()) return nextBoard;
 

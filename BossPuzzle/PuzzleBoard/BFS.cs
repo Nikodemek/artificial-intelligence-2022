@@ -31,7 +31,7 @@ public class BFS : IPuzzleSolver
             foreach (var direction in directions)
             {
                 var nextBoard = currentBoard.Move(direction);
-                nextBoard.AddToPath(direction);
+                //nextBoard.AddToPath(direction);
 
                 if (nextBoard.IsValid()) return nextBoard;
 

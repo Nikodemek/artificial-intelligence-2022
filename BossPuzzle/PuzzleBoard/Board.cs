@@ -11,8 +11,8 @@ public readonly struct Board : ICloneable, IEquatable<Board>
     public short ColumnSize { get; init; }
     public short RowSize { get; init; }
     public ulong Hash { get; init; }
-    public int Hammings { get; init; }
-    public int Manhattans { get; init; }
+    public uint Hammings { get; init; }
+    public uint Manhattans { get; init; }
 
     private readonly short[][] _board;
     private readonly short _emptyCellRow = -1;
@@ -37,9 +37,9 @@ public readonly struct Board : ICloneable, IEquatable<Board>
 
         if (copyArr)
         {
-            this._board = new short[columnLength][];
+            _board = new short[columnLength][];
 
-            for (var i = 0; i < columnLength; i++)
+            for (short i = 0; i < columnLength; i++)
             {
                 int newRowLength = board[i].Length;
 
@@ -48,31 +48,31 @@ public readonly struct Board : ICloneable, IEquatable<Board>
                 rowLength = newRowLength;
                 _board[i] = new short[rowLength];
 
-                for (var j = 0; j < rowLength; j++)
+                for (short j = 0; j < rowLength; j++)
                 {
-                    short value = (short)board[i][j];
+                    short value = board[i][j];
                     _board[i][j] = value;
 
                     if (value <= 0)
                     {
-                        _emptyCellRow = (short)i;
-                        _emptyCellColumn = (short)j;
+                        _emptyCellRow = i;
+                        _emptyCellColumn = j;
                     }
                 }
             }
         }
         else
         {
-            this._board = board;
+            _board = board;
 
-            for (var i = 0; i < columnLength; i++)
+            for (short i = 0; i < columnLength; i++)
             {
-                for (var j = 0; j < rowLength; j++)
+                for (short j = 0; j < rowLength; j++)
                 {
                     if (board[i][j] <= 0)
                     {
-                        _emptyCellRow = (short)i;
-                        _emptyCellColumn = (short)j;
+                        _emptyCellRow = i;
+                        _emptyCellColumn = j;
                     }
                 }
             }
@@ -127,15 +127,9 @@ public readonly struct Board : ICloneable, IEquatable<Board>
         return hash;
     }
 
-    // Cos takiego probuje osiagnac tym kodem (0 to jest poprawne miejsce dla liczby).
-    //     4 3 2 3 4     6 5 4 3 4     5 4 5 6 7     0 1 2 3 4
-    //     3 2 1 2 3     5 4 3 2 3     4 3 4 5 6     1 2 3 4 5
-    //     2 1 0 1 2     4 3 2 1 2     3 2 3 4 5     2 3 4 5 6
-    //     3 2 1 2 3     3 2 1 0 1     2 1 2 3 4     3 4 5 6 7
-    //     4 3 2 3 4     4 3 2 1 2     1 0 1 2 3     4 5 6 7 8
-    private static int HammigsDistance(short[][] board, int rowSize, int columnSize)
+    private static uint HammigsDistance(short[][] board, int rowSize, int columnSize)
     {
-        int dist = 0;
+        uint dist = 0;
 
         var size = rowSize * columnSize;
         for (var i = 0; i < rowSize; i++)
@@ -152,12 +146,18 @@ public readonly struct Board : ICloneable, IEquatable<Board>
 
         return dist;
     }
-    
-    private static int ManhattanDistance(short[][] board, int rowSize, int columnSize)
-    {
-        const int Strength = 2;
 
-        int dist = 0;
+    // Cos takiego probuje osiagnac tym kodem (0 to jest poprawne miejsce dla liczby).
+    //     4 3 2 3 4     6 5 4 3 4     5 4 5 6 7     0 1 2 3 4
+    //     3 2 1 2 3     5 4 3 2 3     4 3 4 5 6     1 2 3 4 5
+    //     2 1 0 1 2     4 3 2 1 2     3 2 3 4 5     2 3 4 5 6
+    //     3 2 1 2 3     3 2 1 0 1     2 1 2 3 4     3 4 5 6 7
+    //     4 3 2 3 4     4 3 2 1 2     1 0 1 2 3     4 5 6 7 8
+    private static uint ManhattanDistance(short[][] board, int rowSize, int columnSize)
+    {
+        const uint Strength = 2;
+
+        uint dist = 0;
 
         int size = rowSize * columnSize;
         for (var i = 0; i < rowSize; i++)
@@ -210,10 +210,10 @@ public readonly struct Board : ICloneable, IEquatable<Board>
         return _path.ToArray();
     }
 
-    public void AddToPath(Direction direction)
+    /*public void AddToPath(Direction direction)
     {
         _path.Add(direction);
-    }
+    }*/
 
     public int At(int row, int column)
     {
@@ -234,9 +234,11 @@ public readonly struct Board : ICloneable, IEquatable<Board>
 
     public Direction[] ClarifyMovement(Direction[] directions)
     {
-        var newDirections = new List<Direction>(4);
+        var newDirections = new List<Direction>(3);
         foreach (var direction in directions)
         {
+            if (_path?.Count > 0 && direction == GetCancellingDirection(_path[^1])) continue;
+
             switch (direction)
             {
                 case Direction.Up:
@@ -252,7 +254,7 @@ public readonly struct Board : ICloneable, IEquatable<Board>
                     if (_emptyCellColumn <= 0) continue;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentException($"Not recognized Direction ({direction})");
             }  
 
             newDirections.Add(direction);
@@ -290,14 +292,17 @@ public readonly struct Board : ICloneable, IEquatable<Board>
                 changedCell = ref newBoard[row][column - 1];
                 break;
             default:
-                return new Board(newBoard, false, _path, _correctHash);
+                return this;
         }
 
         short temp = changedCell;
         changedCell = _board[row][column];
         newBoard[row][column] = temp;
 
-        return new Board(newBoard, false, _path, _correctHash);
+        var newPath = new List<Direction>(_path);
+        newPath.Add(dir);
+
+        return new Board(newBoard, false, newPath, _correctHash);
     }
 
     public object Clone()
@@ -313,6 +318,18 @@ public readonly struct Board : ICloneable, IEquatable<Board>
         }
 
         return new Board(newBoardTable);
+    }
+
+    public static Direction GetCancellingDirection(Direction direction)
+    {
+        return direction switch
+        {
+            Direction.Up => Direction.Down,
+            Direction.Down => Direction.Up,
+            Direction.Right => Direction.Left,
+            Direction.Left => Direction.Right,
+            _ => throw new ArgumentException("Not recognized Direction.", nameof(direction)),
+        };
     }
 
     public void Print()
@@ -380,18 +397,20 @@ public readonly struct Board : ICloneable, IEquatable<Board>
 
     public bool Equals(Board other)
     {
-        bool arePropertiesEqual = ColumnSize == other.ColumnSize &&
-                RowSize == other.RowSize;
+        bool arePropertiesEqual = (
+            ColumnSize == other.ColumnSize &&
+            RowSize == other.RowSize
+            );
 
         if (!arePropertiesEqual) return false;
 
-        bool areBoardFieldsEqaul = true;
+        bool areBoardFieldsEqual = true;
         for (int i = 0; i < ColumnSize; i++)
         {
             for (int j = 0; j < RowSize; j++)
             {
-                areBoardFieldsEqaul &= this.At(i, j) == other.At(i, j);
-                if (!areBoardFieldsEqaul) return false;
+                areBoardFieldsEqual &= this.At(i, j) == other.At(i, j);
+                if (!areBoardFieldsEqual) return false;
             }
         }
 
