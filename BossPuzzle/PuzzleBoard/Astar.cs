@@ -21,23 +21,27 @@ public class Astar : IPuzzleSolver
     {
         var currBoard = board;
 
-        var set = new HashSet<ulong>();
+        var visited = new HashSet<ulong>();
         var stack = new Stack<Board>();
 
-        set.Add(currBoard.Hash);
+        stack.Push(currBoard);
 
         int tries = 0;
-        while (!currBoard.IsValid())
+        while (stack.Count > 0)
         {
-            var dists = currBoard.ClarifyMovement();
-            int distsLength = dists.Length;
+            currBoard = stack.Pop();
+            
+            if (!visited.Add(currBoard.Hash)) continue;
+            
+            var directions = currBoard.ClarifyMovement();
+            int directionsLength = directions.Length;
 
             uint currDistance = GetDistance(currBoard);
-            var possibleBoards = new (Board board, uint dist)[distsLength];
+            var possibleBoards = new (Board board, uint dist)[directionsLength];
 
-            for (var i = 0; i < distsLength; i++)
+            for (var i = 0; i < directionsLength; i++)
             {
-                var nextBoard = currBoard.Move(dists[i]);
+                var nextBoard = currBoard.Move(directions[i]);
                 uint distance = GetDistance(nextBoard);
                 possibleBoards[i] = (nextBoard, distance);
             }
@@ -50,16 +54,8 @@ public class Astar : IPuzzleSolver
                 if (nextBoardDist >= currDistance) continue;
 
                 var nextboard = possibleBoard.board;
-                if (set.Add(nextboard.Hash))
-                {
-                    stack.Push(nextboard);
-                    break;
-                }
+                if (!visited.Contains(nextboard.Hash)) stack.Push(nextboard);
             }
-
-            if (stack.Count <= 0) break;
-
-            currBoard = stack.Pop();
 
             if (++tries >= _maxTries) break;
         }

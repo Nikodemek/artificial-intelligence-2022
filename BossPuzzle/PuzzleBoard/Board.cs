@@ -81,7 +81,7 @@ public readonly struct Board : ICloneable, IEquatable<Board>
         RowSize = (short)rowLength;
         ColumnSize = (short)columnLength;
         Hash = ComputeSmartHash(board, rowLength, columnLength);
-        Hammings = HammigsDistance(board, rowLength, columnLength);
+        Hammings = HammingDistance(board, rowLength, columnLength);
         Manhattans = ManhattanDistance(board, rowLength, columnLength);
 
         _path = path ?? new List<Direction>();
@@ -127,7 +127,7 @@ public readonly struct Board : ICloneable, IEquatable<Board>
         return hash;
     }
 
-    private static uint HammigsDistance(short[][] board, int rowSize, int columnSize)
+    private static uint HammingDistance(short[][] board, int rowSize, int columnSize)
     {
         uint dist = 0;
 

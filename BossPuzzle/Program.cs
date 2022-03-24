@@ -1,4 +1,5 @@
-﻿using BossPuzzle.Dao;
+﻿using System.Text;
+using BossPuzzle.Dao;
 using BossPuzzle.Utils;
 using BossPuzzle.PuzzleBoard;
 
@@ -13,12 +14,12 @@ class Program
         /*var readFile = new FileFifteenPuzzleDao("test.file");
         var board = readFile.Read();*/
 
-        var board = PuzzleGenerator.Generate(4, 4, 7);
+        var board = PuzzleGenerator.Generate(4, 4, 20);
         board.Print();
         Console.WriteLine($"Hammings distance = {board.Hammings}");
         Console.WriteLine($"Manhattan distance = {board.Manhattans}");
 
-        IPuzzleSolver solver = new Astar(Atype.Manhattan);
+        // IPuzzleSolver solver = new Astar(Atype.Manhattan);
 
         /*IPuzzleSolver solver = new BFS(new[]
         {
@@ -28,21 +29,28 @@ class Program
             Dir.Right
         });*/
 
-        /*IPuzzleSolver solver = new DFS(new[]
+        IPuzzleSolver solver = new DFS(new[]
         {
             Dir.Up,
             Dir.Down,
             Dir.Left,
             Dir.Right
-        });*/
+        });
 
-        /*var solvedBoard = board.Solve(solver);
+        var solvedBoard = board.Solve(solver);
         if (solvedBoard.IsValid()) Console.WriteLine("SOLVED!!");
-        solvedBoard.Print();*/
+        solvedBoard.Print();
+        var stringBuilder = new StringBuilder();
+        foreach (var direction in solvedBoard.GetPath())
+        {
+            stringBuilder.Append(direction.ToString()[0]);
+        }
+
+        Console.WriteLine(stringBuilder);
 
         /*var saveFile = new FileFifteenPuzzleDao("test_sol.file");
         saveFile.Write(solvedBoard);*/
 
-        Console.ReadKey();
+        //Console.ReadKey();
     }
 }

@@ -1,4 +1,5 @@
-﻿using BossPuzzle.Utils;
+﻿using System.Data.Common;
+using BossPuzzle.Utils;
 
 namespace BossPuzzle.PuzzleBoard;
 using Dir = Board.Direction;
@@ -7,86 +8,87 @@ public class DFS : IPuzzleSolver
 {
     private readonly int _maxDepth;
     private readonly Dir[] _directions;
-    private HashSet<ulong> visited;
-    private int _recursionDepth;
 
     public DFS(Dir[] directions)
-        : this(directions, 12)
+        : this(directions, 21)
     { }
 
     public DFS(Dir[] directions, int maxDepth)
     {
         _maxDepth = maxDepth;
-        _directions = Arrayer.Copy(directions).Reverse();
-        visited = new HashSet<ulong>();
-        _recursionDepth = 0;
+        _directions = Arrayer.Copy(directions);
     }
 
-    /*public Board Solve(in Board board)
+    public Board Solve(in Board board)
     {
+        var stack = new Stack<Board>();
+        var visitedExtend = new Dictionary<ulong, short>();
+        var validBoards = new List<Board>();
+
         if (board.IsValid()) return board;
 
-        var visited = new HashSet<ulong>();
-        var stack = new Stack<Board>();
-        var recursionDepth = 0;
-
         stack.Push(board);
+        var currentBoard = board;
 
         while (stack.Count > 0)
         {
-            Console.WriteLine(recursionDepth);
-            Console.WriteLine(stack.Count);
-
-            var currentBoard = stack.Pop();
-            
-            // this is the only place that should define board as visited
-            if (!visited.Add(currentBoard.Hash))
+            while (stack.Count > _maxDepth)
             {
-                recursionDepth--;
-                continue;
-            }
-
-            if (recursionDepth > _depth)
-            {
-                continue;
+                stack.Pop();
+                currentBoard = stack.Pop();
+                stack.Push(currentBoard);
             }
 
             var directions = currentBoard.ClarifyMovement(_directions);
+
+            bool flag = false;
             foreach (var direction in directions)
             {
                 var nextBoard = currentBoard.Move(direction);
-                nextBoard.AddToPath(direction);
-            
-                if (nextBoard.IsValid()) return nextBoard;
-            
-                if (!visited.Contains(nextBoard.Hash)) stack.Push(nextBoard);
+
+                if (nextBoard.IsValid())
+                {
+                    validBoards.Add(nextBoard);
+                    break;
+                }
+                
+                if (!visitedExtend.TryAdd(nextBoard.Hash, (short)stack.Count))
+                {
+                    if (visitedExtend.TryGetValue(nextBoard.Hash, out var value))
+                    {
+                        if (value > stack.Count)
+                        {
+                            flag = true;
+                            visitedExtend[nextBoard.Hash] = (short)stack.Count;
+                            stack.Push(nextBoard);
+                            currentBoard = nextBoard;
+                            break;
+                        }
+                        continue;
+                    }
+                }
+
+                flag = true;
+                stack.Push(nextBoard);
+                currentBoard = nextBoard;
+                break;
             }
 
-        }
-
-        return board;
-    }*/
-    
-    public Board Solve(in Board board)
-    {
-        if (board.IsValid() || _recursionDepth > _maxDepth) return board;
-        
-        _recursionDepth++;
-
-        visited.Add(board.Hash);
-
-        var directions = board.ClarifyMovement(_directions);
-
-        foreach (var direction in directions)
-        {
-            var nextBoard = board.Move(direction);
-        
-            if (nextBoard.IsValid()) return nextBoard;
-
-            if (!visited.Contains(nextBoard.Hash)) return Solve(nextBoard);
+            if (!flag)
+            {
+                stack.Pop();
+                if (stack.Count == 0)
+                {
+                    break;
+                }
+                currentBoard = stack.Pop();
+                stack.Push(currentBoard);
+            }
         }
         
-        return board;
+        Array.Sort(validBoards.ToArray(), 
+            (board1, board2) => board1.GetPath().Length.CompareTo(board2.GetPath().Length));
+
+        return validBoards.First();
     }
-    
 }
