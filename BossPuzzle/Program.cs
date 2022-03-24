@@ -10,23 +10,23 @@ class Program
 {
     public static void Main()
     {
-        /*var readFile = new FileFifteenPuzzleDao("test.file");
-        var board = readFile.Read();*/
+        var readFile = new FileFifteenPuzzleDao("test.txt");
+        var board = readFile.Read();
 
-        var board = PuzzleGenerator.Generate(4, 4, 5);
+        // var board = PuzzleGenerator.Generate(4, 4, 5);
         board.Print();
         Console.WriteLine($"Hammings distance = {board.Hammings}");
         Console.WriteLine($"Manhattan distance = {board.Manhattans}");
 
-        IPuzzleSolver solver = new Astar(Atype.Manhattan);
+        // IPuzzleSolver solver = new Astar(Atype.Manhattan);
 
-        /*IPuzzleSolver solver = new BFS(new[]
+        IPuzzleSolver solver = new BFS(new[]
         {
             Dir.Up,
             Dir.Down,
             Dir.Left,
             Dir.Right
-        });*/
+        });
 
         /*IPuzzleSolver solver = new DFS(new[]
         {

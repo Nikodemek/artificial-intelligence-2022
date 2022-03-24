@@ -7,19 +7,15 @@ public class DFS : IPuzzleSolver
 {
     private readonly int _maxDepth;
     private readonly Dir[] _directions;
-    /*private HashSet<ulong> visited;
-    private int _recursionDepth;*/
 
     public DFS(Dir[] directions)
-        : this(directions, 12)
+        : this(directions, 7)
     { }
 
     public DFS(Dir[] directions, int maxDepth)
     {
         _maxDepth = maxDepth;
         _directions = Arrayer.Copy(directions).Reverse();
-        /*visited = new HashSet<ulong>();
-        _recursionDepth = 0;*/
     }
 
     public Board Solve(in Board board)
@@ -30,23 +26,38 @@ public class DFS : IPuzzleSolver
         var stack = new Stack<Board>();
 
         stack.Push(board);
+        var currentBoard = board;
 
         while (stack.Count > 0)
         {
-            var currentBoard = stack.Pop();
+            while (stack.Count > _maxDepth)
+            {
+                currentBoard = stack.Pop();
+            }
             
-            // this is the only place that should define board as visited
-            if (!visited.Add(currentBoard.Hash)) continue;
+            visited.Add(currentBoard.Hash);
 
             var directions = currentBoard.ClarifyMovement(_directions);
-            
+
+            bool flag = false;
             foreach (var direction in directions)
             {
                 var nextBoard = currentBoard.Move(direction);
 
                 if (nextBoard.IsValid()) return nextBoard;
-            
-                if (!visited.Contains(nextBoard.Hash)) stack.Push(nextBoard);
+
+                if (!visited.Contains(nextBoard.Hash))
+                {
+                    flag = true;
+                    stack.Push(nextBoard);
+                    currentBoard = nextBoard;
+                    break;
+                }
+            }
+
+            if (!flag)
+            {
+                currentBoard = stack.Pop();
             }
         }
 

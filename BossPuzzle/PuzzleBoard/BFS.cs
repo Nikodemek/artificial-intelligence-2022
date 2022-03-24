@@ -38,6 +38,7 @@ public class BFS : IPuzzleSolver
             }
         }
 
+        Console.WriteLine(visited.Count);
         return board;
     }
 }
