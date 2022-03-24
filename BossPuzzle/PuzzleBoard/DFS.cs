@@ -10,7 +10,7 @@ public class DFS : IPuzzleSolver
     private readonly Dir[] _directions;
 
     public DFS(Dir[] directions)
-        : this(directions, 3)
+        : this(directions, 21)
     { }
 
     public DFS(Dir[] directions, int maxDepth)
@@ -21,12 +21,11 @@ public class DFS : IPuzzleSolver
 
     public Board Solve(in Board board)
     {
-        var visited = new HashSet<ulong>();
         var stack = new Stack<Board>();
         var visitedExtend = new Dictionary<ulong, short>();
         var validBoards = new List<Board>();
-        
-        if (board.IsValid()) validBoards.Add(board);
+
+        if (board.IsValid()) return board;
 
         stack.Push(board);
         var currentBoard = board;
@@ -35,15 +34,11 @@ public class DFS : IPuzzleSolver
         {
             while (stack.Count > _maxDepth)
             {
+                stack.Pop();
                 currentBoard = stack.Pop();
+                stack.Push(currentBoard);
             }
-            
-            visited.Add(currentBoard.Hash);
-            if (!visitedExtend.TryAdd(currentBoard.Hash, (short)stack.Count))
-            {
-                visitedExtend[currentBoard.Hash] = (short)stack.Count;
-            }
-            
+
             var directions = currentBoard.ClarifyMovement(_directions);
 
             bool flag = false;
@@ -54,65 +49,46 @@ public class DFS : IPuzzleSolver
                 if (nextBoard.IsValid())
                 {
                     validBoards.Add(nextBoard);
-                    
-                }
-
-                short value;
-                if (visitedExtend.TryGetValue(nextBoard.Hash, out value))
-                {
-                    if (value > stack.Count)
-                    {
-                        flag = true;
-                        stack.Push(nextBoard);
-                        visitedExtend[nextBoard.Hash] = (short)stack.Count;
-                        currentBoard = nextBoard;
-                        break;
-                    }
-                }
-                else
-                {
-                    flag = true;
-                    stack.Push(nextBoard);
-                    visitedExtend.Add(nextBoard.Hash, (short)stack.Count);
-                    currentBoard = nextBoard;
                     break;
                 }
+                
+                if (!visitedExtend.TryAdd(nextBoard.Hash, (short)stack.Count))
+                {
+                    if (visitedExtend.TryGetValue(nextBoard.Hash, out var value))
+                    {
+                        if (value > stack.Count)
+                        {
+                            flag = true;
+                            visitedExtend[nextBoard.Hash] = (short)stack.Count;
+                            stack.Push(nextBoard);
+                            currentBoard = nextBoard;
+                            break;
+                        }
+                        continue;
+                    }
+                }
+
+                flag = true;
+                stack.Push(nextBoard);
+                currentBoard = nextBoard;
+                break;
             }
 
             if (!flag)
             {
+                stack.Pop();
+                if (stack.Count == 0)
+                {
+                    break;
+                }
                 currentBoard = stack.Pop();
+                stack.Push(currentBoard);
             }
         }
         
         Array.Sort(validBoards.ToArray(), 
             (board1, board2) => board1.GetPath().Length.CompareTo(board2.GetPath().Length));
-        for (int i = 0; i < validBoards.Count - 1; i++)
-        {
-            var referenceEquals = Object.ReferenceEquals(validBoards[i], validBoards[i + 1]);
-            Console.WriteLine(referenceEquals);
-            /*foreach (var direction in validBoard.GetPath())
-            {
-                switch (direction)
-                {
-                    case Dir.Up:
-                        Console.Write("U");
-                        break;
-                    case Dir.Down:
-                        Console.Write("D");
-                        break;
-                    case Dir.Left:
-                        Console.Write("L");
-                        break;
-                    case Dir.Right:
-                        Console.Write("R");
-                        break;
-                }
-            }
 
-            Console.WriteLine();*/
-        }
-        
         return validBoards.First();
     }
 }
