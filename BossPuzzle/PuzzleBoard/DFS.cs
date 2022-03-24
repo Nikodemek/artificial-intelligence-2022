@@ -35,8 +35,7 @@ public class DFS : IPuzzleSolver
             while (stack.Count > _maxDepth)
             {
                 stack.Pop();
-                currentBoard = stack.Pop();
-                stack.Push(currentBoard);
+                currentBoard = stack.Peek();
             }
 
             var directions = currentBoard.ClarifyMovement(_directions);
@@ -81,13 +80,11 @@ public class DFS : IPuzzleSolver
                 {
                     break;
                 }
-                currentBoard = stack.Pop();
-                stack.Push(currentBoard);
+                currentBoard = stack.Peek();
             }
         }
         
-        Array.Sort(validBoards.ToArray(), 
-            (board1, board2) => board1.GetPath().Length.CompareTo(board2.GetPath().Length));
+        validBoards.Sort((board1, board2) => board1.GetPath().Length.CompareTo(board2.GetPath().Length));
 
         return validBoards.First();
     }
