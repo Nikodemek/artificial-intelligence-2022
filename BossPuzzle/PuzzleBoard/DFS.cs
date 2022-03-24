@@ -5,7 +5,7 @@ using Dir = Board.Direction;
 
 public class DFS : IPuzzleSolver
 {
-    private readonly int _depth;
+    private readonly int _maxDepth;
     private readonly Dir[] _directions;
     private HashSet<ulong> visited;
     private int _recursionDepth;
@@ -14,10 +14,10 @@ public class DFS : IPuzzleSolver
         : this(directions, 12)
     { }
 
-    public DFS(Dir[] directions, int depth)
+    public DFS(Dir[] directions, int maxDepth)
     {
-        _depth = depth;
-        _directions = Arrayer.CopySingle(directions).Reverse();
+        _maxDepth = maxDepth;
+        _directions = Arrayer.Copy(directions).Reverse();
         visited = new HashSet<ulong>();
         _recursionDepth = 0;
     }
@@ -69,7 +69,7 @@ public class DFS : IPuzzleSolver
     
     public Board Solve(in Board board)
     {
-        if (board.IsValid() || _recursionDepth > _depth) return board;
+        if (board.IsValid() || _recursionDepth > _maxDepth) return board;
         
         _recursionDepth++;
 
@@ -80,7 +80,6 @@ public class DFS : IPuzzleSolver
         foreach (var direction in directions)
         {
             var nextBoard = board.Move(direction);
-            //nextBoard.AddToPath(direction);
         
             if (nextBoard.IsValid()) return nextBoard;
 

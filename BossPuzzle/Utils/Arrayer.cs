@@ -2,7 +2,7 @@
 
 public static class Arrayer
 {
-    public static T[] CopySingle<T>(T[] arr) where T : IConvertible
+    public static T[] Copy<T>(T[] arr) where T : IConvertible
     {
         int xLength = arr.Length;
 
@@ -14,7 +14,7 @@ public static class Arrayer
         return ret;
     }
 
-    public static T[][] CopyDouble<T>(T[][] arr) where T : IConvertible
+    public static T[][] Copy<T>(T[][] arr) where T : IConvertible
     {
         int xLength = arr.Length;
 
@@ -44,7 +44,7 @@ public static class Arrayer
 
     public static T[] Shuffle<T>(this T[] arr)
     {
-        var rand = Random.Shared;
+        var rand = new Random();
         int length = arr.Length;
 
         for (int i = 0; i < length; i++)

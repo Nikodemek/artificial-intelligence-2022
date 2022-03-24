@@ -30,37 +30,36 @@ public class FileFifteenPuzzleDao : IDao<Board>
         var list = data[0].Split(' ');
         int columnSize = Parser.ToInt32(list[0]);
         int rowSize = Parser.ToInt32(list[1]);
-        var table = new short[columnSize][];
+        var board = new short[columnSize][];
         
         for (var i = 0; i < columnSize; i++)
         {
             var row = data[i + 1].Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            table[i] = new short[rowSize];
+            board[i] = new short[rowSize];
 
             for (var j = 0; j < rowSize; j++)
             {
-                table[i][j] = Parser.ToInt16(row[j]);
+                board[i][j] = Parser.ToInt16(row[j]);
             }
         
         }
 
-        return new Board(table);
+        return new Board(board);
     }
 
     public void Write(in Board board)
     {
-        var stringBuilder = new StringBuilder();
-        using var streamWriter = new StreamWriter(_filePath);
-
         var path = board.GetPath();
         int pathLength = path.Length;
 
+        var stringBuilder = new StringBuilder();
         stringBuilder.Append(pathLength);
         stringBuilder.AppendLine();
         foreach (var item in path)
         {
             stringBuilder.Append(item.ToString()[0]);
         }
-        streamWriter.Write(stringBuilder);
+
+        File.WriteAllText(_filePath, stringBuilder.ToString());
     }
 }

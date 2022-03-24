@@ -196,29 +196,16 @@ public readonly struct Board : ICloneable, IEquatable<Board>
             int offset = i * RowSize;
             for (var j = 0; j < ColumnSize; j++)
             {
-                bool valid = _board[i][j] == (offset + j + 1) % size;
-
-                if (!valid) return false;
+                int target = (offset + j + 1) % size;
+                if (_board[i][j] != target) return false;
             }
         }
-
         return true;
     }
 
-    public Direction[] GetPath()
-    {
-        return _path.ToArray();
-    }
+    public Direction[] GetPath() => _path.ToArray();
 
-    /*public void AddToPath(Direction direction)
-    {
-        _path.Add(direction);
-    }*/
-
-    public int At(int row, int column)
-    {
-        return _board[row][column];
-    }
+    public int At(int row, int column) => _board[row][column];
 
     public Direction[] ClarifyMovement()
     {
@@ -228,8 +215,7 @@ public readonly struct Board : ICloneable, IEquatable<Board>
                 Direction.Down, 
                 Direction.Left, 
                 Direction.Right,
-            }
-            );
+            });
     }
 
     public Direction[] ClarifyMovement(Direction[] directions)
@@ -270,7 +256,7 @@ public readonly struct Board : ICloneable, IEquatable<Board>
 
     public Board Move(int row, int column, Direction dir)
     {
-        short[][] newBoard = Arrayer.CopyDouble(_board);
+        short[][] newBoard = Arrayer.Copy(_board);
 
         ref short changedCell = ref newBoard[0][0];
         switch (dir)

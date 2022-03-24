@@ -30,12 +30,12 @@ public class Astar : IPuzzleSolver
         while (!currBoard.IsValid())
         {
             var dists = currBoard.ClarifyMovement();
-            int distLength = dists.Length;
+            int distsLength = dists.Length;
 
             uint currDistance = GetDistance(currBoard);
-            var possibleBoards = new (Board board, uint dist)[distLength];
+            var possibleBoards = new (Board board, uint dist)[distsLength];
 
-            for (var i = 0; i < distLength; i++)
+            for (var i = 0; i < distsLength; i++)
             {
                 var nextBoard = currBoard.Move(dists[i]);
                 uint distance = GetDistance(nextBoard);

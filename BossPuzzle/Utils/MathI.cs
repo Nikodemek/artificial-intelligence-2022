@@ -6,6 +6,8 @@ public static class MathI
 {
     public static ulong Power(ulong n, int pow)
     {
+        if (pow <= 0) return 1ul;
+
         ulong result = 1;
         for (int i = 0; i < pow; i++)
         {

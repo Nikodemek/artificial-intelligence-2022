@@ -10,7 +10,7 @@ public class BFS : IPuzzleSolver
     
     public BFS(Dir[] directions)
     {
-        _directions = Arrayer.CopySingle(directions);
+        _directions = Arrayer.Copy(directions);
     }
 
     public Board Solve(in Board board)
@@ -31,7 +31,6 @@ public class BFS : IPuzzleSolver
             foreach (var direction in directions)
             {
                 var nextBoard = currentBoard.Move(direction);
-                //nextBoard.AddToPath(direction);
 
                 if (nextBoard.IsValid()) return nextBoard;
 
