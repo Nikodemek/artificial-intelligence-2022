@@ -285,8 +285,7 @@ public readonly struct Board : ICloneable, IEquatable<Board>
         changedCell = _board[row][column];
         newBoard[row][column] = temp;
 
-        var newPath = new List<Direction>(_path);
-        newPath.Add(dir);
+        var newPath = new List<Direction>(_path) { dir };
 
         return new Board(newBoard, false, newPath, _correctHash);
     }

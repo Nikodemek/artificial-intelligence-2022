@@ -10,7 +10,7 @@ public class DFS : IPuzzleSolver
     private readonly Dir[] _directions;
 
     public DFS(Dir[] directions)
-        : this(directions, 21)
+        : this(directions, 25)
     { }
 
     public DFS(Dir[] directions, int maxDepth)
@@ -22,70 +22,50 @@ public class DFS : IPuzzleSolver
     public Board Solve(in Board board)
     {
         var stack = new Stack<Board>();
-        var visitedExtend = new Dictionary<ulong, short>();
+        var visited = new Dictionary<ulong, short>();
         var validBoards = new List<Board>();
 
-        if (board.IsValid()) return board;
-
-        stack.Push(board);
         var currentBoard = board;
+        stack.Push(currentBoard);
 
         while (stack.Count > 0)
         {
-            while (stack.Count > _maxDepth)
+            if (currentBoard.IsValid()) validBoards.Add(currentBoard);
+
+            if (stack.Count > _maxDepth)
             {
                 stack.Pop();
                 currentBoard = stack.Peek();
             }
 
+            bool boardAdded = false;
             var directions = currentBoard.ClarifyMovement(_directions);
-
-            bool flag = false;
             foreach (var direction in directions)
             {
                 var nextBoard = currentBoard.Move(direction);
-
-                if (nextBoard.IsValid())
+                short stackCount = (short)stack.Count;
+                ulong nextBoardHash = nextBoard.Hash;
+                if (!visited.TryAdd(nextBoardHash, stackCount))
                 {
-                    validBoards.Add(nextBoard);
-                    break;
-                }
-                
-                if (!visitedExtend.TryAdd(nextBoard.Hash, (short)stack.Count))
-                {
-                    if (visitedExtend.TryGetValue(nextBoard.Hash, out var value))
-                    {
-                        if (value > stack.Count)
-                        {
-                            flag = true;
-                            visitedExtend[nextBoard.Hash] = (short)stack.Count;
-                            stack.Push(nextBoard);
-                            currentBoard = nextBoard;
-                            break;
-                        }
-                        continue;
-                    }
+                    if (stackCount < visited[nextBoardHash]) visited[nextBoardHash] = stackCount;
+                    else continue;
                 }
 
-                flag = true;
+                boardAdded = true;
                 stack.Push(nextBoard);
                 currentBoard = nextBoard;
                 break;
             }
 
-            if (!flag)
+            if (!boardAdded)
             {
                 stack.Pop();
-                if (stack.Count == 0)
-                {
-                    break;
-                }
-                currentBoard = stack.Peek();
+                stack.TryPeek(out currentBoard);
             }
         }
         
         validBoards.Sort((board1, board2) => board1.GetPath().Length.CompareTo(board2.GetPath().Length));
 
-        return validBoards.First();
+        return validBoards[0];
     }
 }

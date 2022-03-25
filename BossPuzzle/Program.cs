@@ -14,7 +14,7 @@ class Program
         /*var readFile = new FileFifteenPuzzleDao("test.file");
         var board = readFile.Read();*/
 
-        var board = PuzzleGenerator.Generate(4, 4, 20);
+        var board = PuzzleGenerator.Generate(4, 4, 18);
         board.Print();
         Console.WriteLine($"Hammings distance = {board.Hammings}");
         Console.WriteLine($"Manhattan distance = {board.Manhattans}");
@@ -29,13 +29,14 @@ class Program
             Dir.Right
         });*/
 
-        IPuzzleSolver solver = new DFS(new[]
-        {
+        IPuzzleSolver solver = new DFS(
+            new[] {
             Dir.Up,
             Dir.Down,
             Dir.Left,
-            Dir.Right
-        });
+            Dir.Right 
+            }, 
+            19);
 
         var solvedBoard = board.Solve(solver);
         if (solvedBoard.IsValid()) Console.WriteLine("SOLVED!!");
@@ -45,12 +46,13 @@ class Program
         {
             stringBuilder.Append(direction.ToString()[0]);
         }
+        Console.WriteLine($"Created {Board.instances} instances of Board.");
 
         Console.WriteLine(stringBuilder);
 
         /*var saveFile = new FileFifteenPuzzleDao("test_sol.file");
         saveFile.Write(solvedBoard);*/
 
-        //Console.ReadKey();
+        Console.ReadKey();
     }
 }
