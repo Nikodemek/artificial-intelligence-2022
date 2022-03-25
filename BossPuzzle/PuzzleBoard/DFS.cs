@@ -22,7 +22,7 @@ public class DFS : IPuzzleSolver
     public Board Solve(in Board board)
     {
         var stack = new Stack<Board>();
-        var visited = new Dictionary<ulong, short>();
+        var visitedBoardsDepths = new Dictionary<ulong, short>();
         var validBoards = new List<Board>();
 
         var currentBoard = board;
@@ -45,10 +45,11 @@ public class DFS : IPuzzleSolver
                 var nextBoard = currentBoard.Move(direction);
                 short stackCount = (short)stack.Count;
                 ulong nextBoardHash = nextBoard.Hash;
-                if (!visited.TryAdd(nextBoardHash, stackCount))
+
+                if (!visitedBoardsDepths.TryAdd(nextBoardHash, stackCount))
                 {
-                    if (stackCount < visited[nextBoardHash]) visited[nextBoardHash] = stackCount;
-                    else continue;
+                    if (stackCount >= visitedBoardsDepths[nextBoardHash]) continue;
+                    else visitedBoardsDepths[nextBoardHash] = stackCount;
                 }
 
                 boardAdded = true;
