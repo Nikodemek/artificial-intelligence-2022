@@ -65,7 +65,7 @@ public class DFS : IPuzzleSolver
             }
         }
         
-        validBoards.Sort((board1, board2) => board1.GetPath().Length.CompareTo(board2.GetPath().Length));
+        validBoards.Sort((board1, board2) => board1.GetPathLength().CompareTo(board2.GetPathLength()));
 
         return validBoards[0];
     }

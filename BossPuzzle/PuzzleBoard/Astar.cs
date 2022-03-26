@@ -2,16 +2,16 @@
 
 namespace BossPuzzle.PuzzleBoard;
 
-public class Astar : IPuzzleSolver
+public class AStar : IPuzzleSolver
 {
     private readonly int _maxTries;
-    private readonly Atype _atype;
+    private readonly Heuristic _atype;
 
-    public Astar(Atype atype)
+    public AStar(Heuristic atype)
         : this(atype, 10_000)
     { }
 
-    public Astar(Atype atype, int maxTries)
+    public AStar(Heuristic atype, int maxTries)
     {
         _maxTries = maxTries;
         _atype = atype;
@@ -19,63 +19,38 @@ public class Astar : IPuzzleSolver
 
     public Board Solve(in Board board)
     {
+        var queue = new PriorityQueue<Board, uint>();
+
         var currBoard = board;
 
-        var visited = new HashSet<ulong>();
-        var stack = new Stack<Board>();
-
-        stack.Push(currBoard);
-
-        int tries = 0;
-        while (stack.Count > 0)
+        while (!currBoard.IsValid())
         {
-            currBoard = stack.Pop();
-            
-            if (!visited.Add(currBoard.Hash)) continue;
-            
             var directions = currBoard.ClarifyMovement();
-            int directionsLength = directions.Length;
-
-            uint currDistance = GetDistance(currBoard);
-            var possibleBoards = new (Board board, uint dist)[directionsLength];
-
-            for (var i = 0; i < directionsLength; i++)
+            foreach (var direction in directions)
             {
-                var nextBoard = currBoard.Move(directions[i]);
-                uint distance = GetDistance(nextBoard);
-                possibleBoards[i] = (nextBoard, distance);
+                var nextBoard = currBoard.Move(direction);
+                uint pathDist = (uint)nextBoard.GetPathLength();
+                uint heurDist = GetHeuristicDistance(nextBoard);
+                queue.Enqueue(nextBoard, pathDist + heurDist);
             }
-
-            Array.Sort(possibleBoards, (a, b) => a.dist.CompareTo(b.dist));
-
-            foreach (var possibleBoard in possibleBoards)
-            {
-                uint nextBoardDist = possibleBoard.dist;
-                if (nextBoardDist >= currDistance) continue;
-
-                var nextboard = possibleBoard.board;
-                if (!visited.Contains(nextboard.Hash)) stack.Push(nextboard);
-            }
-
-            if (++tries >= _maxTries) break;
+            currBoard = queue.Dequeue();
         }
 
-        Console.WriteLine($"Tries = {tries}");
         return currBoard;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private uint GetDistance(in Board board)
+    private uint GetHeuristicDistance(in Board board)
     {
         return _atype switch
         {
-            Atype.Hamming => board.Hammings,
-            Atype.Manhattan => board.Manhattans,
+            Heuristic.Hamming => board.Hammings,
+            Heuristic.Manhattan => board.Manhattans,
             _ => throw new ArgumentOutOfRangeException(nameof(_atype), "Atype not recognized."),
         };
     }
 
-    public enum Atype
+    public enum Heuristic
     {
         Hamming = 0,
         Manhattan = 1,

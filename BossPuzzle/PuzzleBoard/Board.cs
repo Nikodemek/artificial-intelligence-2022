@@ -148,15 +148,13 @@ public readonly struct Board : ICloneable, IEquatable<Board>
     }
 
     // Cos takiego probuje osiagnac tym kodem (0 to jest poprawne miejsce dla liczby).
-    //     4 3 2 3 4     6 5 4 3 4     5 4 5 6 7     0 1 2 3 4
-    //     3 2 1 2 3     5 4 3 2 3     4 3 4 5 6     1 2 3 4 5
-    //     2 1 0 1 2     4 3 2 1 2     3 2 3 4 5     2 3 4 5 6
-    //     3 2 1 2 3     3 2 1 0 1     2 1 2 3 4     3 4 5 6 7
-    //     4 3 2 3 4     4 3 2 1 2     1 0 1 2 3     4 5 6 7 8
+    //     4 3 2 3 4      6 5 4 3 4      5 4 5 6 7      0 1 2 3 4
+    //     3 2 1 2 3      5 4 3 2 3      4 3 4 5 6      1 2 3 4 5
+    //     2 1 0 1 2      4 3 2 1 2      3 2 3 4 5      2 3 4 5 6
+    //     3 2 1 2 3      3 2 1 0 1      2 1 2 3 4      3 4 5 6 7
+    //     4 3 2 3 4      4 3 2 1 2      1 0 1 2 3      4 5 6 7 8
     private static uint ManhattanDistance(short[][] board, int rowSize, int columnSize)
     {
-        const uint Strength = 2;
-
         uint dist = 0;
 
         int size = rowSize * columnSize;
@@ -174,7 +172,7 @@ public readonly struct Board : ICloneable, IEquatable<Board>
                 (int targetRow, int targetColumn) = MathI.DivRem(normalised, rowSize);
                 int deviation = Math.Abs(i - targetRow) + Math.Abs(j - targetColumn);
 
-                dist += MathI.Power(Strength, deviation);
+                dist += (uint)deviation;
             }
         }
 
@@ -205,6 +203,8 @@ public readonly struct Board : ICloneable, IEquatable<Board>
 
     public Direction[] GetPath() => _path.ToArray();
 
+    public int GetPathLength() => _path.Count;
+
     public int At(int row, int column) => _board[row][column];
 
     public Direction[] ClarifyMovement()
@@ -221,9 +221,18 @@ public readonly struct Board : ICloneable, IEquatable<Board>
     public Direction[] ClarifyMovement(Direction[] directions)
     {
         var newDirections = new List<Direction>(3);
+
+        bool hasLastDirection = false;
+        Direction cancellingDir = Direction.Right;
+        if (_path is List<Direction> path && path.Count > 0)
+        {
+            hasLastDirection = true;
+            cancellingDir = GetCancellingDirection(path[^1]);
+        }
+
         foreach (var direction in directions)
         {
-            if (_path?.Count > 0 && direction == GetCancellingDirection(_path[^1])) continue;
+            if (hasLastDirection && direction == cancellingDir) continue;
 
             switch (direction)
             {
@@ -394,7 +403,7 @@ public readonly struct Board : ICloneable, IEquatable<Board>
         {
             for (int j = 0; j < RowSize; j++)
             {
-                areBoardFieldsEqual &= this.At(i, j) == other.At(i, j);
+                areBoardFieldsEqual &= this._board[i][j] == other._board[i][j];
                 if (!areBoardFieldsEqual) return false;
             }
         }
