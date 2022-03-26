@@ -1,14 +1,44 @@
-﻿using BossPuzzle.PuzzleBoard;
+﻿using BossPuzzle.Dao;
+using BossPuzzle.PuzzleBoard;
 using BossPuzzle.Utils;
 using System.Diagnostics;
 using System.Text;
 
 namespace BossPuzzle;
+using Dir = Board.Direction;
 using Heur = AStar.Heuristic;
 
 class Program
 {
-    public static void Main()
+    public static void Main(string[] args)
+    {
+        Global.EnsureDirectoryIsValid();
+
+        if (args.Length == 0)
+        {
+            TestRunner();
+        }
+        else
+        {
+            (var board, var solver, var solutionWritter, var additionalWritter) = InputParser(args);
+
+            board.Print();
+
+            var watch = Stopwatch.StartNew();
+            var solvedBoard = board.Solve(solver);
+            watch.Stop();
+
+            if (solvedBoard.IsValid()) Console.WriteLine($"SOLVED in {watch.ElapsedMilliseconds}ms");
+            solvedBoard.Print();
+
+            string path = solvedBoard.GetPathFormatted();
+            Console.WriteLine($"Created {Board.instances:n0} instances of Board.");
+            Console.WriteLine($"Path: {path} (length = {path.Length})");
+        }
+
+    }
+
+    private static void TestRunner()
     {
         /*var readFile = new FileFifteenPuzzleDao("test.file");
         var board = readFile.Read();*/
@@ -17,7 +47,7 @@ class Program
         board.Print();
 
 
-        IPuzzleSolver solver = new AStar(Heur.Manhattan);
+        //IPuzzleSolver solver = new AStar(Heur.Manhattan);
 
         /*IPuzzleSolver solver = new BFS(new[]
         {
@@ -27,14 +57,14 @@ class Program
             Dir.Right
         });*/
 
-        /*IPuzzleSolver solver = new DFS(
+        IPuzzleSolver solver = new DFS(
             new[] {
             Dir.Up,
             Dir.Down,
             Dir.Left,
             Dir.Right
             },
-            19);*/
+            19);
 
 
         var watch = Stopwatch.StartNew();
@@ -44,9 +74,7 @@ class Program
         if (solvedBoard.IsValid()) Console.WriteLine($"SOLVED in {watch.ElapsedMilliseconds}ms");
         solvedBoard.Print();
 
-        var sb = new StringBuilder();
-        foreach (var direction in solvedBoard.GetPath()) sb.Append(direction.ToString()[0]);
-        string path = sb.ToString();
+        string path = solvedBoard.GetPathFormatted();
         Console.WriteLine($"Created {Board.instances:n0} instances of Board.");
         Console.WriteLine($"Path: {path} (length = {path.Length})");
 
@@ -55,5 +83,75 @@ class Program
         saveFile.Write(solvedBoard);*/
 
         Console.ReadKey();
+    }
+
+    private static (Board board, IPuzzleSolver solver, FileWriter solutionWritter, FileWriter additionalWritter) InputParser(string[] args)
+    {
+        if (args is null || args.Length != 5) throw new ArgumentException("Argument list must contain 5 arguments!", nameof(args));
+
+        string algorithm = args[0];
+        string specification = args[1];
+        string boardFile = args[2];
+        string solutionFile = args[3];
+        string additionalFile = args[4];
+
+        Board board;
+        IPuzzleSolver solver;
+        FileWriter solutionWritter;
+        FileWriter additionalWritter;
+
+        solver = algorithm switch
+        {
+            "bfs" => new BFS(StringToDirections(specification.ToUpper())),
+            "dfs" => new DFS(StringToDirections(specification.ToUpper())),
+            "astr" => specification.ToLower() switch
+            {
+                "hamm" => new AStar(Heur.Hamming),
+                "manh" => new AStar(Heur.Manhattan),
+                _ => throw new ArgumentException($"Heuristic '{specification}' not recognized", nameof(specification)),
+            },
+            _ => throw new ArgumentException($"Algorithm '{algorithm}' not recognized", nameof(algorithm)),
+        };
+
+        var readFile = new FileFifteenPuzzleDao(boardFile);
+        board = readFile.Read();
+        solutionWritter = new FileWriter(solutionFile);
+        additionalWritter = new FileWriter(additionalFile);
+
+        return (board, solver, solutionWritter, additionalWritter);
+    }
+
+    private static Dir[] StringToDirections(string spec)
+    {
+        if(spec is null || spec.Length != 4) throw new ArgumentException("Direction specification must contain 4 characters", nameof(spec));
+
+        var dirs = new Dir[4];
+        for (int i = 0; i < 4; i++)
+        {
+            Dir direction;
+            switch (spec[i])
+            {
+                case 'R':
+                    direction = Dir.Right;
+                    break;
+                case 'L':
+                    direction = Dir.Left;
+                    break;
+                case 'U':
+                    direction = Dir.Up;
+                    break;
+                case 'D':
+                    direction = Dir.Down;
+                    break;
+                default:
+                    throw new ArgumentException($"Direction {spec[i]} not recignized!");
+            }
+            dirs[i] = direction;
+        }
+
+        var set = new HashSet<Dir>(dirs);
+        if (set.Count != 4) throw new ArgumentException("Direction specification must contain 4 DIFFERENT characters");
+
+        return dirs;
     }
 }

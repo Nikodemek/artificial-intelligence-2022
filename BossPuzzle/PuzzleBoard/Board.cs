@@ -255,6 +255,13 @@ public class Board : ICloneable, IEquatable<Board>
         return length;
     }
 
+    public string GetPathFormatted()
+    {
+        var sb = new StringBuilder();
+        foreach (var direction in GetPath()) sb.Append(direction.ToString()[0]);
+        return sb.ToString();
+    }
+
     public int At(int row, int column) => _board[row, column];
 
     public Direction[] ClarifyMovement()

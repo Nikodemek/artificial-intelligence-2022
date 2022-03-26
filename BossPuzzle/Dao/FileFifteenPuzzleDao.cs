@@ -6,21 +6,17 @@ namespace BossPuzzle.Dao;
 
 public class FileFifteenPuzzleDao : IDao<Board>
 {
-    private static readonly string BaseDataDirPath =
-        Path.Combine(
-            Environment.GetFolderPath(
-                Environment.SpecialFolder.MyDocuments
-                ),
-            "sise_2022"
-            );
-
     private readonly string _fileName;
     private readonly string _filePath;
 
     public FileFifteenPuzzleDao(string fileName)
     {
+        if (String.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("FileName cannot be empty!", nameof(fileName));
+
         _fileName = fileName;
-        _filePath = Path.Combine(BaseDataDirPath, _fileName);
+        _filePath = Path.Combine(Global.BaseDataDirPath, _fileName);
+
+        if (!File.Exists(_filePath)) throw new FileNotFoundException("File not found!", _filePath);
     }
 
     public Board Read()
