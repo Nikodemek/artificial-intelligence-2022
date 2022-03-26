@@ -25,7 +25,14 @@ public class Board : ICloneable, IEquatable<Board>
             return _distanceManhattan;
         }
     }
-    public ulong Hash { get; init; }
+    public ulong Hash
+    {
+        get
+        {
+            if (hash == 0) hash = ComputeSmartHash(_board);
+            return hash;
+        }
+    }
 
     private readonly short[,] _board;
     private readonly short _emptyCellRow = -1;
@@ -33,6 +40,7 @@ public class Board : ICloneable, IEquatable<Board>
     private readonly Board? _parent;
     private readonly ulong? _correctHash;
 
+    private ulong hash = 0;
     private uint _distanceHammings = 0;
     private uint _distanceManhattan = 0;
 
@@ -85,9 +93,6 @@ public class Board : ICloneable, IEquatable<Board>
                 }
             }
         }
-
-        Hash = ComputeSmartHash(board);
-
         _parent = parent;
         _correctHash = correctHash ?? ComputeCorrectHash(rowLength, columnLength);
 

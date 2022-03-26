@@ -23,7 +23,7 @@ public class DFS : IPuzzleSolver
         if (board is null) throw new ArgumentNullException(nameof(board));
 
         var stack = new Stack<Board>();
-        var visitedBoardsDepths = new Dictionary<ulong, short>();
+        var boardsDepth = new Dictionary<ulong, short>();
         var validBoards = new List<Board>();
 
         var currentBoard = board;
@@ -47,10 +47,10 @@ public class DFS : IPuzzleSolver
                 short stackCount = (short)stack.Count;
                 ulong nextBoardHash = nextBoard.Hash;
 
-                if (!visitedBoardsDepths.TryAdd(nextBoardHash, stackCount))
+                if (!boardsDepth.TryAdd(nextBoardHash, stackCount))
                 {
-                    if (stackCount >= visitedBoardsDepths[nextBoardHash]) continue;
-                    else visitedBoardsDepths[nextBoardHash] = stackCount;
+                    if (stackCount >= boardsDepth[nextBoardHash]) continue;
+                    else boardsDepth[nextBoardHash] = stackCount;
                 }
 
                 boardAdded = true;

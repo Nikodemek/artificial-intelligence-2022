@@ -13,7 +13,7 @@ class Program
         /*var readFile = new FileFifteenPuzzleDao("test.file");
         var board = readFile.Read();*/
 
-        var board = PuzzleGenerator.Generate(4, 4, 58);
+        var board = PuzzleGenerator.Generate(4, 4, 48);
         board.Print();
 
 
