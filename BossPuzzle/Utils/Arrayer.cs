@@ -14,19 +14,17 @@ public static class Arrayer
         return ret;
     }
 
-    public static T[][] Copy<T>(T[][] arr) where T : IConvertible
+    public static T[,] Copy<T>(T[,] arr) where T : IConvertible
     {
-        int xLength = arr.Length;
+        int xLength = arr.GetLength(0);
+        int yLength = arr.GetLength(1);
 
-        T[][] ret = new T[xLength][];
+        T[,] ret = new T[xLength, yLength];
         for (var i = 0; i < xLength; i++)
         {
-            int yLength = arr[i].Length;
-            ret[i] = new T[yLength];
-
             for (var j = 0; j < yLength; j++)
             {
-                ret[i][j] = arr[i][j];
+                ret[i, j] = arr[i, j];
             }
         }
         return ret;

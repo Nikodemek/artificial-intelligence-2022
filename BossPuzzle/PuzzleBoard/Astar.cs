@@ -44,8 +44,8 @@ public class AStar : IPuzzleSolver
     {
         return _atype switch
         {
-            Heuristic.Hamming => board.Hammings,
-            Heuristic.Manhattan => board.Manhattans,
+            Heuristic.Hamming => board.DistanceHammings,
+            Heuristic.Manhattan => board.DistanceManhattan,
             _ => throw new ArgumentOutOfRangeException(nameof(_atype), "Atype not recognized."),
         };
     }

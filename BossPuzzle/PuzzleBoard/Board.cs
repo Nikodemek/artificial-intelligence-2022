@@ -4,54 +4,69 @@ using BossPuzzle.Utils;
 
 namespace BossPuzzle.PuzzleBoard;
 
-public readonly struct Board : ICloneable, IEquatable<Board>
+public class Board : ICloneable, IEquatable<Board>
 {
     public static uint instances = 0;
 
-    public short ColumnSize { get; init; }
-    public short RowSize { get; init; }
+    public short ColumnSize
+    {
+        get => (short)_board.GetLength(0);
+    }
+    public short RowSize
+    {
+        get => (short)_board.GetLength(1);
+    }
     public ulong Hash { get; init; }
-    public uint Hammings { get; init; }
-    public uint Manhattans { get; init; }
+    public uint DistanceHammings
+    { 
+        get
+        {
+            if (_distanceHammings == 0) _distanceHammings = HammingDistance(_board);
+            return _distanceHammings;
+        }
+    }
+    public uint DistanceManhattan
+    {
+        get
+        {
+            if (_distanceManhattan == 0) _distanceManhattan = ManhattanDistance(_board);
+            return _distanceManhattan;
+        }
+    }
 
-    private readonly short[][] _board;
+    private readonly short[,] _board;
     private readonly short _emptyCellRow = -1;
     private readonly short _emptyCellColumn = -1;
-    private readonly List<Direction> _path;
+    private readonly Board? _parent;
     private readonly ulong? _correctHash;
 
-    public Board(short[][] board)
+    private uint _distanceHammings = 0;
+    private uint _distanceManhattan = 0;
+
+    public Board(short[,] board)
         : this(board, true, null, null)
     { }
 
-    private Board(short[][] board, bool copyArr, List<Direction>? path, ulong? correctHash)
-        : this()
+    private Board(short[,] board, bool copyArr, Board? parent, ulong? correctHash)
     {
-        int columnLength = board.Length;
+        int columnLength = board.GetLength(0);
 
         if (columnLength <= 0) throw new ArgumentException("Board cannot be empty!");
 
-        int rowLength = board[0].Length;
+        int rowLength = board.GetLength(1);
 
         if (rowLength <= 0) throw new ArgumentException("Rows cannot be empty!");
 
         if (copyArr)
         {
-            _board = new short[columnLength][];
+            _board = new short[columnLength, rowLength];
 
             for (short i = 0; i < columnLength; i++)
             {
-                int newRowLength = board[i].Length;
-
-                if (newRowLength != rowLength) throw new ArgumentException("Rows sizes must be equal");
-
-                rowLength = newRowLength;
-                _board[i] = new short[rowLength];
-
                 for (short j = 0; j < rowLength; j++)
                 {
-                    short value = board[i][j];
-                    _board[i][j] = value;
+                    short value = board[i,j];
+                    _board[i,j] = value;
 
                     if (value <= 0)
                     {
@@ -69,7 +84,7 @@ public readonly struct Board : ICloneable, IEquatable<Board>
             {
                 for (short j = 0; j < rowLength; j++)
                 {
-                    if (board[i][j] <= 0)
+                    if (board[i,j] <= 0)
                     {
                         _emptyCellRow = i;
                         _emptyCellColumn = j;
@@ -78,13 +93,9 @@ public readonly struct Board : ICloneable, IEquatable<Board>
             }
         }
 
-        RowSize = (short)rowLength;
-        ColumnSize = (short)columnLength;
-        Hash = ComputeSmartHash(board, rowLength, columnLength);
-        Hammings = HammingDistance(board, rowLength, columnLength);
-        Manhattans = ManhattanDistance(board, rowLength, columnLength);
+        Hash = ComputeSmartHash(board);
 
-        _path = path ?? new List<Direction>();
+        _parent = parent;
         _correctHash = correctHash ?? ComputeCorrectHash(rowLength, columnLength);
 
         instances++;
@@ -92,53 +103,55 @@ public readonly struct Board : ICloneable, IEquatable<Board>
 
     private static ulong ComputeCorrectHash(int rowSize, int columnSize)
     {
-        var correctArray = new short[rowSize][];
+        var correctArray = new short[rowSize, columnSize];
         
-        int size = rowSize * columnSize;
+        int size = correctArray.Length;
         for (var i = 0; i < rowSize; i++)
         {
             int offset = i * rowSize;
-            correctArray[i] = new short[columnSize];
-
             for (var j = 0; j < columnSize; j++)
             {
-                correctArray[i][j] = (short)((offset + j + 1) % size);
+                correctArray[i,j] = (short)((offset + j + 1) % size);
             }
         }
 
-        return ComputeSmartHash(correctArray, rowSize, columnSize);
+        return ComputeSmartHash(correctArray);
     }
 
-    private static ulong ComputeSmartHash(short[][] board, int rowSize, int columnSize)
+    private static ulong ComputeSmartHash(short[,] board)
     {
         const ulong Prime = 31ul;
 
-        int boardSize = rowSize * columnSize - 1;
         ulong hash = 0;
 
+        int rowSize = board.GetLength(0);
+        int columnSize = board.GetLength(1);
+        int boardSize = board.Length;
         for (int i = 0; i < rowSize; i++)
         {
             for (int j = 0; j < columnSize; j++)
             {
-                hash += MathI.Power(Prime, boardSize--) * (ulong)board[i][j];
+                hash += MathI.Power(Prime, --boardSize) * (ulong)board[i,j];
             }
         }
 
         return hash;
     }
 
-    private static uint HammingDistance(short[][] board, int rowSize, int columnSize)
+    private static uint HammingDistance(short[,] board)
     {
         uint dist = 0;
 
-        var size = rowSize * columnSize;
+        int rowSize = board.GetLength(0);
+        int columnSize = board.GetLength(1);
+        var boardSize = board.Length;
         for (var i = 0; i < rowSize; i++)
         {
             var offset = i * rowSize;
             for (var j = 0; j < columnSize; j++)
             {
-                int value = board[i][j];
-                int target = (offset + j + 1) % size;
+                int value = board[i,j];
+                int target = (offset + j + 1) % boardSize;
 
                 if (value != target) dist++;
             }
@@ -153,22 +166,24 @@ public readonly struct Board : ICloneable, IEquatable<Board>
     //     2 1 0 1 2      4 3 2 1 2      3 2 3 4 5      2 3 4 5 6
     //     3 2 1 2 3      3 2 1 0 1      2 1 2 3 4      3 4 5 6 7
     //     4 3 2 3 4      4 3 2 1 2      1 0 1 2 3      4 5 6 7 8
-    private static uint ManhattanDistance(short[][] board, int rowSize, int columnSize)
+    private static uint ManhattanDistance(short[,] board)
     {
         uint dist = 0;
 
-        int size = rowSize * columnSize;
+        int rowSize = board.GetLength(0);
+        int columnSize = board.GetLength(1);
+        int boardSize = board.Length;
         for (var i = 0; i < rowSize; i++)
         {
             int offset = i * rowSize;
             for (var j = 0; j < columnSize; j++)
             {
-                int value = board[i][j];
-                int target = (offset + j + 1) % size;
+                int value = board[i,j];
+                int target = (offset + j + 1) % boardSize;
 
                 if (value == target) continue;
 
-                int normalised = (value <= 0 ? (value + size) : value) - 1;
+                int normalised = (value <= 0 ? (value + boardSize) : value) - 1;
                 (int targetRow, int targetColumn) = MathI.DivRem(normalised, rowSize);
                 int deviation = Math.Abs(i - targetRow) + Math.Abs(j - targetColumn);
 
@@ -177,6 +192,27 @@ public readonly struct Board : ICloneable, IEquatable<Board>
         }
 
         return dist;
+    }
+
+    private static Direction GetLastMove(Board child, Board parent)
+    {
+        int childEmptyRow = child._emptyCellRow;
+        int childEmptyColumn = child._emptyCellColumn;
+        int parentEmptyRow = parent._emptyCellRow;
+        int parentEmptyColumn = parent._emptyCellColumn;
+
+        if (childEmptyRow == parentEmptyRow)
+        {
+            if (childEmptyColumn < parentEmptyColumn) return Direction.Left;
+            if (childEmptyColumn > parentEmptyColumn) return Direction.Right;
+        }
+        else if (childEmptyColumn == parentEmptyColumn)
+        {
+            if (childEmptyRow < parentEmptyRow) return Direction.Up;
+            if (childEmptyRow > parentEmptyRow) return Direction.Down;
+        }
+
+        return Direction.Left;
     }
 
     public Board Solve(IPuzzleSolver solver)
@@ -195,17 +231,33 @@ public readonly struct Board : ICloneable, IEquatable<Board>
             for (var j = 0; j < ColumnSize; j++)
             {
                 int target = (offset + j + 1) % size;
-                if (_board[i][j] != target) return false;
+                if (_board[i,j] != target) return false;
             }
         }
         return true;
     }
 
-    public Direction[] GetPath() => _path.ToArray();
+    public Direction[] GetPath()
+    {
+        var path = new Stack<Direction>();
+        for (var board = this; board._parent is not null; board = board._parent)
+        {
+            path.Push(GetLastMove(board, board._parent));
+        }
+        return path.ToArray();
+    }
 
-    public int GetPathLength() => _path.Count;
+    public int GetPathLength()
+    {
+        int length = 0;
+        for (var board = this; board._parent is not null; board = board._parent)
+        {
+            length++;
+        }
+        return length;
+    }
 
-    public int At(int row, int column) => _board[row][column];
+    public int At(int row, int column) => _board[row, column];
 
     public Direction[] ClarifyMovement()
     {
@@ -224,10 +276,10 @@ public readonly struct Board : ICloneable, IEquatable<Board>
 
         bool hasLastDirection = false;
         Direction cancellingDir = Direction.Right;
-        if (_path is List<Direction> path && path.Count > 0)
+        if (_parent is not null)
         {
             hasLastDirection = true;
-            cancellingDir = GetCancellingDirection(path[^1]);
+            cancellingDir = GetCancellingDirection(GetLastMove(this, _parent));
         }
 
         foreach (var direction in directions)
@@ -265,49 +317,46 @@ public readonly struct Board : ICloneable, IEquatable<Board>
 
     public Board Move(int row, int column, Direction dir)
     {
-        short[][] newBoard = Arrayer.Copy(_board);
+        short[,] newBoard = Arrayer.Copy(_board);
 
-        ref short changedCell = ref newBoard[0][0];
+        ref short changedCell = ref newBoard[0, 0];
         switch (dir)
         {
             case Direction.Up:
                 if (row <= 0) goto default;
-                changedCell = ref newBoard[row - 1][column];
+                changedCell = ref newBoard[row - 1, column];
                 break;
             case Direction.Down:
                 if (row >= ColumnSize - 1) goto default;
-                changedCell = ref newBoard[row + 1][column];
+                changedCell = ref newBoard[row + 1, column];
                 break;
             case Direction.Right:
                 if (column >= RowSize - 1) goto default;
-                changedCell = ref newBoard[row][column + 1];
+                changedCell = ref newBoard[row, column + 1];
                 break;
             case Direction.Left:
                 if (column <= 0) goto default;
-                changedCell = ref newBoard[row][column - 1];
+                changedCell = ref newBoard[row, column - 1];
                 break;
             default:
                 return this;
         }
 
         short temp = changedCell;
-        changedCell = _board[row][column];
-        newBoard[row][column] = temp;
+        changedCell = _board[row, column];
+        newBoard[row, column] = temp;
 
-        var newPath = new List<Direction>(_path) { dir };
-
-        return new Board(newBoard, false, newPath, _correctHash);
+        return new Board(newBoard, false, this, _correctHash);
     }
 
     public object Clone()
     {
-        var newBoardTable = new short[RowSize][];
+        var newBoardTable = new short[RowSize, ColumnSize];
         for (var i = 0; i < RowSize; i++)
         {
-            newBoardTable[i] = new short[ColumnSize];
             for (var j = 0; j < ColumnSize; j++)
             {
-                newBoardTable[i][j] = _board[i][j];
+                newBoardTable[i, j] = _board[i, j];
             }
         }
 
@@ -330,16 +379,11 @@ public readonly struct Board : ICloneable, IEquatable<Board>
     {
         if (_board is null) throw new ArgumentException("Board can not be null");
 
-        int xLength = _board.Length;
+        int xLength = _board.GetLength(0);
 
         if (xLength <= 0) throw new ArgumentException("Board can not be empty");
 
-        int yLength = _board[0].Length;
-
-        for (int i = 0; i < xLength; i++)
-        {
-            if (_board[i].Length != yLength) throw new ArgumentException("Inner arrays should have the same length");
-        }
+        int yLength = _board.GetLength(1);
 
         string[][] values = new string[xLength][];
 
@@ -350,7 +394,7 @@ public readonly struct Board : ICloneable, IEquatable<Board>
 
             for (int j = 0; j < yLength; j++)
             {
-                int value = _board[i][j];
+                int value = _board[i, j];
                 string valueToInsert = value > 0 ? value.ToString() : String.Empty;
                 int valueToInsertLen = valueToInsert.Length;
 
@@ -389,8 +433,10 @@ public readonly struct Board : ICloneable, IEquatable<Board>
         return false;
     }
 
-    public bool Equals(Board other)
+    public bool Equals(Board? other)
     {
+        if (other is null) return false;
+
         bool arePropertiesEqual = (
             ColumnSize == other.ColumnSize &&
             RowSize == other.RowSize
@@ -403,7 +449,7 @@ public readonly struct Board : ICloneable, IEquatable<Board>
         {
             for (int j = 0; j < RowSize; j++)
             {
-                areBoardFieldsEqual &= this._board[i][j] == other._board[i][j];
+                areBoardFieldsEqual &= this._board[i, j] == other._board[i, j];
                 if (!areBoardFieldsEqual) return false;
             }
         }
@@ -436,8 +482,9 @@ public readonly struct Board : ICloneable, IEquatable<Board>
 
     public class Comparer : IEqualityComparer<Board>
     {
-        public bool Equals(Board x, Board y)
+        public bool Equals(Board? x, Board? y)
         {
+            if (x is null || y is null) return false;
             return x.Equals(y);
         }
 

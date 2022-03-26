@@ -7,17 +7,15 @@ public static class PuzzleGenerator
 {
     public static Board Generate(short rowSize, short columnSize, int steps)
     {
-        var board = new short[rowSize][];
+        var board = new short[rowSize, columnSize];
 
         int size = rowSize * columnSize;
         for (var i = 0; i < rowSize; i++)
         {
             int offset = i * rowSize;
-            board[i] = new short[columnSize];
-
             for (var j = 0; j < columnSize; j++)
             {
-                board[i][j] = (short)((offset + j + 1) % size);
+                board[i, j] = (short)((offset + j + 1) % size);
             }
         }
 
@@ -35,31 +33,31 @@ public static class PuzzleGenerator
                 dir = (Dir)rand.Next(4);
             } while (dir == cancellingDir);
 
-            ref short changedCell = ref board[0][0];
-            ref short originalCell = ref board[emptyRow][emptyColumn];
+            ref short changedCell = ref board[0, 0];
+            ref short originalCell = ref board[emptyRow, emptyColumn];
             switch (dir)
             {
                 case Dir.Up:
                     if (emptyRow <= 0) continue;
-                    changedCell = ref board[emptyRow - 1][emptyColumn];
+                    changedCell = ref board[emptyRow - 1, emptyColumn];
                     emptyRow--;
                     cancellingDir = Dir.Down;
                     break;
                 case Dir.Down:
                     if (emptyRow >= columnSize - 1) continue;
-                    changedCell = ref board[emptyRow + 1][emptyColumn];
+                    changedCell = ref board[emptyRow + 1, emptyColumn];
                     emptyRow++;
                     cancellingDir = Dir.Up;
                     break;
                 case Dir.Right:
                     if (emptyColumn >= rowSize - 1) continue;
-                    changedCell = ref board[emptyRow][emptyColumn + 1];
+                    changedCell = ref board[emptyRow, emptyColumn + 1];
                     emptyColumn++;
                     cancellingDir = Dir.Left;
                     break;
                 case Dir.Left:
                     if (emptyColumn <= 0) continue;
-                    changedCell = ref board[emptyRow][emptyColumn - 1];
+                    changedCell = ref board[emptyRow, emptyColumn - 1];
                     emptyColumn--;
                     cancellingDir = Dir.Right;
                     break;

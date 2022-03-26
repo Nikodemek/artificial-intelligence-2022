@@ -15,10 +15,8 @@ class Program
         /*var readFile = new FileFifteenPuzzleDao("test.file");
         var board = readFile.Read();*/
 
-        var board = PuzzleGenerator.Generate(4, 4, 40);
+        var board = PuzzleGenerator.Generate(4, 4, 58);
         board.Print();
-        Console.WriteLine($"Hammings distance = {board.Hammings}");
-        Console.WriteLine($"Manhattan distance = {board.Manhattans}");
 
 
         IPuzzleSolver solver = new AStar(Heur.Manhattan);

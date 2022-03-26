@@ -21,6 +21,8 @@ public class DFS : IPuzzleSolver
 
     public Board Solve(in Board board)
     {
+        if (board is null) throw new ArgumentNullException(nameof(board));
+
         var stack = new Stack<Board>();
         var visitedBoardsDepths = new Dictionary<ulong, short>();
         var validBoards = new List<Board>();
@@ -61,7 +63,7 @@ public class DFS : IPuzzleSolver
             if (!boardAdded)
             {
                 stack.Pop();
-                stack.TryPeek(out currentBoard);
+                stack.TryPeek(out currentBoard!);
             }
         }
         
