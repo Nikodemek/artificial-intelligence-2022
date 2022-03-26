@@ -16,34 +16,38 @@ class Program
 
         if (args.Length == 0)
         {
-            TestRunner();
+            TestRun();
         }
         else
         {
-            (var board, var solver, var solutionWritter, var additionalWritter) = InputParser(args);
-
-            board.Print();
-
-            var watch = Stopwatch.StartNew();
-            var solvedBoard = board.Solve(solver);
-            watch.Stop();
-
-            if (solvedBoard.IsValid()) Console.WriteLine($"SOLVED in {watch.ElapsedMilliseconds}ms");
-            solvedBoard.Print();
-
-            string path = solvedBoard.GetPathFormatted();
-            Console.WriteLine($"Created {Board.instances:n0} instances of Board.");
-            Console.WriteLine($"Path: {path} (length = {path.Length})");
+            ActualRun(args);
         }
-
     }
 
-    private static void TestRunner()
+    private static void ActualRun(string[] args)
+    {
+        (var board, var solver, var solutionWritter, var additionalWritter) = InputParser(args);
+
+        board.Print();
+
+        var watch = Stopwatch.StartNew();
+        var solvedBoard = board.Solve(solver);
+        watch.Stop();
+
+        if (solvedBoard.IsValid()) Console.WriteLine($"SOLVED in {watch.Elapsed.TotalMilliseconds:n3}ms");
+        solvedBoard.Print();
+
+        string path = solvedBoard.GetPathFormatted();
+        Console.WriteLine($"Created {Board.instances:n0} instances of Board.");
+        Console.WriteLine($"Path: {path} (length = {path.Length})");
+    }
+
+    private static void TestRun()
     {
         /*var readFile = new FileFifteenPuzzleDao("test.file");
         var board = readFile.Read();*/
 
-        var board = PuzzleGenerator.Generate(4, 4, 48);
+        var board = PuzzleGenerator.Generate(4, 4, 18);
         board.Print();
 
 
@@ -71,7 +75,7 @@ class Program
         var solvedBoard = board.Solve(solver);
         watch.Stop();
 
-        if (solvedBoard.IsValid()) Console.WriteLine($"SOLVED in {watch.ElapsedMilliseconds}ms");
+        if (solvedBoard.IsValid()) Console.WriteLine($"SOLVED in {watch.Elapsed.TotalMilliseconds:n3}ms");
         solvedBoard.Print();
 
         string path = solvedBoard.GetPathFormatted();
@@ -89,8 +93,8 @@ class Program
     {
         if (args is null || args.Length != 5) throw new ArgumentException("Argument list must contain 5 arguments!", nameof(args));
 
-        string algorithm = args[0];
-        string specification = args[1];
+        string strategy = args[0];
+        string specs = args[1];
         string boardFile = args[2];
         string solutionFile = args[3];
         string additionalFile = args[4];
@@ -100,17 +104,17 @@ class Program
         FileWriter solutionWritter;
         FileWriter additionalWritter;
 
-        solver = algorithm switch
+        solver = strategy switch
         {
-            "bfs" => new BFS(StringToDirections(specification.ToUpper())),
-            "dfs" => new DFS(StringToDirections(specification.ToUpper())),
-            "astr" => specification.ToLower() switch
+            "bfs" => new BFS(StringToDirections(specs.ToUpper())),
+            "dfs" => new DFS(StringToDirections(specs.ToUpper())),
+            "astr" => specs.ToLower() switch
             {
                 "hamm" => new AStar(Heur.Hamming),
                 "manh" => new AStar(Heur.Manhattan),
-                _ => throw new ArgumentException($"Heuristic '{specification}' not recognized", nameof(specification)),
+                _ => throw new ArgumentException($"Heuristic '{specs}' not recognized", nameof(specs)),
             },
-            _ => throw new ArgumentException($"Algorithm '{algorithm}' not recognized", nameof(algorithm)),
+            _ => throw new ArgumentException($"Algorithm '{strategy}' not recognized", nameof(strategy)),
         };
 
         var readFile = new FileFifteenPuzzleDao(boardFile);

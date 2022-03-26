@@ -23,8 +23,6 @@ public static class Global
                 Path.Combine(BaseDataDirPath, Path.GetRandomFileName()),
                 1,
                 FileOptions.DeleteOnClose);
-
-            fs.Close();
         }
         catch (Exception e)
         {

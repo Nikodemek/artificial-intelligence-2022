@@ -159,11 +159,11 @@ public class Board : ICloneable, IEquatable<Board>
     }
 
     // Cos takiego probuje osiagnac tym kodem (0 to jest poprawne miejsce dla liczby).
-    //     4 3 2 3 4      6 5 4 3 4      5 4 5 6 7      0 1 2 3 4
-    //     3 2 1 2 3      5 4 3 2 3      4 3 4 5 6      1 2 3 4 5
-    //     2 1 0 1 2      4 3 2 1 2      3 2 3 4 5      2 3 4 5 6
-    //     3 2 1 2 3      3 2 1 0 1      2 1 2 3 4      3 4 5 6 7
-    //     4 3 2 3 4      4 3 2 1 2      1 0 1 2 3      4 5 6 7 8
+    //      4 3 2 3 4      6 5 4 3 4      5 4 5 6 7      0 1 2 3 4
+    //      3 2 1 2 3      5 4 3 2 3      4 3 4 5 6      1 2 3 4 5
+    //      2 1 0 1 2      4 3 2 1 2      3 2 3 4 5      2 3 4 5 6
+    //      3 2 1 2 3      3 2 1 0 1      2 1 2 3 4      3 4 5 6 7
+    //      4 3 2 3 4      4 3 2 1 2      1 0 1 2 3      4 5 6 7 8
     private static uint ManhattanDistance(short[,] board)
     {
         uint dist = 0;
