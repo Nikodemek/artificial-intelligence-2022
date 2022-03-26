@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace BossPuzzle.Utils;
+﻿namespace BossPuzzle.Utils;
 
 public static class MathI
 {

@@ -1,6 +1,4 @@
-﻿using BossPuzzle.PuzzleBoard;
-
-namespace BossPuzzle.Dao;
+﻿namespace BossPuzzle.Dao;
 
 public interface IDao<T>
 {

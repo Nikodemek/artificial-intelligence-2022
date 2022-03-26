@@ -1,6 +1,5 @@
-﻿using System;
+﻿using BossPuzzle.Utils;
 using System.Text;
-using BossPuzzle.Utils;
 
 namespace BossPuzzle.PuzzleBoard;
 
@@ -18,7 +17,7 @@ public class Board : ICloneable, IEquatable<Board>
     }
     public ulong Hash { get; init; }
     public uint DistanceHammings
-    { 
+    {
         get
         {
             if (_distanceHammings == 0) _distanceHammings = HammingDistance(_board);
@@ -65,8 +64,8 @@ public class Board : ICloneable, IEquatable<Board>
             {
                 for (short j = 0; j < rowLength; j++)
                 {
-                    short value = board[i,j];
-                    _board[i,j] = value;
+                    short value = board[i, j];
+                    _board[i, j] = value;
 
                     if (value <= 0)
                     {
@@ -84,7 +83,7 @@ public class Board : ICloneable, IEquatable<Board>
             {
                 for (short j = 0; j < rowLength; j++)
                 {
-                    if (board[i,j] <= 0)
+                    if (board[i, j] <= 0)
                     {
                         _emptyCellRow = i;
                         _emptyCellColumn = j;
@@ -104,14 +103,14 @@ public class Board : ICloneable, IEquatable<Board>
     private static ulong ComputeCorrectHash(int rowSize, int columnSize)
     {
         var correctArray = new short[rowSize, columnSize];
-        
+
         int size = correctArray.Length;
         for (var i = 0; i < rowSize; i++)
         {
             int offset = i * rowSize;
             for (var j = 0; j < columnSize; j++)
             {
-                correctArray[i,j] = (short)((offset + j + 1) % size);
+                correctArray[i, j] = (short)((offset + j + 1) % size);
             }
         }
 
@@ -131,7 +130,7 @@ public class Board : ICloneable, IEquatable<Board>
         {
             for (int j = 0; j < columnSize; j++)
             {
-                hash += MathI.Power(Prime, --boardSize) * (ulong)board[i,j];
+                hash += MathI.Power(Prime, --boardSize) * (ulong)board[i, j];
             }
         }
 
@@ -150,7 +149,7 @@ public class Board : ICloneable, IEquatable<Board>
             var offset = i * rowSize;
             for (var j = 0; j < columnSize; j++)
             {
-                int value = board[i,j];
+                int value = board[i, j];
                 int target = (offset + j + 1) % boardSize;
 
                 if (value != target) dist++;
@@ -178,7 +177,7 @@ public class Board : ICloneable, IEquatable<Board>
             int offset = i * rowSize;
             for (var j = 0; j < columnSize; j++)
             {
-                int value = board[i,j];
+                int value = board[i, j];
                 int target = (offset + j + 1) % boardSize;
 
                 if (value == target) continue;
@@ -219,7 +218,7 @@ public class Board : ICloneable, IEquatable<Board>
     {
         return solver.Solve(this);
     }
-    
+
     public bool IsValid()
     {
         if (Hash != _correctHash) return false;
@@ -231,7 +230,7 @@ public class Board : ICloneable, IEquatable<Board>
             for (var j = 0; j < ColumnSize; j++)
             {
                 int target = (offset + j + 1) % size;
-                if (_board[i,j] != target) return false;
+                if (_board[i, j] != target) return false;
             }
         }
         return true;
@@ -263,9 +262,9 @@ public class Board : ICloneable, IEquatable<Board>
     {
         return ClarifyMovement(
             new[] {
-                Direction.Up, 
-                Direction.Down, 
-                Direction.Left, 
+                Direction.Up,
+                Direction.Down,
+                Direction.Left,
                 Direction.Right,
             });
     }
@@ -302,7 +301,7 @@ public class Board : ICloneable, IEquatable<Board>
                     break;
                 default:
                     throw new ArgumentException($"Not recognized Direction ({direction})");
-            }  
+            }
 
             newDirections.Add(direction);
         }
@@ -473,7 +472,7 @@ public class Board : ICloneable, IEquatable<Board>
     }
 
     public enum Direction
-    { 
+    {
         Up = 0,
         Down = 1,
         Right = 2,

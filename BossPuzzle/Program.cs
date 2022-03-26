@@ -1,11 +1,9 @@
-﻿using System.Text;
-using BossPuzzle.Dao;
+﻿using BossPuzzle.PuzzleBoard;
 using BossPuzzle.Utils;
-using BossPuzzle.PuzzleBoard;
 using System.Diagnostics;
+using System.Text;
 
 namespace BossPuzzle;
-using Dir = Board.Direction;
 using Heur = AStar.Heuristic;
 
 class Program

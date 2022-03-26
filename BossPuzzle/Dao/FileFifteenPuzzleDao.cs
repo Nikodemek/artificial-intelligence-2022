@@ -1,22 +1,22 @@
-﻿using System.Text;
-using BossPuzzle.PuzzleBoard;
+﻿using BossPuzzle.PuzzleBoard;
 using BossPuzzle.Utils;
+using System.Text;
 
 namespace BossPuzzle.Dao;
 
 public class FileFifteenPuzzleDao : IDao<Board>
 {
-    private static readonly string BaseDataDirPath = 
+    private static readonly string BaseDataDirPath =
         Path.Combine(
             Environment.GetFolderPath(
                 Environment.SpecialFolder.MyDocuments
-                ), 
+                ),
             "sise_2022"
             );
 
     private readonly string _fileName;
     private readonly string _filePath;
-    
+
     public FileFifteenPuzzleDao(string fileName)
     {
         _fileName = fileName;
@@ -26,12 +26,12 @@ public class FileFifteenPuzzleDao : IDao<Board>
     public Board Read()
     {
         var data = File.ReadAllLines(_filePath);
-        
+
         var list = data[0].Split(' ');
         int columnSize = Parser.ToInt32(list[0]);
         int rowSize = Parser.ToInt32(list[1]);
         var board = new short[columnSize, rowSize];
-        
+
         for (var i = 0; i < columnSize; i++)
         {
             var row = data[i + 1].Split(' ', StringSplitOptions.RemoveEmptyEntries);
@@ -39,7 +39,7 @@ public class FileFifteenPuzzleDao : IDao<Board>
             {
                 board[i, j] = Parser.ToInt16(row[j]);
             }
-        
+
         }
 
         return new Board(board);

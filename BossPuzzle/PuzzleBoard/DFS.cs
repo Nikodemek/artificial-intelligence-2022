@@ -1,5 +1,4 @@
-﻿using System.Data.Common;
-using BossPuzzle.Utils;
+﻿using BossPuzzle.Utils;
 
 namespace BossPuzzle.PuzzleBoard;
 using Dir = Board.Direction;
@@ -66,7 +65,7 @@ public class DFS : IPuzzleSolver
                 stack.TryPeek(out currentBoard!);
             }
         }
-        
+
         validBoards.Sort((board1, board2) => board1.GetPathLength().CompareTo(board2.GetPathLength()));
 
         return validBoards[0];

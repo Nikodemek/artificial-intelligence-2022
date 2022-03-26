@@ -1,5 +1,4 @@
 ﻿using BossPuzzle.Utils;
-using System.Collections.Generic;
 
 namespace BossPuzzle.PuzzleBoard;
 using Dir = Board.Direction;
@@ -7,7 +6,7 @@ using Dir = Board.Direction;
 public class BFS : IPuzzleSolver
 {
     private readonly Dir[] _directions;
-    
+
     public BFS(Dir[] directions)
     {
         _directions = Arrayer.Copy(directions);
@@ -20,7 +19,7 @@ public class BFS : IPuzzleSolver
         var visited = new HashSet<ulong>();
         var queue = new Queue<Board>();
 
-        visited.Add(board.Hash); 
+        visited.Add(board.Hash);
         queue.Enqueue(board);
 
         while (queue.Count > 0)
