@@ -7,15 +7,8 @@ public class Board : ICloneable, IEquatable<Board>
 {
     public static uint instances = 0;
 
-    public short ColumnSize
-    {
-        get => (short)_board.GetLength(0);
-    }
-    public short RowSize
-    {
-        get => (short)_board.GetLength(1);
-    }
-    public ulong Hash { get; init; }
+    public short ColumnSize => (short)_board.GetLength(0);
+    public short RowSize => (short)_board.GetLength(1);
     public uint DistanceHammings
     {
         get
@@ -32,6 +25,7 @@ public class Board : ICloneable, IEquatable<Board>
             return _distanceManhattan;
         }
     }
+    public ulong Hash { get; init; }
 
     private readonly short[,] _board;
     private readonly short _emptyCellRow = -1;
