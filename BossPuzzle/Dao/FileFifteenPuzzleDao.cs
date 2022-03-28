@@ -15,12 +15,12 @@ public class FileFifteenPuzzleDao : IDao<Board>
 
         _fileName = fileName;
         _filePath = Path.Combine(Global.BaseDataDirPath, _fileName);
-
-        if (!File.Exists(_filePath)) throw new FileNotFoundException("File not found!", _filePath);
     }
 
     public Board Read()
     {
+        if (!File.Exists(_filePath)) throw new FileNotFoundException("File not found!", _filePath);
+        
         var data = File.ReadAllLines(_filePath);
 
         var list = data[0].Split(' ');
@@ -35,7 +35,6 @@ public class FileFifteenPuzzleDao : IDao<Board>
             {
                 board[i, j] = Parser.ToInt16(row[j]);
             }
-
         }
 
         return new Board(board);
@@ -43,6 +42,13 @@ public class FileFifteenPuzzleDao : IDao<Board>
 
     public void Write(in Board board)
     {
+        if (!board.IsValid())
+        {
+            const int def = -1;
+            File.WriteAllText(_filePath, def.ToString());
+            return;
+        }
+        
         var path = board.GetPath();
         int pathLength = path.Length;
 

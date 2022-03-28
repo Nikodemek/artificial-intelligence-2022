@@ -30,16 +30,19 @@ class Program
 
         board.Print();
 
-        var watch = Stopwatch.StartNew();
         var solvedBoard = board.Solve(solver);
-        watch.Stop();
 
-        if (solvedBoard.IsValid()) Console.WriteLine($"SOLVED in {watch.Elapsed.TotalMilliseconds:n3}ms");
+        if (solvedBoard.IsValid()) Console.WriteLine($"SOLVED in {solver.GetTimeConsumed():n3}ms");
         solvedBoard.Print();
 
         string path = solvedBoard.GetPathFormatted();
         Console.WriteLine($"Created {Board.instances:n0} instances of Board.");
         Console.WriteLine($"Path: {path} (length = {path.Length})");
+
+        var additionalInfo = FileWriter.PrepareAdditionalInfo(solvedBoard, solver);
+
+        solutionWritter.Write(solvedBoard);
+        additionalWritter.Write(additionalInfo);
     }
 
     private static void TestRun()
@@ -61,7 +64,7 @@ class Program
             Dir.Right
         });*/
 
-        IPuzzleSolver solver = new DFS(
+        DFS solver = new DFS(
             new[] {
             Dir.Up,
             Dir.Down,
@@ -69,19 +72,15 @@ class Program
             Dir.Right
             },
             19);
-
-
-        var watch = Stopwatch.StartNew();
+        
         var solvedBoard = board.Solve(solver);
-        watch.Stop();
 
-        if (solvedBoard.IsValid()) Console.WriteLine($"SOLVED in {watch.Elapsed.TotalMilliseconds:n3}ms");
+        if (solvedBoard.IsValid()) Console.WriteLine($"SOLVED in {solver.GetTimeConsumed():n3}ms");
         solvedBoard.Print();
 
         string path = solvedBoard.GetPathFormatted();
-        Console.WriteLine($"Created {Board.instances:n0} instances of Board.");
+        Console.WriteLine($"Created {solver.GetBoardInstanceCount():n0} instances of Board.");
         Console.WriteLine($"Path: {path} (length = {path.Length})");
-
 
         /*var saveFile = new FileFifteenPuzzleDao("test_sol.file");
         saveFile.Write(solvedBoard);*/
@@ -89,7 +88,7 @@ class Program
         Console.ReadKey();
     }
 
-    private static (Board board, IPuzzleSolver solver, FileWriter solutionWritter, FileWriter additionalWritter) InputParser(string[] args)
+    private static (Board board, IPuzzleSolver solver, FileFifteenPuzzleDao solutionWritter, FileWriter additionalWritter) InputParser(string[] args)
     {
         if (args is null || args.Length != 5) throw new ArgumentException("Argument list must contain 5 arguments!", nameof(args));
 
@@ -101,7 +100,7 @@ class Program
 
         Board board;
         IPuzzleSolver solver;
-        FileWriter solutionWritter;
+        FileFifteenPuzzleDao solutionWritter;
         FileWriter additionalWritter;
 
         solver = strategy switch
@@ -119,7 +118,7 @@ class Program
 
         var readFile = new FileFifteenPuzzleDao(boardFile);
         board = readFile.Read();
-        solutionWritter = new FileWriter(solutionFile);
+        solutionWritter = new FileFifteenPuzzleDao(solutionFile);
         additionalWritter = new FileWriter(additionalFile);
 
         return (board, solver, solutionWritter, additionalWritter);
