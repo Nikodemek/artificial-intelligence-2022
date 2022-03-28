@@ -39,9 +39,12 @@ class Program
         Console.WriteLine($"Created {Board.instances:n0} instances of Board.");
         Console.WriteLine($"Path: {path} (length = {path.Length})");
 
-        var additionalInfo = FileWriter.PrepareAdditionalInfo(solvedBoard, solver);
+        var infoConverter = new InfoConverter(solvedBoard, solver);
 
-        solutionWritter.Write(solvedBoard);
+        var additionalInfo = infoConverter.PrepareAdditionalInfo();
+        var basicInfo = infoConverter.PrepareBasicInfo();
+
+        solutionWritter.Write(basicInfo);
         additionalWritter.Write(additionalInfo);
     }
 
@@ -88,7 +91,7 @@ class Program
         Console.ReadKey();
     }
 
-    private static (Board board, IPuzzleSolver solver, FileFifteenPuzzleDao solutionWritter, FileWriter additionalWritter) InputParser(string[] args)
+    private static (Board board, IPuzzleSolver solver, FileWriter solutionWritter, FileWriter additionalWritter) InputParser(string[] args)
     {
         if (args is null || args.Length != 5) throw new ArgumentException("Argument list must contain 5 arguments!", nameof(args));
 
@@ -100,7 +103,7 @@ class Program
 
         Board board;
         IPuzzleSolver solver;
-        FileFifteenPuzzleDao solutionWritter;
+        FileWriter solutionWritter;
         FileWriter additionalWritter;
 
         solver = strategy switch
@@ -118,7 +121,7 @@ class Program
 
         var readFile = new FileFifteenPuzzleDao(boardFile);
         board = readFile.Read();
-        solutionWritter = new FileFifteenPuzzleDao(solutionFile);
+        solutionWritter = new FileWriter(solutionFile);
         additionalWritter = new FileWriter(additionalFile);
 
         return (board, solver, solutionWritter, additionalWritter);

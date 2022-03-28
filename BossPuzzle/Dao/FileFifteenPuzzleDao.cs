@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BossPuzzle.Dao;
 
-public class FileFifteenPuzzleDao : IDao<Board>
+public class FileFifteenPuzzleDao : IFileReader<Board>
 {
     private readonly string _fileName;
     private readonly string _filePath;
@@ -38,28 +38,5 @@ public class FileFifteenPuzzleDao : IDao<Board>
         }
 
         return new Board(board);
-    }
-
-    public void Write(in Board board)
-    {
-        if (!board.IsValid())
-        {
-            const int def = -1;
-            File.WriteAllText(_filePath, def.ToString());
-            return;
-        }
-        
-        var path = board.GetPath();
-        int pathLength = path.Length;
-
-        var stringBuilder = new StringBuilder();
-        stringBuilder.Append(pathLength);
-        stringBuilder.AppendLine();
-        foreach (var item in path)
-        {
-            stringBuilder.Append(item.ToString()[0]);
-        }
-
-        File.WriteAllText(_filePath, stringBuilder.ToString());
     }
 }
