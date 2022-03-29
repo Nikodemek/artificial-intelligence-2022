@@ -1,6 +1,6 @@
-﻿using BossPuzzle.PuzzleBoard;
+﻿using FifteenPuzzle.PuzzleBoard;
 
-namespace BossPuzzle.Utils;
+namespace FifteenPuzzle.Utils;
 using Dir = Board.Direction;
 
 public static class PuzzleGenerator

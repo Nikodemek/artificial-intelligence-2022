@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace BossPuzzle.Utils;
+namespace FifteenPuzzle.Utils;
 
 public static class Parser
 {

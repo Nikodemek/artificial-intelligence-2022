@@ -1,4 +1,4 @@
-﻿namespace BossPuzzle.Utils;
+﻿namespace FifteenPuzzle.Utils;
 
 public static class Arrayer
 {
@@ -6,7 +6,7 @@ public static class Arrayer
     {
         int xLength = arr.Length;
 
-        T[] ret = new T[xLength];
+        var ret = new T[xLength];
         for (var i = 0; i < xLength; i++)
         {
             ret[i] = arr[i];
@@ -19,7 +19,7 @@ public static class Arrayer
         int xLength = arr.GetLength(0);
         int yLength = arr.GetLength(1);
 
-        T[,] ret = new T[xLength, yLength];
+        var ret = new T[xLength, yLength];
         for (var i = 0; i < xLength; i++)
         {
             for (var j = 0; j < yLength; j++)
@@ -45,7 +45,7 @@ public static class Arrayer
         var rand = new Random();
         int length = arr.Length;
 
-        for (int i = 0; i < length; i++)
+        for (var i = 0; i < length; i++)
         {
             int toSwap = rand.Next(0, length - 1);
             (arr[toSwap], arr[i]) = (arr[i], arr[toSwap]);

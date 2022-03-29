@@ -1,7 +1,7 @@
-﻿using BossPuzzle.PuzzleBoard;
-using BossPuzzle.Utils;
+﻿using FifteenPuzzle.PuzzleBoard;
+using FifteenPuzzle.Utils;
 
-namespace BossPuzzle.Dao;
+namespace FifteenPuzzle.Dao;
 
 public class FileFifteenReader : IFileReader<Board>
 {

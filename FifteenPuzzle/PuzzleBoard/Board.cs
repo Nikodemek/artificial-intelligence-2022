@@ -1,14 +1,13 @@
-﻿using BossPuzzle.Utils;
+﻿using FifteenPuzzle.Utils;
 using System.Text;
 
-namespace BossPuzzle.PuzzleBoard;
+namespace FifteenPuzzle.PuzzleBoard;
 
 public class Board : ICloneable, IEquatable<Board>
 {
-    public static uint instances = 0;
+    public short ColumnSize { get; init; }
+    public short RowSize { get; init; }
 
-    public short ColumnSize => (short)_board.GetLength(0);
-    public short RowSize => (short)_board.GetLength(1);
     public uint DistanceHammings
     {
         get
@@ -29,8 +28,8 @@ public class Board : ICloneable, IEquatable<Board>
     {
         get
         {
-            if (hash == 0) hash = ComputeSmartHash(_board);
-            return hash;
+            if (_hash == 0) _hash = ComputeSmartHash(_board);
+            return _hash;
         }
     }
 
@@ -40,7 +39,7 @@ public class Board : ICloneable, IEquatable<Board>
     private readonly Board? _parent;
     private readonly ulong? _correctHash;
 
-    private ulong hash = 0;
+    private ulong _hash = 0;
     private uint _distanceHammings = 0;
     private uint _distanceManhattan = 0;
 
@@ -92,11 +91,12 @@ public class Board : ICloneable, IEquatable<Board>
                     }
                 }
             }
-        }
+        }    
+        ColumnSize = (short)_board.GetLength(0);
+        RowSize = (short)_board.GetLength(1);
+        
         _parent = parent;
         _correctHash = correctHash ?? ComputeCorrectHash(rowLength, columnLength);
-
-        instances++;
     }
 
     private static ulong ComputeCorrectHash(int rowSize, int columnSize)
@@ -182,7 +182,7 @@ public class Board : ICloneable, IEquatable<Board>
                 if (value == target) continue;
 
                 int normalised = (value <= 0 ? (value + boardSize) : value) - 1;
-                (int targetRow, int targetColumn) = MathI.DivRem(normalised, rowSize);
+                var (targetRow, targetColumn) = MathI.DivRem(normalised, rowSize);
                 int deviation = Math.Abs(i - targetRow) + Math.Abs(j - targetColumn);
 
                 dist += (uint)deviation;
@@ -326,7 +326,7 @@ public class Board : ICloneable, IEquatable<Board>
         return Move(_emptyCellRow, _emptyCellColumn, dir);
     }
 
-    public Board Move(int row, int column, Direction dir)
+    private Board Move(int row, int column, Direction dir)
     {
         short[,] newBoard = Arrayer.Copy(_board);
 
@@ -360,6 +360,18 @@ public class Board : ICloneable, IEquatable<Board>
         return new Board(newBoard, false, this, _correctHash);
     }
 
+    private static Direction GetCancellingDirection(Direction direction)
+    {
+        return direction switch
+        {
+            Direction.Up => Direction.Down,
+            Direction.Down => Direction.Up,
+            Direction.Right => Direction.Left,
+            Direction.Left => Direction.Right,
+            _ => throw new ArgumentException("Not recognized Direction.", nameof(direction)),
+        };
+    }
+
     public object Clone()
     {
         var newBoardTable = new short[RowSize, ColumnSize];
@@ -372,18 +384,6 @@ public class Board : ICloneable, IEquatable<Board>
         }
 
         return new Board(newBoardTable);
-    }
-
-    public static Direction GetCancellingDirection(Direction direction)
-    {
-        return direction switch
-        {
-            Direction.Up => Direction.Down,
-            Direction.Down => Direction.Up,
-            Direction.Right => Direction.Left,
-            Direction.Left => Direction.Right,
-            _ => throw new ArgumentException("Not recognized Direction.", nameof(direction)),
-        };
     }
 
     public void Print()

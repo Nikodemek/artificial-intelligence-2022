@@ -1,14 +1,14 @@
-﻿using BossPuzzle.PuzzleBoard;
+﻿using FifteenPuzzle.PuzzleBoard;
 using System.Text;
 
-namespace BossPuzzle.Dao;
+namespace FifteenPuzzle.Dao;
 
-public class AdditionalInfoWritter : IFileWriter<RunInfo>
+public class AdditionalInfoWriter : IFileWriter<RunInfo>
 {
     private readonly string _fileName;
     private readonly string _filePath;
 
-    public AdditionalInfoWritter(string fileName)
+    public AdditionalInfoWriter(string fileName)
     {
         if (String.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("FileName cannot be empty!", nameof(fileName));
 

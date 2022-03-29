@@ -1,4 +1,4 @@
-﻿namespace BossPuzzle.Utils;
+﻿namespace FifteenPuzzle.Utils;
 
 public static class MathI
 {
@@ -6,8 +6,8 @@ public static class MathI
     {
         if (pow <= 0) return 1ul;
 
-        ulong result = 1;
-        for (int i = 0; i < pow; i++)
+        ulong result = 1ul;
+        for (var i = 0; i < pow; i++)
         {
             result *= n;
         }
@@ -17,7 +17,7 @@ public static class MathI
     public static int Power(int n, int pow)
     {
         int result = 1;
-        for (int i = 0; i < pow; i++)
+        for (var i = 0; i < pow; i++)
         {
             result *= n;
         }
@@ -26,8 +26,8 @@ public static class MathI
 
     public static uint Power(uint n, int pow)
     {
-        uint result = 1;
-        for (int i = 0; i < pow; i++)
+        uint result = 1u;
+        for (var i = 0; i < pow; i++)
         {
             result *= n;
         }

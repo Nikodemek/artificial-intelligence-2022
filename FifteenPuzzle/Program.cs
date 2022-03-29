@@ -1,8 +1,8 @@
-﻿using BossPuzzle.Dao;
-using BossPuzzle.PuzzleBoard;
-using BossPuzzle.Utils;
+﻿using FifteenPuzzle.Dao;
+using FifteenPuzzle.PuzzleBoard;
+using FifteenPuzzle.Utils;
 
-namespace BossPuzzle;
+namespace FifteenPuzzle;
 using Dir = Board.Direction;
 using Heur = AStar.Heuristic;
 
@@ -10,7 +10,7 @@ class Program
 {
     public static void Main(string[] args)
     {
-        Global.EnsureDirectoryIsValid(true);
+        Global.EnsureDirectoryIsValid(false);
 
         if (args.Length == 0)
         {
@@ -24,7 +24,7 @@ class Program
 
     private static void ActualRun(string[] args)
     {
-        (var board, var solver, var solutionWritter, var additionalWritter) = InputParser(args);
+        var (board, solver, solutionWriter, additionalWriter) = InputParser(args);
 
         board.Print();
 
@@ -33,8 +33,8 @@ class Program
         solvedBoard.Print();
         Console.WriteLine(runInfo);
 
-        solutionWritter.Write(runInfo);
-        additionalWritter.Write(runInfo);
+        solutionWriter.Write(runInfo);
+        additionalWriter.Write(runInfo);
     }
 
     private static void TestRun()
@@ -76,7 +76,7 @@ class Program
         Console.ReadKey();
     }
 
-    private static (Board board, IPuzzleSolverDiagnostics solver, BasicInfoWritter solutionWritter, AdditionalInfoWritter additionalWritter) InputParser(string[] args)
+    private static (Board board, IPuzzleSolverDiagnostics solver, BasicInfoWriter solutionWritter, AdditionalInfoWriter additionalWritter) InputParser(string[] args)
     {
         if (args is null || args.Length != 5) throw new ArgumentException("Argument list must contain 5 arguments!", nameof(args));
 
@@ -88,8 +88,8 @@ class Program
 
         Board board;
         IPuzzleSolverDiagnostics solver;
-        BasicInfoWritter solutionWritter;
-        AdditionalInfoWritter additionalWritter;
+        BasicInfoWriter solutionWriter;
+        AdditionalInfoWriter additionalWriter;
 
         solver = strategy switch
         {
@@ -106,10 +106,10 @@ class Program
 
         var readFile = new FileFifteenReader(boardFile);
         board = readFile.Read();
-        solutionWritter = new BasicInfoWritter(solutionFile);
-        additionalWritter = new AdditionalInfoWritter(additionalFile);
+        solutionWriter = new BasicInfoWriter(solutionFile);
+        additionalWriter = new AdditionalInfoWriter(additionalFile);
 
-        return (board, solver, solutionWritter, additionalWritter);
+        return (board, solver, solutionWriter, additionalWriter);
     }
 
     private static Dir[] StringToDirections(string spec)
@@ -117,7 +117,7 @@ class Program
         if (spec is null || spec.Length != 4) throw new ArgumentException("Direction specification must contain 4 characters", nameof(spec));
 
         var dirs = new Dir[4];
-        for (int i = 0; i < 4; i++)
+        for (var i = 0; i < 4; i++)
         {
             dirs[i] = spec[i] switch
             {

@@ -1,15 +1,15 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace BossPuzzle.PuzzleBoard;
+namespace FifteenPuzzle.PuzzleBoard;
 
 public class AStar : IPuzzleSolver, IPuzzleSolverDiagnostics
 {
-    private readonly Heuristic _atype;
+    private readonly Heuristic _heuristic;
 
-    public AStar(Heuristic atype)
+    public AStar(Heuristic heuristic)
     {
-        _atype = atype;
+        _heuristic = heuristic;
     }
 
     public Board Solve(in Board board, out RunInfo runInfo)
@@ -73,11 +73,11 @@ public class AStar : IPuzzleSolver, IPuzzleSolverDiagnostics
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private uint GetHeuristicDistance(in Board board)
     {
-        return _atype switch
+        return _heuristic switch
         {
             Heuristic.Hamming => board.DistanceHammings,
             Heuristic.Manhattan => board.DistanceManhattan,
-            _ => throw new ArgumentOutOfRangeException(nameof(_atype), "Atype not recognized."),
+            _ => throw new ArgumentException($"Heuristic '{_heuristic}' not recognized."),
         };
     }
 

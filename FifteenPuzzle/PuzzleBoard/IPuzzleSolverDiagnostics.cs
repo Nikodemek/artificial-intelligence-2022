@@ -1,4 +1,4 @@
-﻿namespace BossPuzzle.PuzzleBoard;
+﻿namespace FifteenPuzzle.PuzzleBoard;
 
 public interface IPuzzleSolverDiagnostics
 {

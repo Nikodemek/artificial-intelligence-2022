@@ -1,4 +1,4 @@
-﻿namespace BossPuzzle.Dao;
+﻿namespace FifteenPuzzle.Dao;
 
 public static class Global
 {

@@ -1,7 +1,7 @@
-﻿using BossPuzzle.Utils;
+﻿using FifteenPuzzle.Utils;
 using System.Diagnostics;
 
-namespace BossPuzzle.PuzzleBoard;
+namespace FifteenPuzzle.PuzzleBoard;
 using Dir = Board.Direction;
 
 public class DFS : IPuzzleSolver, IPuzzleSolverDiagnostics
