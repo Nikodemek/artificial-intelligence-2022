@@ -91,10 +91,10 @@ public class Board : ICloneable, IEquatable<Board>
                     }
                 }
             }
-        }    
+        }
         ColumnSize = (short)_board.GetLength(0);
         RowSize = (short)_board.GetLength(1);
-        
+
         _parent = parent;
         _correctHash = correctHash ?? ComputeCorrectHash(rowLength, columnLength);
     }

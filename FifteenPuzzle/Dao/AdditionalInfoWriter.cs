@@ -1,4 +1,5 @@
 ﻿using FifteenPuzzle.PuzzleBoard;
+using System.Globalization;
 using System.Text;
 
 namespace FifteenPuzzle.Dao;
@@ -29,7 +30,7 @@ public class AdditionalInfoWriter : IFileWriter<RunInfo>
         sb.Append(visited).AppendLine();
         sb.Append(processed).AppendLine();
         sb.Append(maxDepth).AppendLine();
-        sb.Append(executionTime.ToString("0.000"));
+        sb.Append(executionTime.ToString("0.000", CultureInfo.InvariantCulture));
 
         File.WriteAllText(_filePath, sb.ToString());
     }
