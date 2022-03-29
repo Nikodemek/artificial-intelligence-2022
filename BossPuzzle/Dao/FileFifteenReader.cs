@@ -1,26 +1,25 @@
 ﻿using BossPuzzle.PuzzleBoard;
 using BossPuzzle.Utils;
-using System.Text;
 
 namespace BossPuzzle.Dao;
 
-public class FileFifteenPuzzleDao : IFileReader<Board>
+public class FileFifteenReader : IFileReader<Board>
 {
     private readonly string _fileName;
     private readonly string _filePath;
 
-    public FileFifteenPuzzleDao(string fileName)
+    public FileFifteenReader(string fileName)
     {
         if (String.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("FileName cannot be empty!", nameof(fileName));
 
         _fileName = fileName;
         _filePath = Path.Combine(Global.BaseDataDirPath, _fileName);
+
+        if (!File.Exists(_filePath)) throw new FileNotFoundException("File not found!", _filePath);
     }
 
     public Board Read()
     {
-        if (!File.Exists(_filePath)) throw new FileNotFoundException("File not found!", _filePath);
-        
         var data = File.ReadAllLines(_filePath);
 
         var list = data[0].Split(' ');

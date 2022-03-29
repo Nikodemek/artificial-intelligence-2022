@@ -1,17 +1,13 @@
-﻿using System.Diagnostics;
-using BossPuzzle.Utils;
+﻿using BossPuzzle.Utils;
+using System.Diagnostics;
 
 namespace BossPuzzle.PuzzleBoard;
 using Dir = Board.Direction;
 
-public class DFS : IPuzzleSolver
+public class DFS : IPuzzleSolver, IPuzzleSolverDiagnostics
 {
     private readonly int _maxDepth;
     private readonly Dir[] _directions;
-
-    private uint _boardInstanceCount;
-    private uint _maxDepthAchieved;
-    private readonly Stopwatch _stoper;
 
     public DFS(Dir[] directions)
         : this(directions, 19)
@@ -19,42 +15,57 @@ public class DFS : IPuzzleSolver
 
     public DFS(Dir[] directions, int maxDepth)
     {
-        _maxDepth = maxDepth;
         _directions = Arrayer.Copy(directions);
-        _boardInstanceCount = 1;
-        _maxDepthAchieved = 0;
-        _stoper = new Stopwatch();
+        _maxDepth = maxDepth;
+    }
+
+    public Board Solve(in Board board, out RunInfo runInfo)
+    {
+        var solvedBoard = Solve(board, out int visited, out int processed, out int maxDepth, out double time);
+
+        bool isSolutionValid = solvedBoard.IsValid();
+        string path = solvedBoard.GetPathFormatted();
+        int pathLength = path.Length;
+
+        runInfo = new RunInfo(
+            isSolutionValid,
+            path,
+            pathLength,
+            visited,
+            processed,
+            maxDepth,
+            time);
+
+        return solvedBoard;
     }
 
     public Board Solve(in Board board)
     {
-        _boardInstanceCount = 1;
-        _maxDepthAchieved = 0;
-        
-        if (board is null) throw new ArgumentNullException(nameof(board));
-        
-        _stoper.Start();
+        return Solve(board, out _, out _, out _, out _);
+    }
 
-        var stack = new Stack<Board>();
+    private Board Solve(in Board board, out int visited, out int processed, out int maxDepth, out double time)
+    {
+        visited = 1;
+        processed = 1;
+        maxDepth = _maxDepth;
+        var watch = Stopwatch.StartNew();
+
+        var boardsStack = new Stack<Board>();
         var boardsDepth = new Dictionary<ulong, short>();
         var validBoards = new List<Board>();
 
         var currentBoard = board;
-        stack.Push(currentBoard);
+        boardsStack.Push(currentBoard);
 
-        while (stack.Count > 0)
+        while (boardsStack.Count > 0)
         {
-            if (stack.Count > _maxDepth)
+            if (boardsStack.Count > _maxDepth)
             {
-                stack.Pop();
-                currentBoard = stack.Peek();
+                boardsStack.Pop();
+                currentBoard = boardsStack.Peek();
             }
-            
-            if (_maxDepthAchieved < stack.Count)
-            {
-                _maxDepthAchieved = (uint) stack.Count;
-            }
-            
+
             if (currentBoard.IsValid()) validBoards.Add(currentBoard);
 
             bool boardAdded = false;
@@ -62,9 +73,9 @@ public class DFS : IPuzzleSolver
             foreach (var direction in directions)
             {
                 var nextBoard = currentBoard.Move(direction);
-                _boardInstanceCount++;
-                
-                short stackCount = (short)stack.Count;
+                visited++;
+
+                short stackCount = (short)boardsStack.Count;
                 ulong nextBoardHash = nextBoard.Hash;
 
                 if (!boardsDepth.TryAdd(nextBoardHash, stackCount))
@@ -74,39 +85,24 @@ public class DFS : IPuzzleSolver
                 }
 
                 boardAdded = true;
-                stack.Push(nextBoard);
+                boardsStack.Push(nextBoard);
                 currentBoard = nextBoard;
                 break;
             }
 
             if (!boardAdded)
             {
-                stack.Pop();
-                stack.TryPeek(out currentBoard!);
+                boardsStack.Pop();
+                boardsStack.TryPeek(out currentBoard!);
             }
+            processed++;
         }
 
-        if (validBoards.Count == 0) return board;
-        
         validBoards.Sort((board1, board2) => board1.GetPathLength().CompareTo(board2.GetPathLength()));
 
-        _stoper.Stop();
-        
-        return validBoards[0];
-    }
+        watch.Stop();
+        time = watch.Elapsed.TotalMilliseconds;
 
-    public uint GetBoardInstanceCount()
-    {
-        return _boardInstanceCount;
-    }
-
-    public uint GetMaxDepthAchieved()
-    {
-        return _maxDepthAchieved;
-    }
-
-    public double GetTimeConsumed()
-    {
-        return _stoper.Elapsed.TotalMilliseconds;
+        return validBoards.Count > 0 ? validBoards[0] : board;
     }
 }

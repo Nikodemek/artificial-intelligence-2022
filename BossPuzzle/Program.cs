@@ -1,8 +1,6 @@
 ﻿using BossPuzzle.Dao;
 using BossPuzzle.PuzzleBoard;
 using BossPuzzle.Utils;
-using System.Diagnostics;
-using System.Text;
 
 namespace BossPuzzle;
 using Dir = Board.Direction;
@@ -12,7 +10,7 @@ class Program
 {
     public static void Main(string[] args)
     {
-        Global.EnsureDirectoryIsValid();
+        Global.EnsureDirectoryIsValid(true);
 
         if (args.Length == 0)
         {
@@ -30,22 +28,13 @@ class Program
 
         board.Print();
 
-        var solvedBoard = board.Solve(solver);
+        var solvedBoard = board.Solve(solver, out RunInfo runInfo);
 
-        if (solvedBoard.IsValid()) Console.WriteLine($"SOLVED in {solver.GetTimeConsumed():n3}ms");
         solvedBoard.Print();
+        Console.WriteLine(runInfo);
 
-        string path = solvedBoard.GetPathFormatted();
-        Console.WriteLine($"Created {Board.instances:n0} instances of Board.");
-        Console.WriteLine($"Path: {path} (length = {path.Length})");
-
-        var infoConverter = new InfoConverter(solvedBoard, solver);
-
-        var additionalInfo = infoConverter.PrepareAdditionalInfo();
-        var basicInfo = infoConverter.PrepareBasicInfo();
-
-        solutionWritter.Write(basicInfo);
-        additionalWritter.Write(additionalInfo);
+        solutionWritter.Write(runInfo);
+        additionalWritter.Write(runInfo);
     }
 
     private static void TestRun()
@@ -57,9 +46,9 @@ class Program
         board.Print();
 
 
-        //IPuzzleSolver solver = new AStar(Heur.Manhattan);
+        //IPuzzleSolverDiagnostics solver = new AStar(Heur.Manhattan);
 
-        /*IPuzzleSolver solver = new BFS(new[]
+        /*IPuzzleSolverDiagnostics solver = new BFS(new[]
         {
             Dir.Up,
             Dir.Down,
@@ -67,7 +56,7 @@ class Program
             Dir.Right
         });*/
 
-        DFS solver = new DFS(
+        IPuzzleSolverDiagnostics solver = new DFS(
             new[] {
             Dir.Up,
             Dir.Down,
@@ -75,15 +64,11 @@ class Program
             Dir.Right
             },
             19);
-        
-        var solvedBoard = board.Solve(solver);
 
-        if (solvedBoard.IsValid()) Console.WriteLine($"SOLVED in {solver.GetTimeConsumed():n3}ms");
+        var solvedBoard = board.Solve(solver, out RunInfo runInfo);
+
         solvedBoard.Print();
-
-        string path = solvedBoard.GetPathFormatted();
-        Console.WriteLine($"Created {solver.GetBoardInstanceCount():n0} instances of Board.");
-        Console.WriteLine($"Path: {path} (length = {path.Length})");
+        Console.WriteLine(runInfo);
 
         /*var saveFile = new FileFifteenPuzzleDao("test_sol.file");
         saveFile.Write(solvedBoard);*/
@@ -91,7 +76,7 @@ class Program
         Console.ReadKey();
     }
 
-    private static (Board board, IPuzzleSolver solver, FileWriter solutionWritter, FileWriter additionalWritter) InputParser(string[] args)
+    private static (Board board, IPuzzleSolverDiagnostics solver, BasicInfoWritter solutionWritter, AdditionalInfoWritter additionalWritter) InputParser(string[] args)
     {
         if (args is null || args.Length != 5) throw new ArgumentException("Argument list must contain 5 arguments!", nameof(args));
 
@@ -102,9 +87,9 @@ class Program
         string additionalFile = args[4];
 
         Board board;
-        IPuzzleSolver solver;
-        FileWriter solutionWritter;
-        FileWriter additionalWritter;
+        IPuzzleSolverDiagnostics solver;
+        BasicInfoWritter solutionWritter;
+        AdditionalInfoWritter additionalWritter;
 
         solver = strategy switch
         {
@@ -114,45 +99,34 @@ class Program
             {
                 "hamm" => new AStar(Heur.Hamming),
                 "manh" => new AStar(Heur.Manhattan),
-                _ => throw new ArgumentException($"Heuristic '{specs}' not recognized", nameof(specs)),
+                _ => throw new ArgumentException($"Heuristic '{specs}' not recognized"),
             },
-            _ => throw new ArgumentException($"Algorithm '{strategy}' not recognized", nameof(strategy)),
+            _ => throw new ArgumentException($"Algorithm '{strategy}' not recognized"),
         };
 
-        var readFile = new FileFifteenPuzzleDao(boardFile);
+        var readFile = new FileFifteenReader(boardFile);
         board = readFile.Read();
-        solutionWritter = new FileWriter(solutionFile);
-        additionalWritter = new FileWriter(additionalFile);
+        solutionWritter = new BasicInfoWritter(solutionFile);
+        additionalWritter = new AdditionalInfoWritter(additionalFile);
 
         return (board, solver, solutionWritter, additionalWritter);
     }
 
     private static Dir[] StringToDirections(string spec)
     {
-        if(spec is null || spec.Length != 4) throw new ArgumentException("Direction specification must contain 4 characters", nameof(spec));
+        if (spec is null || spec.Length != 4) throw new ArgumentException("Direction specification must contain 4 characters", nameof(spec));
 
         var dirs = new Dir[4];
         for (int i = 0; i < 4; i++)
         {
-            Dir direction;
-            switch (spec[i])
+            dirs[i] = spec[i] switch
             {
-                case 'R':
-                    direction = Dir.Right;
-                    break;
-                case 'L':
-                    direction = Dir.Left;
-                    break;
-                case 'U':
-                    direction = Dir.Up;
-                    break;
-                case 'D':
-                    direction = Dir.Down;
-                    break;
-                default:
-                    throw new ArgumentException($"Direction {spec[i]} not recignized!");
-            }
-            dirs[i] = direction;
+                'R' => Dir.Right,
+                'L' => Dir.Left,
+                'U' => Dir.Up,
+                'D' => Dir.Down,
+                _ => throw new ArgumentException($"Direction {spec[i]} not recignized!"),
+            };
         }
 
         var set = new HashSet<Dir>(dirs);

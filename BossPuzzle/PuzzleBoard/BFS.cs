@@ -1,75 +1,82 @@
-﻿using System.Diagnostics;
-using BossPuzzle.Utils;
+﻿using BossPuzzle.Utils;
+using System.Diagnostics;
 
 namespace BossPuzzle.PuzzleBoard;
 using Dir = Board.Direction;
 
-public class BFS : IPuzzleSolver
+public class BFS : IPuzzleSolver, IPuzzleSolverDiagnostics
 {
     private readonly Dir[] _directions;
 
-    private uint _boardInstanceCount;
-    private uint _maxDepthAchieved;
-    private readonly Stopwatch _stoper;
-    
     public BFS(Dir[] directions)
     {
         _directions = Arrayer.Copy(directions);
-        _boardInstanceCount = 1;
-        _maxDepthAchieved = 0;
-        _stoper = new Stopwatch();
+    }
+
+    public Board Solve(in Board board, out RunInfo runInfo)
+    {
+        var solvedBoard = Solve(board, out int visited, out int processed, out int maxDepth, out double time);
+
+        bool isSolutionValid = solvedBoard.IsValid();
+        string path = solvedBoard.GetPathFormatted();
+        int pathLength = path.Length;
+
+        runInfo = new RunInfo(
+            isSolutionValid,
+            path,
+            pathLength,
+            visited,
+            processed,
+            maxDepth,
+            time);
+
+        return solvedBoard;
     }
 
     public Board Solve(in Board board)
     {
-        _stoper.Start();
+        return Solve(board, out _, out _, out _, out _);
+    }
 
-        if (board.IsValid()) return board;
+    private Board Solve(in Board board, out int visited, out int processed, out int maxDepth, out double time)
+    {
+        visited = 1;
+        processed = 1;
+        var watch = Stopwatch.StartNew();
 
-        var visited = new HashSet<ulong>();
-        var queue = new Queue<Board>();
+        var boardsVisited = new HashSet<ulong>();
+        var boardsQueue = new Queue<Board>();
 
-        visited.Add(board.Hash);
-        queue.Enqueue(board);
+        var currentBoard = board;
 
-        while (queue.Count > 0)
+        boardsVisited.Add(currentBoard.Hash);
+        boardsQueue.Enqueue(currentBoard);
+
+        while (!currentBoard.IsValid() && boardsQueue.Count > 0)
         {
-            var currentBoard = queue.Dequeue();
+            currentBoard = boardsQueue.Dequeue();
             var directions = currentBoard.ClarifyMovement(_directions);
 
             foreach (var direction in directions)
             {
                 var nextBoard = currentBoard.Move(direction);
-                _boardInstanceCount++;
+                visited++;
 
                 if (nextBoard.IsValid())
                 {
-                    var depth = nextBoard.GetPath().Length;
-                    _maxDepthAchieved = (uint) depth;
-                    return nextBoard;
+                    currentBoard = nextBoard;
+                    break;
                 }
 
-                if (visited.Add(nextBoard.Hash)) queue.Enqueue(nextBoard);
+                if (boardsVisited.Add(nextBoard.Hash)) boardsQueue.Enqueue(nextBoard);
             }
+            processed++;
         }
 
-        _stoper.Stop();
-        
-        return board;
-    }
+        watch.Stop();
+        time = watch.Elapsed.TotalMilliseconds;
+        maxDepth = currentBoard.GetPathLength();
 
-    public uint GetBoardInstanceCount()
-    {
-        return _boardInstanceCount;
-    }
-
-    public uint GetMaxDepthAchieved()
-    {
-        return _maxDepthAchieved;
-    }
-
-    public double GetTimeConsumed()
-    {
-        return _stoper.Elapsed.TotalMilliseconds;
+        return currentBoard;
     }
 }

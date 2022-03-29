@@ -218,6 +218,11 @@ public class Board : ICloneable, IEquatable<Board>
         return solver.Solve(this);
     }
 
+    public Board Solve(IPuzzleSolverDiagnostics solver, out RunInfo runInfo)
+    {
+        return solver.Solve(this, out runInfo);
+    }
+
     public bool IsValid()
     {
         if (Hash != _correctHash) return false;
@@ -240,7 +245,8 @@ public class Board : ICloneable, IEquatable<Board>
         var path = new Stack<Direction>();
         for (var board = this; board._parent is not null; board = board._parent)
         {
-            path.Push(GetLastMove(board, board._parent));
+            Direction lastMove = GetLastMove(board, board._parent);
+            path.Push(lastMove);
         }
         return path.ToArray();
     }
@@ -258,7 +264,7 @@ public class Board : ICloneable, IEquatable<Board>
     public string GetPathFormatted()
     {
         var sb = new StringBuilder();
-        foreach (var direction in GetPath()) sb.Append(direction.ToString()[0]);
+        foreach (var direction in GetPath()!) sb.Append(direction.ToString()[0]);
         return sb.ToString();
     }
 
