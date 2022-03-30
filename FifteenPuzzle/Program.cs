@@ -39,14 +39,16 @@ class Program
 
     private static void TestRun()
     {
-        /*var readFile = new FileFifteenPuzzleDao("test.file");
-        var board = readFile.Read();*/
+        var readFile = new FileFifteenReader("4x4_07_0255.txt");
+        var board = readFile.Read();
 
-        var board = PuzzleGenerator.Generate(4, 4, 18);
+        //var board = PuzzleGenerator.Generate(4, 4, 0);
+        //PuzzleGenerator.GenerateAll(7);
+        
         board.Print();
 
 
-        //IPuzzleSolverDiagnostics solver = new AStar(Heur.Manhattan);
+        IPuzzleSolverDiagnostics solver = new AStar(Heur.Manhattan);
 
         /*IPuzzleSolverDiagnostics solver = new BFS(new[]
         {
@@ -56,14 +58,14 @@ class Program
             Dir.Right
         });*/
 
-        IPuzzleSolverDiagnostics solver = new DFS(
+        /*IPuzzleSolverDiagnostics solver = new DFS(
             new[] {
             Dir.Up,
             Dir.Down,
             Dir.Left,
             Dir.Right
             },
-            19);
+            19);*/
 
         var solvedBoard = board.Solve(solver, out RunInfo runInfo);
 

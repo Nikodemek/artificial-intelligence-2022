@@ -1,4 +1,5 @@
-﻿using FifteenPuzzle.PuzzleBoard;
+﻿using FifteenPuzzle.Dao;
+using FifteenPuzzle.PuzzleBoard;
 
 namespace FifteenPuzzle.Utils;
 using Dir = Board.Direction;
@@ -70,5 +71,52 @@ public static class PuzzleGenerator
         }
 
         return new Board(board);
+    }
+    
+    public static void GenerateAll(uint maxDepth)
+    {
+        var boards = new List<Board>();
+        Dir[] exampleDirections =
+        {
+            Dir.Up,
+            Dir.Down,
+            Dir.Left,
+            Dir.Right
+        };
+
+        var boardsVisited = new HashSet<ulong>();
+        var boardsQueue = new Queue<Board>();
+
+        var currentBoard = Generate(4, 4, 0);
+
+        boardsVisited.Add(currentBoard.Hash);
+        boardsQueue.Enqueue(currentBoard);
+
+        while (boardsQueue.Count > 0)
+        {
+            currentBoard = boardsQueue.Dequeue();
+            var directions = currentBoard.ClarifyMovement(exampleDirections);
+
+            var evacuationFlag = false;
+            foreach (var direction in directions)
+            {
+                var nextBoard = currentBoard.Move(direction);
+                if (nextBoard.GetPathLength() > maxDepth)
+                {
+                    evacuationFlag = true;
+                    break;
+                }
+                if (boardsVisited.Add(nextBoard.Hash))
+                {
+                    boardsQueue.Enqueue(nextBoard);
+                    boards.Add(nextBoard);
+                }
+            }
+
+            if (evacuationFlag) break;
+        }
+
+        var bw = new BoardWriter();
+        bw.Write(boards);
     }
 }
