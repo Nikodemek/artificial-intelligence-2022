@@ -14,7 +14,7 @@ public class AdditionalInfoWriter : IFileWriter<RunInfo>
         if (String.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("FileName cannot be empty!", nameof(fileName));
 
         _fileName = fileName;
-        _filePath = Path.Combine(Global.FinalDataDirPath);
+        _filePath = Path.Combine(Global.FinalDataDirPath, _fileName);
     }
 
     public void Write(in RunInfo content)
