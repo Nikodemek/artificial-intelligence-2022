@@ -10,6 +10,9 @@ public static class Global
             "sise_2022"
             );
 
+    public static readonly bool Tests = true;
+    public static readonly string FinalDataDirPath = Path.Combine(BaseDataDirPath, Tests ? "tests" : "");
+
     public static void EnsureDirectoryIsValid(bool writePath = false)
     {
         if (!Directory.Exists(BaseDataDirPath))
