@@ -56,7 +56,7 @@ public class AStar : IPuzzleSolver, IPuzzleSolverDiagnostics
             {
                 var nextBoard = currBoard.Move(direction);
                 visited++;
-                uint pathDist = (uint)nextBoard.GetPathLength();
+                uint pathDist = (uint)nextBoard.PathLength;
                 uint heurDist = GetHeuristicDistance(nextBoard);
                 queue.Enqueue(nextBoard, pathDist + heurDist);
             }

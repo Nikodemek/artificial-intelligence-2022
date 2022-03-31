@@ -75,7 +75,7 @@ public class BFS : IPuzzleSolver, IPuzzleSolverDiagnostics
 
         watch.Stop();
         time = watch.Elapsed.TotalMilliseconds;
-        maxDepth = currentBoard.GetPathLength();
+        maxDepth = currentBoard.PathLength;
 
         return currentBoard;
     }

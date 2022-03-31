@@ -10,7 +10,7 @@ public class DFS : IPuzzleSolver, IPuzzleSolverDiagnostics
     private readonly Dir[] _directions;
 
     public DFS(Dir[] directions)
-        : this(directions, 19)
+        : this(directions, 20)
     { }
 
     public DFS(Dir[] directions, int maxDepth)
@@ -98,7 +98,7 @@ public class DFS : IPuzzleSolver, IPuzzleSolverDiagnostics
             processed++;
         }
 
-        validBoards.Sort((board1, board2) => board1.GetPathLength().CompareTo(board2.GetPathLength()));
+        validBoards.Sort((board1, board2) => board1.PathLength.CompareTo(board2.PathLength));
 
         watch.Stop();
         time = watch.Elapsed.TotalMilliseconds;

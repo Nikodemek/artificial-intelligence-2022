@@ -33,6 +33,11 @@ public class Board : ICloneable, IEquatable<Board>
         }
     }
 
+    public int PathLength
+    {
+        get => _pathLength;
+    }
+
     private readonly short[,] _board;
     private readonly short _emptyCellRow = -1;
     private readonly short _emptyCellColumn = -1;
@@ -42,6 +47,7 @@ public class Board : ICloneable, IEquatable<Board>
     private ulong _hash = 0;
     private uint _distanceHammings = 0;
     private uint _distanceManhattan = 0;
+    private int _pathLength = -1;
 
     public Board(short[,] board)
         : this(board, true, null, null)
@@ -96,6 +102,7 @@ public class Board : ICloneable, IEquatable<Board>
         RowSize = (short)_board.GetLength(1);
 
         _parent = parent;
+        _pathLength = parent is not null ? parent.PathLength + 1 : 0;
         _correctHash = correctHash ?? ComputeCorrectHash(rowLength, columnLength);
     }
 
@@ -249,16 +256,6 @@ public class Board : ICloneable, IEquatable<Board>
             path.Push(lastMove);
         }
         return path.ToArray();
-    }
-
-    public int GetPathLength()
-    {
-        int length = 0;
-        for (var board = this; board._parent is not null; board = board._parent)
-        {
-            length++;
-        }
-        return length;
     }
 
     public string GetPathFormatted()

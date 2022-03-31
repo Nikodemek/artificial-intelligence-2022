@@ -101,7 +101,7 @@ public static class PuzzleGenerator
             foreach (var direction in directions)
             {
                 var nextBoard = currentBoard.Move(direction);
-                if (nextBoard.GetPathLength() > maxDepth)
+                if (nextBoard.PathLength > maxDepth)
                 {
                     evacuationFlag = true;
                     break;

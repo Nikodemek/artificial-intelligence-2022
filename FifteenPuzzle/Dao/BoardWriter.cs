@@ -48,7 +48,7 @@ public class BoardWriter: IFileWriter<List<Board>>
         
         sb.Append('_');
         
-        var pathLength = board.GetPathLength();
+        var pathLength = board.PathLength;
         var number = pathLength.ToString("00");
         sb.Append(number);
         
