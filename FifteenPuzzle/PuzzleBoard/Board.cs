@@ -53,7 +53,7 @@ public class Board : ICloneable, IEquatable<Board>
         : this(board, true, null, null)
     { }
 
-    private Board(short[,] board, bool copyArr, Board? parent, ulong? correctHash)
+    private Board(short[,] board, bool copyArr, Board? parent, Direction? lastMove)
     {
         int columnLength = board.GetLength(0);
 
@@ -86,24 +86,38 @@ public class Board : ICloneable, IEquatable<Board>
         {
             _board = board;
 
-            for (short i = 0; i < columnLength; i++)
+            if (lastMove is not null & parent is not null)
             {
-                for (short j = 0; j < rowLength; j++)
+                switch (lastMove)
                 {
-                    if (board[i, j] <= 0)
-                    {
-                        _emptyCellRow = i;
-                        _emptyCellColumn = j;
-                    }
+                    case Direction.Up:
+                        _emptyCellRow = (short)(parent!._emptyCellRow - 1);
+                        _emptyCellColumn = parent._emptyCellColumn;
+                        break;
+                    case Direction.Down:
+                        _emptyCellRow = (short)(parent!._emptyCellRow + 1);
+                        _emptyCellColumn = parent._emptyCellColumn;
+                        break;
+                    case Direction.Left:
+                        _emptyCellRow = parent!._emptyCellRow;
+                        _emptyCellColumn = (short)(parent._emptyCellColumn - 1);
+                        break;
+                    case Direction.Right:
+                        _emptyCellRow = parent!._emptyCellRow;
+                        _emptyCellColumn = (short)(parent._emptyCellColumn + 1);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(lastMove), lastMove, "Last move out of definition.");
                 }
             }
         }
+        
         ColumnSize = (short)_board.GetLength(0);
         RowSize = (short)_board.GetLength(1);
 
         _parent = parent;
         _pathLength = parent is not null ? parent.PathLength + 1 : 0;
-        _correctHash = correctHash ?? ComputeCorrectHash(rowLength, columnLength);
+        _correctHash = parent is not null ? parent._correctHash : ComputeCorrectHash(rowLength, columnLength);
     }
 
     private static ulong ComputeCorrectHash(int rowSize, int columnSize)
@@ -354,7 +368,7 @@ public class Board : ICloneable, IEquatable<Board>
         changedCell = _board[row, column];
         newBoard[row, column] = temp;
 
-        return new Board(newBoard, false, this, _correctHash);
+        return new Board(newBoard, false, this, dir);
     }
 
     private static Direction GetCancellingDirection(Direction direction)
