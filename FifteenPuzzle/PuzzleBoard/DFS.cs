@@ -53,7 +53,6 @@ public class DFS : IPuzzleSolver, IPuzzleSolverDiagnostics
 
         var boardsStack = new Stack<Board>();
         var boardsDepth = new Dictionary<ulong, short>();
-        var validBoards = new List<Board>();
 
         var currentBoard = board;
         boardsStack.Push(currentBoard);
@@ -66,7 +65,7 @@ public class DFS : IPuzzleSolver, IPuzzleSolverDiagnostics
                 currentBoard = boardsStack.Peek();
             }
 
-            if (currentBoard.IsValid()) validBoards.Add(currentBoard);
+            if (currentBoard.IsValid()) break;
 
             bool boardAdded = false;
             var directions = currentBoard.ClarifyMovement(_directions);
@@ -98,11 +97,9 @@ public class DFS : IPuzzleSolver, IPuzzleSolverDiagnostics
             processed++;
         }
 
-        validBoards.Sort((board1, board2) => board1.PathLength.CompareTo(board2.PathLength));
-
         watch.Stop();
         time = watch.Elapsed.TotalMilliseconds;
 
-        return validBoards.Count > 0 ? validBoards[0] : board;
+        return currentBoard;
     }
 }
