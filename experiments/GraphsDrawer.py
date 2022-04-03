@@ -3,7 +3,9 @@ from matplotlib import pyplot as plt
 import pandas as pd
 import os
 
-CSVData = pd.read_csv('data.csv', encoding = "utf-8")
+Dir_path = os.path.dirname(os.path.realpath(__file__))
+File_path = os.path.join(Dir_path, 'data.csv')
+CSVData = pd.read_csv(File_path, encoding = "utf8")
 Depths = CSVData['depth'].unique()
 X_axis = num.arange(len(Depths))
 
@@ -108,6 +110,10 @@ def main():
             axs[x,y].set_title(title)
             if not x == column_size - 1 & y == row_size - 1:
                 axs[x,y].legend()
+
+            if x == 0:
+                if y == 0:
+                    axs[x,y].set_yscale('log')
 
             if y == row_size - 1:
                 y = 0
