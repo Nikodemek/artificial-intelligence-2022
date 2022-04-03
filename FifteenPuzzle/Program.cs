@@ -35,6 +35,8 @@ class Program
 
         solutionWriter.Write(runInfo);
         additionalWriter.Write(runInfo);
+
+        Console.WriteLine($"All data written to {Global.BaseDataDirPath}");
     }
 
     private static void TestRun()

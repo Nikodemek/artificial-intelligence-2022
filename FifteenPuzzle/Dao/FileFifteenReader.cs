@@ -13,7 +13,7 @@ public class FileFifteenReader : IFileReader<Board>
         if (String.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("FileName cannot be empty!", nameof(fileName));
 
         _fileName = fileName;
-        _filePath = Path.Combine(Global.FinalDataDirPath, _fileName);
+        _filePath = Path.Combine(Global.BaseDataDirPath, _fileName);
 
         if (!File.Exists(_filePath)) throw new FileNotFoundException("File not found!", _filePath);
     }

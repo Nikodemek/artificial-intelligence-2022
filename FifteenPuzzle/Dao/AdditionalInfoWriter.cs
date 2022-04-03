@@ -14,7 +14,7 @@ public class AdditionalInfoWriter : IFileWriter<RunInfo>
         if (String.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("FileName cannot be empty!", nameof(fileName));
 
         _fileName = fileName;
-        _filePath = Path.Combine(Global.FinalDataDirPath, _fileName);
+        _filePath = Path.Combine(Global.BaseDataDirPath, _fileName);
     }
 
     public void Write(in RunInfo content)
@@ -32,7 +32,7 @@ public class AdditionalInfoWriter : IFileWriter<RunInfo>
         sb.Append(maxDepth).AppendLine();
         sb.Append(executionTime.ToString("0.000", CultureInfo.InvariantCulture));
 
-        var testsDirectoryPath = Path.Combine(Global.FinalDataDirPath);
+        var testsDirectoryPath = Path.Combine(Global.TestingDataDirPath);
         if (!Directory.Exists(testsDirectoryPath))
         {
             Directory.CreateDirectory(testsDirectoryPath);

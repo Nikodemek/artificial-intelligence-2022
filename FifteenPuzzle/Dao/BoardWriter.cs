@@ -29,7 +29,7 @@ public class BoardWriter: IFileWriter<List<Board>>
 
             var filename = CreateFilenameFor(board);
 
-            var testsDirectoryPath = Path.Combine(Global.FinalDataDirPath);
+            var testsDirectoryPath = Path.Combine(Global.TestingDataDirPath);
             if (!Directory.Exists(testsDirectoryPath))
             {
                 Directory.CreateDirectory(testsDirectoryPath);
