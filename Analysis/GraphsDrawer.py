@@ -1,10 +1,10 @@
 import numpy as num
 from matplotlib import pyplot as plt
 import pandas as pd
-import os
+from os import path
 
-Dir_path = os.path.dirname(os.path.realpath(__file__))
-File_path = os.path.join(Dir_path, 'data.csv')
+Dir_path = path.dirname(path.realpath(__file__))
+File_path = path.join(Dir_path, 'data.csv')
 CSVData = pd.read_csv(File_path, encoding = "utf8")
 Depths = CSVData['depth'].unique()
 X_axis = num.arange(len(Depths))
