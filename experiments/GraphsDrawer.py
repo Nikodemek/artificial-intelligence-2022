@@ -3,20 +3,20 @@ from matplotlib import pyplot as plt
 import pandas as pd
 import os
 
-csvdata = pd.read_csv('data.csv', encoding = "utf-8")
-depths = csvdata['depth'].unique()
-X_axis = num.arange(len(depths))
+CSVData = pd.read_csv('data.csv', encoding = "utf-8")
+Depths = CSVData['depth'].unique()
+X_axis = num.arange(len(Depths))
 
 def get_data(criteria : str, subjects: list, column: str, additional = 'none'):
     list = []
     
     for subject in subjects:
         inner_list = []
-        for depth in depths:
-            depth_split = csvdata[csvdata['depth'] == depth]
-            filtered_data = depth_split[csvdata[column] == subject]
+        for depth in Depths:
+            depth_split = CSVData[CSVData['depth'] == depth]
+            filtered_data = depth_split[CSVData[column] == subject]
             if additional != 'none':
-                filtered_data = filtered_data[csvdata['method'] == additional]
+                filtered_data = filtered_data[CSVData['method'] == additional]
             mean_value = num.mean(filtered_data[criteria])
             inner_list.append(mean_value)
         list.append(inner_list)
@@ -52,10 +52,10 @@ def main():
     }
 
     strategy_switcher = {
-        0: csvdata['method'].unique(), 
-        1: csvdata[csvdata['method'] == 'astr']['strategy'].unique(),
-        2: csvdata[csvdata['method'] == 'bfs']['strategy'].unique(),
-        3: csvdata[csvdata['method'] == 'dfs']['strategy'].unique()
+        0: CSVData['method'].unique(), 
+        1: CSVData[CSVData['method'] == 'astr']['strategy'].unique(),
+        2: CSVData[CSVData['method'] == 'bfs']['strategy'].unique(),
+        3: CSVData[CSVData['method'] == 'dfs']['strategy'].unique()
     }
 
     column_switcher = {
@@ -100,7 +100,7 @@ def main():
                     position = X_axis - width + (width * i)
                 axs[x,y].bar(position, data, width, label=strategies[i])  
 
-            axs[x,y].set_xticks(X_axis, depths)
+            axs[x,y].set_xticks(X_axis, Depths)
             if y == 0:
                 axs[x,y].set_ylabel(criteria_switcher.get(criterion, "Invalid label"))
             if x == column_size - 1:
