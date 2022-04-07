@@ -174,10 +174,12 @@ public class Board : ICloneable, IEquatable<Board>
                 bool before = targetBefore == value;
                 bool after = targetAfter == value;
                 bool beforeZero = targetBefore == 0;
+                bool afterZero = targetAfter == 0;
 
                 if (before) dist++;
                 else if (after) dist--;
                 if (beforeZero) dist--;
+                if (afterZero) dist++;
 
                 return dist;
             }
