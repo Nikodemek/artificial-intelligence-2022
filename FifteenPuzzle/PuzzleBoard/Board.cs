@@ -39,7 +39,7 @@ public class Board : ICloneable, IEquatable<Board>
     private readonly short[,] _board;
     private readonly short _emptyCellRow = -1;
     private readonly short _emptyCellColumn = -1;
-    private readonly Board? _parent;
+    private readonly Board? parent;
     private readonly ulong? _correctHash;
 
     private ulong _hash = 0;
@@ -113,7 +113,7 @@ public class Board : ICloneable, IEquatable<Board>
         ColumnSize = (short)_board.GetLength(0);
         RowSize = (short)_board.GetLength(1);
 
-        _parent = parent;
+        this.parent = parent;
         _pathLength = parent is not null ? parent.PathLength + 1 : 0;
         _correctHash = parent is not null ? parent._correctHash : ComputeCorrectHash(rowLength, columnLength);
     }
@@ -162,28 +162,26 @@ public class Board : ICloneable, IEquatable<Board>
         int boardSize = board.Length;
         uint dist = 0;
 
-        /*if (_parent is not null)
+        if (parent is not null)
         {
-            if (_parent._distanceHammings != 0)
+            if (parent._distanceHammings != 0)
             {
-                dist = _parent._distanceHammings;
+                dist = parent._distanceHammings;
+                var parentCellRow = parent._emptyCellRow;
+                var parentCellColumn = parent._emptyCellColumn;
+                
                 var targetBefore = (_emptyCellRow * rowSize + _emptyCellColumn + 1) % boardSize;
-                var value = (int) board[_parent._emptyCellRow, _parent._emptyCellColumn];
-                var targetAfter = (_parent._emptyCellRow * rowSize + _parent._emptyCellColumn + 1) % boardSize;
+                var value = (int) board[parentCellRow, parentCellColumn];
+                var targetAfter = (parentCellRow * rowSize + parentCellColumn + 1) % boardSize;
 
-                bool before = targetBefore == value;
-                bool after = targetAfter == value;
-                bool beforeZero = targetBefore == 0;
-                bool afterZero = targetAfter == 0;
-
-                if (before) dist++;
-                else if (after) dist--;
-                if (beforeZero) dist--;
-                if (afterZero) dist++;
+                if (targetBefore == value) dist++;
+                else if (targetAfter == value) dist--;
+                if (targetBefore == 0) dist--;
+                if (targetAfter == 0) dist++;
 
                 return dist;
             }
-        }*/
+        }
         
         for (var i = 0; i < rowSize; i++)
         {
@@ -285,9 +283,9 @@ public class Board : ICloneable, IEquatable<Board>
     public Direction[] GetPath()
     {
         var path = new Stack<Direction>();
-        for (var board = this; board._parent is not null; board = board._parent)
+        for (var board = this; board.parent is not null; board = board.parent)
         {
-            Direction lastMove = GetLastMove(board, board._parent);
+            Direction lastMove = GetLastMove(board, board.parent);
             path.Push(lastMove);
         }
         return path.ToArray();
@@ -317,10 +315,10 @@ public class Board : ICloneable, IEquatable<Board>
     {
         bool hasLastDirection = false;
         Direction cancellingDir = Direction.Right;
-        if (_parent is not null)
+        if (parent is not null)
         {
             hasLastDirection = true;
-            cancellingDir = GetCancellingDirection(GetLastMove(this, _parent));
+            cancellingDir = GetCancellingDirection(GetLastMove(this, parent));
         }
 
         var newDirections = new List<Direction>(4);
