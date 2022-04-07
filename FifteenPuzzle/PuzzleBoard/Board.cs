@@ -155,13 +155,34 @@ public class Board : ICloneable, IEquatable<Board>
         return hash;
     }
 
-    private static uint HammingDistance(short[,] board, int rowSize = -1, int columnSize = -1)
+    private uint HammingDistance(short[,] board, int rowSize = -1, int columnSize = -1)
     {
-        uint dist = 0;
-
         if (rowSize == -1) rowSize = board.GetLength(0);
         if (columnSize == -1) columnSize = board.GetLength(1);
         int boardSize = board.Length;
+        uint dist = 0;
+
+        /*if (_parent is not null)
+        {
+            if (_parent._distanceHammings != 0)
+            {
+                dist = _parent._distanceHammings;
+                var targetBefore = (_emptyCellRow * rowSize + _emptyCellColumn + 1) % boardSize;
+                var value = (int) board[_parent._emptyCellRow, _parent._emptyCellColumn];
+                var targetAfter = (_parent._emptyCellRow * rowSize + _parent._emptyCellColumn + 1) % boardSize;
+
+                bool before = targetBefore == value;
+                bool after = targetAfter == value;
+                bool beforeZero = targetBefore == 0;
+
+                if (before) dist++;
+                else if (after) dist--;
+                if (beforeZero) dist--;
+
+                return dist;
+            }
+        }*/
+        
         for (var i = 0; i < rowSize; i++)
         {
             int offset = i * rowSize;

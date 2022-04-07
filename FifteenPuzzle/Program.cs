@@ -41,23 +41,23 @@ class Program
 
     private static void TestRun()
     {
-        /*var readFile = new FileFifteenReader("4x4_07_0255.txt");
-        var board = readFile.Read();*/
+        var readFile = new FileFifteenReader("4x4_07_0255.txt");
+        var board = readFile.Read();
 
 
         //var board = PuzzleGenerator.Generate(4, 4, 0);
         //PuzzleGenerator.GenerateAll(7);
-        short[,] game = {
+        /*short[,] game = {
             {2, 3, 4, 0},
             {6, 7, 12, 8},
             {1, 5, 10, 11 },
             {9, 13, 14, 15 } 
         };
-        var board = new Board(game);
+        var board = new Board(game);*/
         board.Print();
 
 
-        //IPuzzleSolverDiagnostics solver = new AStar(Heur.Manhattan);
+        IPuzzleSolverDiagnostics solver = new AStar(Heur.Hamming);
 
         /*IPuzzleSolverDiagnostics solver = new BFS(new[]
         {
@@ -67,14 +67,14 @@ class Program
             Dir.Right
         });*/
 
-        IPuzzleSolverDiagnostics solver = new DFS(
+        /*IPuzzleSolverDiagnostics solver = new DFS(
             new[] {
             Dir.Up,
             Dir.Down,
             Dir.Left,
             Dir.Right
             },
-            20);
+            20);*/
 
         var solvedBoard = board.Solve(solver, out RunInfo runInfo);
 
