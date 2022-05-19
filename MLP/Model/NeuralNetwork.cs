@@ -34,4 +34,30 @@ public class NeuralNetwork
 
         _activationFunction = activationFunction ?? Functions.SigmoidUnipolar;
     }
+
+    public NeuronLayer FeedForward(double[] inputs)
+    {
+        for (var i = 0; i < inputs.Length; i++)
+        {
+            Layers[0].Neurons[i].Value = inputs[i];
+        }
+
+        for (var i = 1; i < Layers.Count; i++)
+        {
+            var prevLayer = Layers[i - 1].Neurons;
+            var currLayer = Layers[i].Neurons;
+            for (var j = 0; j < currLayer.Count; j++)
+            {
+                double value = 0d;
+                for (var k = 0; k < prevLayer.Count; k++)
+                {
+                    value += currLayer[j].InputWeights[k] * prevLayer[k].Value;
+                }
+
+                currLayer[j].Value = _activationFunction(value + currLayer[j].Bias);
+            }
+        }
+
+        return Layers[^1];
+    }
 }
