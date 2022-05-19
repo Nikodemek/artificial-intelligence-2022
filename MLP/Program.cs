@@ -18,7 +18,7 @@ public static class Program
 
             for (int j = 0; j < trainingData.DataColumns; j++)
             {
-                sb.Append(trainingData.Data[i, j]).Append('\t');
+                sb.Append(trainingData.Data[i][j]).Append('\t');
             }
             sb.Append(" --> ").Append(trainingData.Results[i]);
             Console.WriteLine(sb);
