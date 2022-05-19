@@ -2,7 +2,7 @@
 
 public class Neuron
 {
-    public List<double> InputWeights { get; set; }
+    public List<double> InputWeights { get; init; }
     
     public Neuron(int inputCount)
     {

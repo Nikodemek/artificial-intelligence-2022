@@ -2,29 +2,30 @@
 
 public class NeuralNetwork
 {
-    public List<NeuronLayer> Layers { get; set; }
+    public List<NeuronLayer> Layers { get; init; }
 
-    private Random _random = new Random();
+    private readonly Random _random = new();
 
     public NeuralNetwork(params int[] neuronsInLayer)
     {
-        Layers = new List<NeuronLayer>(neuronsInLayer.Length);
-        foreach (var count in neuronsInLayer)
-        {
-            Layers.Add(new NeuronLayer(count));
-        }
+        if (neuronsInLayer.Length < 1) throw new ArgumentException("Can not pass an empty neuron count", nameof(neuronsInLayer));
+
+        Layers = new List<NeuronLayer>(neuronsInLayer.Length) { new NeuronLayer(neuronsInLayer[0]) };
 
         for (var i = 1; i < Layers.Count; i++)
         {
+            Layers.Add(new NeuronLayer(neuronsInLayer[i]));
+
             int prevLayerCount = Layers[i - 1].Neurons.Count;
-            for (var j = 0; j < Layers[i].Neurons.Count; j++)
+            var currNeurons = Layers[i].Neurons;
+            for (var j = 0; j < currNeurons.Count; j++)
             {
+                var newNeuron = new Neuron(prevLayerCount);
                 for (var k = 0; k < prevLayerCount; k++)
                 {
-                    Neuron newNeuron = new Neuron(prevLayerCount);
-                    newNeuron.InputWeights.Add(_random.NextDouble() % 1.0d - 0.5d);
-                    Layers[i].Neurons[k] = newNeuron;
+                    newNeuron.InputWeights.Add(_random.NextDouble() - 0.5);
                 }
+                currNeurons[j] = newNeuron;
             }
         }
     }

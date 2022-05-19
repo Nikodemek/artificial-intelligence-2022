@@ -2,7 +2,7 @@
 
 public class NeuronLayer
 {
-    public List<Neuron> Neurons { get; set; }
+    public List<Neuron> Neurons { get; init; }
 
     public NeuronLayer(int neuronCount)
     {

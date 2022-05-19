@@ -54,11 +54,9 @@ public class Board : ICloneable, IEquatable<Board>
     private Board(short[,] board, bool copyArr, Board? parent, Direction? lastMove)
     {
         int columnLength = board.GetLength(0);
-
         if (columnLength <= 0) throw new ArgumentException("Board cannot be empty!");
 
         int rowLength = board.GetLength(1);
-
         if (rowLength <= 0) throw new ArgumentException("Rows cannot be empty!");
 
         if (copyArr)
