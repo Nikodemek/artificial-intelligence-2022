@@ -3,6 +3,7 @@
 public class Neuron
 {
     public List<double> InputWeights { get; init; }
+    public double Bias { get; set; }
     
     public Neuron(int inputCount)
     {

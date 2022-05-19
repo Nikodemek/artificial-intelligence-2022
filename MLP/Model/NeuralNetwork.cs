@@ -26,6 +26,8 @@ public class NeuralNetwork
                 {
                     newNeuron.InputWeights.Add(_random.NextDouble() - 0.5);
                 }
+
+                newNeuron.Bias = _random.NextDouble() - 0.5;
                 currNeurons[j] = newNeuron;
             }
         }
