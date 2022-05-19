@@ -5,8 +5,9 @@ public class NeuralNetwork
     public List<NeuronLayer> Layers { get; init; }
 
     private readonly Random _random = new();
+    private readonly ActivationFunction _activationFunction;
 
-    public NeuralNetwork(params int[] neuronsInLayer)
+    public NeuralNetwork(ActivationFunction? activationFunction = default, params int[] neuronsInLayer)
     {
         if (neuronsInLayer.Length < 1) throw new ArgumentException("Can not pass an empty neuron count", nameof(neuronsInLayer));
 
@@ -28,5 +29,7 @@ public class NeuralNetwork
                 currNeurons[j] = newNeuron;
             }
         }
+
+        _activationFunction = activationFunction ?? Functions.SigmoidUnipolar;
     }
 }
