@@ -77,4 +77,9 @@ public static class Utils
         }
         return list;
     }
+
+    public static T[] gClone<T>(this T[] arr)
+    {
+        return (T[])arr.Clone();
+    }
 }
