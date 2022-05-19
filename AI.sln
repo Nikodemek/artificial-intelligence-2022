@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FifteenPuzzle", ".\FifteenPuzzle\FifteenPuzzle.csproj", "{84FBE51C-55A6-46E2-B258-D9F174588689}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MLP", ".\MLP\MLP.csproj", "{B868A06F-21CA-426E-B441-2D2FDBB663FA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{84FBE51C-55A6-46E2-B258-D9F174588689}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84FBE51C-55A6-46E2-B258-D9F174588689}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84FBE51C-55A6-46E2-B258-D9F174588689}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84FBE51C-55A6-46E2-B258-D9F174588689}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B868A06F-21CA-426E-B441-2D2FDBB663FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B868A06F-21CA-426E-B441-2D2FDBB663FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B868A06F-21CA-426E-B441-2D2FDBB663FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B868A06F-21CA-426E-B441-2D2FDBB663FA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
