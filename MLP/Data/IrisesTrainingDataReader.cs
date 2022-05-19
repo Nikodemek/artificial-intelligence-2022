@@ -32,11 +32,11 @@ public class IrisesTrainingDataReader : IFileReader<ITrainingData<double, IrisTy
 
         foreach (string line in fileData)
         {
-            var lineData = line.Split(';');
+            var lineData = line.Split(',');
             if (lineData.Length < 2) break;
 
             var data = new double[lineData.Length - 1];
-            for (int i = 0; i < data.Length - 1; i++)
+            for (int i = 0; i < data.Length; i++)
             {
                 data[i] = lineData[i].ToDouble();
             }

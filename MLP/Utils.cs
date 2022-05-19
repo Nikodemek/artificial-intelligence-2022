@@ -38,12 +38,12 @@ public static class Utils
         return value < min || value > max;
     }
 
-    public static double[,] To2DArray(this List<double[]> doublesList)
+    public static T[,] To2DArray<T>(this List<T[]> doublesList)
     {
         int rowLength = doublesList.Count;
         int columnLength = doublesList[0].Length;
 
-        var newArray = new double[rowLength, columnLength];
+        var newArray = new T[rowLength, columnLength];
 
         for (var i = 0; i < rowLength; i++)
         {
