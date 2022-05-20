@@ -1,4 +1,7 @@
-﻿namespace MLP.Model;
+﻿using System.Xml;
+using MLP.Data;
+
+namespace MLP.Model;
 
 public class NeuralNetwork
 {
@@ -35,7 +38,7 @@ public class NeuralNetwork
         _activationFunction = activationFunction ?? Functions.SigmoidUnipolar;
     }
 
-    public NeuronLayer FeedForward(double[] inputs)
+    public double[] FeedForward(double[] inputs)
     {
         for (var i = 0; i < inputs.Length; i++)
         {
@@ -57,7 +60,56 @@ public class NeuralNetwork
                 currLayer[j].Value = _activationFunction(value + currLayer[j].Bias);
             }
         }
+        
+        var lastLayer =  Layers[^1].Neurons;
+        double[] output = new double[lastLayer.Count];
+        for (var i = 0; i < lastLayer.Count; i++)
+        {
+            output[i] = lastLayer[i].Value;
+        }
 
-        return Layers[^1];
+        return output;
+    }
+
+    // Implementation follows -> https://machinelearningmastery.com/implement-backpropagation-algorithm-scratch-python/
+    public void BackPropagateErrors(double[] desiredOutput)
+    {
+        var lastLayer = Layers[^1].Neurons;
+        List<double> errors = new List<double>();
+        
+        double[] actualOutput = new double[lastLayer.Count];
+        for (var i = 0; i < lastLayer.Count; i++)
+        {
+            actualOutput[i] = lastLayer[i].Value;
+        }
+        
+        for (var i = Layers.Count - 1; i >= 0; i--)
+        {
+            if (i != Layers.Count - 1)
+            {
+                var prevLayer = Layers[i + 1].Neurons;
+                for (var j = 0; j < Layers[i].Neurons.Count; j++)
+                {
+                    double error = 0d;
+                    foreach (var neuron in prevLayer)
+                    {
+                        error += neuron.InputWeights[j] * neuron.Delta;
+                    }
+                    errors.Add(error);
+                }
+            }
+            else
+            {
+                for (var j = 0; j < Layers[i].Neurons.Count; j++)
+                {
+                    errors.Add(actualOutput[j] - desiredOutput[j]);
+                }
+            }
+
+            for (var j = 0; j < Layers[i].Neurons.Count; j++)
+            {
+                Layers[i].Neurons[j].Delta = errors[j] * _activationFunction(actualOutput[i], true);
+            }
+        }
     }
 }

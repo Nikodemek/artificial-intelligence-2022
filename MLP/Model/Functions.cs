@@ -6,23 +6,23 @@ using System.Threading.Tasks;
 
 namespace MLP.Model;
 
-public delegate double ActivationFunction(double value);
+public delegate double ActivationFunction(double value, bool deriv = false);
 
 public static class Functions
 {
     private const double Beta = 1.0;
 
-    public static double SigmoidUnipolar(double x)
+    public static double SigmoidUnipolar(double x, bool deriv = false)
     {
-        return 1.0 / (1 + Math.Exp(-x * Beta));
+        return deriv ? x * (1 - x) : 1.0 / (1 + Math.Exp(-x * Beta));
     }
-    public static double SigmoidBipolar(double x)
+    public static double SigmoidBipolar(double x, bool deriv = false)
     {
-        return Math.Tanh(x * Beta);
+        return deriv ? 1 - Math.Tanh(x) * Math.Tanh(x) : Math.Tanh(x * Beta);
     }
 
-    public static double Indentity(double x)
+    public static double Identity(double x, bool deriv = false)
     {
-        return x;
+        return deriv ? 1 : x;
     }
 }

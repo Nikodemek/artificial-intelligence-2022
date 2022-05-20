@@ -20,4 +20,19 @@ public class IrisesTrainingData : ITrainingData<double, IrisType>
         Length = results.Length;
         DataColumns = Data.GetLength(1);
     }
+    
+    public double[] RetrieveResultVector(int resultIndex)
+    {
+        IrisType irisType = Results[resultIndex];
+        double[] result = new double[3];
+        for (var i = 0; i < 3; i++)
+        {
+            if ((int) irisType == i)
+            {
+                result[i] = 1;
+            }
+        }
+
+        return result;
+    }
 }
