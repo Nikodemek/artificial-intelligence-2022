@@ -2,10 +2,10 @@
 
 public class NeuronLayer
 {
-    public List<Neuron> Neurons { get; init; }
+    public Neuron[] Neurons { get; init; }
 
-    public NeuronLayer(int neuronCount)
+    public NeuronLayer(Neuron[] neurons)
     {
-        Neurons = new List<Neuron>(neuronCount);
+        Neurons = neurons;
     }
 }

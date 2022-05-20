@@ -2,5 +2,5 @@
 
 public interface IFileWriter<T>
 {
-    T Write();
+    void Write(T obj);
 }

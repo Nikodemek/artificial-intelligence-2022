@@ -9,6 +9,8 @@ namespace MLP;
 
 public static class Utils
 {
+    private static readonly Random rand = new();
+
     public static double ToDouble(this string number)
     {
         if (double.TryParse(number, NumberStyles.Float, NumberFormatInfo.InvariantInfo, out double value)) return value;
@@ -64,7 +66,7 @@ public static class Utils
         var set = new HashSet<T>(collection);
         return set.Count;
     }
-
+    
     // For matrices
     public static T[] GetRow<T>(this T[,] matrix, int row)
     {
@@ -75,5 +77,21 @@ public static class Utils
             rowVector[i] = matrix[row, i];
 
         return rowVector;
+    }
+
+    public static IList<T> Shuffle<T>(this IList<T> list)
+    {
+        int count = list.Count;
+        for (int i = 0; i < count; i++)
+        {
+            int index = rand.Next(count);
+            (list[i], list[index]) = (list[index], list[i]);
+        }
+        return list;
+    }
+
+    public static T[] gClone<T>(this T[] arr)
+    {
+        return (T[])arr.Clone();
     }
 }

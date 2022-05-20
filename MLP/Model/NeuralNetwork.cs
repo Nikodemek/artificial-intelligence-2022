@@ -5,7 +5,7 @@ namespace MLP.Model;
 
 public class NeuralNetwork
 {
-    public List<NeuronLayer> Layers { get; init; }
+    public NeuronLayer[] Layers { get; init; }
 
     private readonly Random _random = new();
     private readonly ActivationFunction _activationFunction;
@@ -14,28 +14,37 @@ public class NeuralNetwork
     {
         if (neuronsInLayer.Length < 1) throw new ArgumentException("Can not pass an empty neuron count", nameof(neuronsInLayer));
 
-        Layers = new List<NeuronLayer>(neuronsInLayer.Length) { new NeuronLayer(neuronsInLayer[0]) };
+        Layers = new NeuronLayer[neuronsInLayer.Length];
+        Layers[0] = new NeuronLayer(new Neuron[neuronsInLayer[0]]);
 
-        for (var i = 1; i < Layers.Count; i++)
+        for (var i = 1; i < Layers.Length; i++)
         {
-            Layers.Add(new NeuronLayer(neuronsInLayer[i]));
+            Layers[i] = new NeuronLayer(new Neuron[neuronsInLayer[i]]);
 
-            int prevLayerCount = Layers[i - 1].Neurons.Count;
-            var currNeurons = Layers[i].Neurons;
-            for (var j = 0; j < currNeurons.Count; j++)
+            int prevNeuronsCount = Layers[i - 1].Neurons.Length;
+            var neurons = Layers[i].Neurons;
+            for (var j = 0; j < neurons.Length; j++)
             {
-                var newNeuron = new Neuron(prevLayerCount);
-                for (var k = 0; k < prevLayerCount; k++)
+                var neuron = new Neuron(new double[prevNeuronsCount])
                 {
-                    newNeuron.InputWeights.Add(_random.NextDouble() - 0.5);
+                    Bias = _random.NextDouble() - 0.5,
+                    Value = 0.0,
+                };
+                for (var k = 0; k < prevNeuronsCount; k++)
+                {
+                    neuron.InputWeights[k] = _random.NextDouble() - 0.5;
                 }
-
-                newNeuron.Bias = _random.NextDouble() - 0.5;
-                currNeurons[j] = newNeuron;
+                neurons[j] = neuron;
             }
         }
 
         _activationFunction = activationFunction ?? Functions.SigmoidUnipolar;
+    }
+    public NeuralNetwork(NeuronLayer[] layers, ActivationFunction? activationFunction = default)
+    {
+        Layers = layers;
+
+        _activationFunction = activationFunction ?? Functions.SigmoidUnipolar; ;
     }
 
     public double[] FeedForward(double[] inputs)
@@ -45,14 +54,14 @@ public class NeuralNetwork
             Layers[0].Neurons[i].Value = inputs[i];
         }
 
-        for (var i = 1; i < Layers.Count; i++)
+        for (var i = 1; i < Layers.Length; i++)
         {
             var prevLayer = Layers[i - 1].Neurons;
             var currLayer = Layers[i].Neurons;
-            for (var j = 0; j < currLayer.Count; j++)
+            for (var j = 0; j < currLayer.Length; j++)
             {
                 double value = 0d;
-                for (var k = 0; k < prevLayer.Count; k++)
+                for (var k = 0; k < prevLayer.Length; k++)
                 {
                     value += currLayer[j].InputWeights[k] * prevLayer[k].Value;
                 }
@@ -62,8 +71,8 @@ public class NeuralNetwork
         }
         
         var lastLayer =  Layers[^1].Neurons;
-        double[] output = new double[lastLayer.Count];
-        for (var i = 0; i < lastLayer.Count; i++)
+        double[] output = new double[lastLayer.Length];
+        for (var i = 0; i < lastLayer.Length; i++)
         {
             output[i] = lastLayer[i].Value;
         }
@@ -77,18 +86,18 @@ public class NeuralNetwork
         var lastLayer = Layers[^1].Neurons;
         List<double> errors = new List<double>();
         
-        double[] actualOutput = new double[lastLayer.Count];
-        for (var i = 0; i < lastLayer.Count; i++)
+        double[] actualOutput = new double[lastLayer.Length];
+        for (var i = 0; i < lastLayer.Length; i++)
         {
             actualOutput[i] = lastLayer[i].Value;
         }
         
-        for (var i = Layers.Count - 1; i >= 0; i--)
+        for (var i = Layers.Length - 1; i >= 0; i--)
         {
-            if (i != Layers.Count - 1)
+            if (i != Layers.Length - 1)
             {
                 var prevLayer = Layers[i + 1].Neurons;
-                for (var j = 0; j < Layers[i].Neurons.Count; j++)
+                for (var j = 0; j < Layers[i].Neurons.Length; j++)
                 {
                     double error = 0d;
                     foreach (var neuron in prevLayer)
@@ -100,13 +109,13 @@ public class NeuralNetwork
             }
             else
             {
-                for (var j = 0; j < Layers[i].Neurons.Count; j++)
+                for (var j = 0; j < Layers[i].Neurons.Length; j++)
                 {
                     errors.Add(actualOutput[j] - desiredOutput[j]);
                 }
             }
 
-            for (var j = 0; j < Layers[i].Neurons.Count; j++)
+            for (var j = 0; j < Layers[i].Neurons.Length; j++)
             {
                 Layers[i].Neurons[j].Delta = errors[j] * _activationFunction(actualOutput[i], true);
             }

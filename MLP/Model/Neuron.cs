@@ -2,13 +2,13 @@
 
 public class Neuron
 {
-    public List<double> InputWeights { get; init; }
+    public double[] InputWeights { get; init; }
     public double Bias { get; set; }
     public double Value { get; set; }
     public double Delta { get; set; }
     
-    public Neuron(int inputCount)
+    public Neuron(double[] inputWeights)
     {
-        InputWeights = new List<double>(inputCount);
+        InputWeights = inputWeights;
     }
 }

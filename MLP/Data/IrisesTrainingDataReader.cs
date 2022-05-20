@@ -46,6 +46,6 @@ public class IrisesTrainingDataReader : IFileReader<ITrainingData<double, IrisTy
             results.Add(result);
         }
 
-        return new IrisesTrainingData(datas.To2DArray(), results.ToArray());
+        return new IrisesTrainingData(datas.ToArray(), results.ToArray());
     }
 }
