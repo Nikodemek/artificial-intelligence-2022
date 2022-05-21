@@ -121,4 +121,23 @@ public class NeuralNetwork
             }
         }
     }
+
+    public void UpdateWeights(double learningRate, double[] inputs)
+    {
+        for (var i = 0; i < Layers.Length; i++)
+        {
+            var currLayer = Layers[i].Neurons;
+            var prevLayer = Array.Empty<Neuron>();
+            if (i != 0) prevLayer = Layers[i - 1].Neurons;
+                
+            for (var j = 0; j < currLayer.Length; j++)
+            {
+                for (var k = 0; k < currLayer[j].InputWeights.Length; k++)
+                {
+                    currLayer[j].InputWeights[k] -=
+                        learningRate * currLayer[j].Delta * (i == 0 ? inputs[k] : prevLayer[k].Value);
+                }
+            }
+        }
+    }
 }
