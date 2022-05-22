@@ -7,4 +7,6 @@ public interface ITrainingData<U, K>
     public int UniqueResults { get; }
     public int Length { get; }
     public int DataColumns { get; }
+
+    public double[] RetrieveResultVector(int resultIndex);
 }

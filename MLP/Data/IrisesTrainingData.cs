@@ -1,4 +1,5 @@
-﻿using MLP.Data.Interfaces;
+﻿using System.Diagnostics;
+using MLP.Data.Interfaces;
 
 namespace MLP.Data;
 
@@ -23,7 +24,20 @@ public class IrisesTrainingData : ITrainingData<double, IrisType>
     
     public double[] RetrieveResultVector(int resultIndex)
     {
-        IrisType irisType = Results[resultIndex];
+        IrisType irisType = IrisType.Setosa;
+        switch (resultIndex)
+        {
+            case 0:
+                irisType = IrisType.Setosa;
+                break;
+            case 1:
+                irisType = IrisType.Versicolour;
+                break;
+            case 2:
+                irisType = IrisType.Virginica;
+                break;
+        }
+        
         double[] result = new double[3];
         for (var i = 0; i < 3; i++)
         {

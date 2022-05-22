@@ -1,5 +1,7 @@
-﻿using System.Xml;
+﻿using System.Diagnostics;
+using System.Xml;
 using MLP.Data;
+using MLP.Data.Interfaces;
 
 namespace MLP.Model;
 
@@ -16,6 +18,10 @@ public class NeuralNetwork
 
         Layers = new NeuronLayer[neuronsInLayer.Length];
         Layers[0] = new NeuronLayer(new Neuron[neuronsInLayer[0]]);
+        for (var i = 0; i < Layers[0].Neurons.Length; i++)
+        {
+            Layers[0].Neurons[i] = new Neuron(Array.Empty<double>());
+        }
 
         for (var i = 1; i < Layers.Length; i++)
         {
@@ -80,7 +86,6 @@ public class NeuralNetwork
         return output;
     }
 
-    // Implementation follows -> https://machinelearningmastery.com/implement-backpropagation-algorithm-scratch-python/
     public void BackPropagateErrors(double[] desiredOutput)
     {
         var lastLayer = Layers[^1].Neurons;
@@ -117,27 +122,50 @@ public class NeuralNetwork
 
             for (var j = 0; j < Layers[i].Neurons.Length; j++)
             {
-                Layers[i].Neurons[j].Delta = errors[j] * _activationFunction(actualOutput[i], true);
+                Layers[i].Neurons[j].Delta = errors[j] * _activationFunction(Layers[i].Neurons[j].Value, true);
             }
+            errors.Clear();
         }
     }
 
-    public void UpdateWeights(double learningRate, double[] inputs)
+    public void UpdateWeights(double learningRate)
     {
-        for (var i = 0; i < Layers.Length; i++)
+        for (var i = 1; i < Layers.Length; i++)
         {
             var currLayer = Layers[i].Neurons;
-            var prevLayer = Array.Empty<Neuron>();
-            if (i != 0) prevLayer = Layers[i - 1].Neurons;
-                
+            var prevLayer = Layers[i - 1].Neurons;
             for (var j = 0; j < currLayer.Length; j++)
             {
                 for (var k = 0; k < currLayer[j].InputWeights.Length; k++)
                 {
                     currLayer[j].InputWeights[k] -=
-                        learningRate * currLayer[j].Delta * (i == 0 ? inputs[k] : prevLayer[k].Value);
+                        learningRate * currLayer[j].Delta * prevLayer[k].Value;
                 }
             }
         }
     }
+
+    public void Train(ITrainingData<double, IrisType> data, double learningRate, int epochCount)
+    {
+        for (var i = 0; i < epochCount; i++)
+        {
+            for (var j = 0; j < data.Length; j++)
+            {
+                double[] expected = data.RetrieveResultVector((int)data.Results[j]);
+
+                double[] output = FeedForward(data.Data[j]);
+                BackPropagateErrors(expected);
+                UpdateWeights(learningRate);
+                double error = 0;
+                for (int k = 0; k < expected.Length; k++)
+                    error += (expected[k] - output[k]) * (expected[k] - output[k]);
+
+                Trace.WriteLine($"Epoch = {i}: learning rate: {learningRate}, error = {error}");
+            }
+        }
+    }
 }
+
+// Help materials:
+// --> https://home.agh.edu.pl/~vlsi/AI/backp_t_en/backprop.html
+// Implementation follows -> https://machinelearningmastery.com/implement-backpropagation-algorithm-scratch-python/
