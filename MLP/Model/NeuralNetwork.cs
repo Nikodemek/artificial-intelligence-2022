@@ -138,18 +138,18 @@ public class NeuralNetwork
             {
                 for (var k = 0; k < currLayer[j].InputWeights.Length; k++)
                 {
-                    currLayer[j].InputWeights[k] -=
-                        learningRate * currLayer[j].Delta * prevLayer[k].Value;
+                    currLayer[j].InputWeights[k] -= learningRate * currLayer[j].Delta * prevLayer[k].Value;
                 }
             }
         }
     }
 
-    public void Train(ITrainingData<double, IrisType> data, double learningRate, int epochCount)
+    public void Train(ITrainingData<Iris> data, double learningRate, int epochCount)
     {
         for (var i = 0; i < epochCount; i++)
         {
             double error = 0;
+            data.Shuffle();
             for (var j = 0; j < data.Length; j++)
             {
                 double[] expected = data.RetrieveResultVector((int)data.Results[j]);
@@ -157,9 +157,10 @@ public class NeuralNetwork
                 double[] output = FeedForward(data.Data[j]);
                 BackPropagateErrors(expected);
                 UpdateWeights(learningRate);
-                for (int k = 0; k < expected.Length; k++)
+                for (var k = 0; k < expected.Length; k++)
+                {
                     error += (expected[k] - output[k]) * (expected[k] - output[k]);
-
+                }
             }
             Console.WriteLine($"Epoch = {i}: learning rate: {learningRate}, error = {error}");
         }

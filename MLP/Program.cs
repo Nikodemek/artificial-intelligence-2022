@@ -24,7 +24,7 @@ public static class Program
             Console.WriteLine(sb);
         }*/
 
-        NeuralNetwork network = new NeuralNetwork(default, 4, 3, 3);
+        var network = new NeuralNetwork(default, 4, 3, 3);
         var output = network.FeedForward(trainingData.Data[0]);
         foreach (var d in output)
         {
@@ -32,7 +32,7 @@ public static class Program
         }
 
         Console.WriteLine();
-        network.Train(trainingData, 0.1, 300);
+        network.Train(trainingData, 0.1, 1000);
         output = network.FeedForward(trainingData.Data[101]);
         foreach (var d in output)
         {

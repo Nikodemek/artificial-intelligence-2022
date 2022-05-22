@@ -23,11 +23,11 @@ public static class Utils
         else return -1;
     }
 
-    public static IrisType ToIrisType(this string number)
+    public static Iris ToIrisType(this string number)
     {
         int value = number.ToInt32();
         if (value.NotBetween(0, 2)) throw new Exception($"Wrong Iris with flag = {value}");
-        return (IrisType)value;
+        return (Iris)value;
     }
 
     public static bool Between(this int value, int min, int max)

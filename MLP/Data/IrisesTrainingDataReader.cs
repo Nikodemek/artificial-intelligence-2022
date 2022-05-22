@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MLP.Data;
 
-public class IrisesTrainingDataReader : IFileReader<ITrainingData<double, IrisType>>
+public class IrisesTrainingDataReader : IFileReader<ITrainingData<Iris>>
 {
     private readonly string _fileName;
     private readonly string _filePath;
@@ -23,12 +23,12 @@ public class IrisesTrainingDataReader : IFileReader<ITrainingData<double, IrisTy
         if (!File.Exists(_filePath)) throw new FileNotFoundException("File not found!", _filePath);
     }
 
-    public ITrainingData<double, IrisType> Read()
+    public ITrainingData<Iris> Read()
     {
         string[] fileData = File.ReadAllLines(_filePath);
 
         var datas = new List<double[]>(fileData.Length);
-        var results = new List<IrisType>(fileData.Length);
+        var results = new List<Iris>(fileData.Length);
 
         foreach (string line in fileData)
         {
@@ -40,7 +40,7 @@ public class IrisesTrainingDataReader : IFileReader<ITrainingData<double, IrisTy
             {
                 data[i] = lineData[i].ToDouble();
             }
-            IrisType result = lineData[^1].ToIrisType();
+            Iris result = lineData[^1].ToIrisType();
 
             datas.Add(data);
             results.Add(result);

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MLP;
 
-public enum IrisType
+public enum Iris
 {
     Setosa = 0,
     Versicolour = 1,
