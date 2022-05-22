@@ -149,6 +149,7 @@ public class NeuralNetwork
     {
         for (var i = 0; i < epochCount; i++)
         {
+            double error = 0;
             for (var j = 0; j < data.Length; j++)
             {
                 double[] expected = data.RetrieveResultVector((int)data.Results[j]);
@@ -156,12 +157,11 @@ public class NeuralNetwork
                 double[] output = FeedForward(data.Data[j]);
                 BackPropagateErrors(expected);
                 UpdateWeights(learningRate);
-                double error = 0;
                 for (int k = 0; k < expected.Length; k++)
                     error += (expected[k] - output[k]) * (expected[k] - output[k]);
 
-                Trace.WriteLine($"Epoch = {i}: learning rate: {learningRate}, error = {error}");
             }
+            Console.WriteLine($"Epoch = {i}: learning rate: {learningRate}, error = {error}");
         }
     }
 }
