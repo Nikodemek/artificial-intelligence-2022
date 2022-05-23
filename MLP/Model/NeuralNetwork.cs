@@ -53,7 +53,7 @@ public class NeuralNetwork
         _activationFunction = activationFunction ?? Functions.SigmoidUnipolar; ;
     }
 
-    public double[] FeedForward(double[] inputs)
+    public double[] FeedForward(double[] inputs, bool biasFlag = true)
     {
         for (var i = 0; i < inputs.Length; i++)
         {
@@ -66,14 +66,14 @@ public class NeuralNetwork
             var currNeurons = Layers[i].Neurons;
             for (var j = 0; j < currNeurons.Length; j++)
             {
-                var currneuron = currNeurons[j];
+                var currNeuron = currNeurons[j];
                 double value = 0.0;
                 for (var k = 0; k < prevNeurons.Length; k++)
                 {
-                    value += currneuron.InputWeights[k] * prevNeurons[k].Value;
+                    value += currNeuron.InputWeights[k] * prevNeurons[k].Value;
                 }
-                currneuron.PrevValue = currneuron.Value;
-                currneuron.Value = _activationFunction(value + currneuron.Bias);
+                currNeuron.PrevValue = currNeuron.Value;
+                currNeuron.Value = _activationFunction(value + (biasFlag ? currNeuron.Bias : 0));
             }
         }
         
@@ -87,7 +87,7 @@ public class NeuralNetwork
         return output;
     }
 
-    public void BackPropagateErrors(double[] desiredOutput)
+    private void BackPropagateErrors(double[] desiredOutput)
     {
         var lastLayer = Layers[^1].Neurons;
         List<double> errors = new List<double>();
@@ -132,7 +132,7 @@ public class NeuralNetwork
         }
     }
 
-    public void UpdateWeights(double learningRate, double momentum = 0.9)
+    private void UpdateWeights(double learningRate, double momentum = 0.9)
     {
         for (var i = 1; i < Layers.Length; i++)
         {
@@ -152,14 +152,23 @@ public class NeuralNetwork
         }
     }
 
-    public void Train(ITrainingData<Iris> data, double learningRate, int epochCount)
+    public void Train(ITrainingData<Iris> data, double learningRate, int epochCount = 0, double errorAccuracy = 0, bool shuffleFlag = false)
     {
+        if (epochCount < 0 && errorAccuracy < 0) return;
+        
         double minError = Double.MaxValue;
         int minErrorEpoch = 0;
-        for (var i = 0; i < epochCount; i++)
+        int i = 0;
+        int lastImprovement = 0;
+        
+        for (;;)
         {
+            if (epochCount > 0 && i >= epochCount) break;
+            if (errorAccuracy > 0 && errorAccuracy >= minError || lastImprovement > 100) break;
+
+            if (shuffleFlag) data.Shuffle();
+            
             double error = 0;
-            //data.Shuffle();
             for (var j = 0; j < data.Length; j++)
             {
                 double[] expected = data.RetrieveResultVector((int)data.Results[j]);
@@ -172,13 +181,17 @@ public class NeuralNetwork
                     error += (expected[k] - output[k]) * (expected[k] - output[k]);
                 }
             }
+            
             if (error < minError)
             {
                 minError = error;
                 minErrorEpoch = i;
+                lastImprovement = 0;
             }
 
             Console.WriteLine($"Epoch = {i}: learning rate: {learningRate}, error = {error:g4}");
+            i++;
+            lastImprovement++;
         }
         Console.WriteLine($"Min error = {minError} occured in epoch {minErrorEpoch}");
     }
