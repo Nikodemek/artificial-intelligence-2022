@@ -37,7 +37,7 @@ public static class Program
         output = network.FeedForward(trainingData.Data[^1]);
         for (int i = 0; i < output.Length; i++)
         {
-            Console.WriteLine($"{output[i] * 100.0:n2}%");
+            Console.WriteLine($"{output[i] * 100.0:n3}%");
         }
 
         /*var networkFileManager = new NeuralNetworkFileManager("network.txt");
