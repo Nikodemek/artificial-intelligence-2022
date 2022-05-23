@@ -1,5 +1,4 @@
 ﻿using MLP.Data;
-using System.Text;
 using MLP.Model;
 
 namespace MLP;
@@ -10,8 +9,10 @@ public static class Program
     {
         Global.EnsureDirectoryIsValid(true);
 
-        var fileReader = new IrisesTrainingDataReader("data.csv");
-        var trainingData = fileReader.Read();
+        var fileReader = new CompleteDataReader<Iris>("data.csv");
+        //var fileReader = new TrainingDataReader<int>("autoencoder.csv");
+        var completeData = fileReader.Read();
+        var (trainingData, testingData) = completeData.CreateTrainingAndTestingData(0.8);
 
         /*for (int i = 0; i < trainingData.Length; i++)
         {
@@ -24,8 +25,8 @@ public static class Program
             Console.WriteLine(sb);
         }*/
 
-        var network = new NeuralNetwork(default, 4, 3, 3);
-        var output = network.FeedForward(trainingData.Data[0]);
+        var network = new NeuralNetwork(default, 4, 4, 3);
+        var output = network.FeedForward(completeData.Data[0]);
         foreach (var d in output)
         {
             Console.WriteLine(d);
@@ -33,13 +34,11 @@ public static class Program
 
         Console.WriteLine();
         network.Train(trainingData, 0.1, 500);
-        output = network.FeedForward(trainingData.Data[101]);
-        foreach (var d in output)
+        output = network.FeedForward(completeData.Data[^1]);
+        for (int i = 0; i < output.Length; i++)
         {
-            Console.WriteLine(d);
+            Console.WriteLine($"{output[i] * 100.0:n2}%");
         }
-
-        Console.WriteLine();
 
         /*var networkFileManager = new NeuralNetworkFileManager("network.txt");
         var network = networkFileManager.Read();

@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
+using System.Globalization;
 using System.Xml;
 using MLP.Data;
-using MLP.Data.Interfaces;
 
 namespace MLP.Model;
 
@@ -90,7 +90,7 @@ public class NeuralNetwork
     public void BackPropagateErrors(double[] desiredOutput)
     {
         var lastLayer = Layers[^1].Neurons;
-        List<double> errors = new List<double>();
+        var errors = new List<double>();
         
         double[] actualOutput = new double[lastLayer.Length];
         for (var i = 0; i < lastLayer.Length; i++)
@@ -153,7 +153,7 @@ public class NeuralNetwork
         }
     }
 
-    public void Train(ITrainingData<Iris> data, double learningRate, int epochCount)
+    public void Train<T>(TrainingData<T> data, double learningRate, int epochCount) where T : IConvertible
     {
         double minError = Double.MaxValue;
         int minErrorEpoch = 0;
@@ -163,13 +163,16 @@ public class NeuralNetwork
             //data.Shuffle();
             for (var j = 0; j < data.Length; j++)
             {
-                double[] expected = data.RetrieveResultVector((int)data.Results[j]);
+                int resultVectorIndex = data.Results[j].ToInt32(NumberFormatInfo.InvariantInfo);
+                double[] expected = data.GetResultVector(resultVectorIndex);
 
                 double[] output = FeedForward(data.Data[j]);
                 BackPropagateErrors(expected);
                 UpdateWeights(learningRate);
                 for (var k = 0; k < expected.Length; k++)
                 {
+                    double exp = expected[k];
+                    double outp = output[k]; 
                     error += (expected[k] - output[k]) * (expected[k] - output[k]);
                 }
             }
