@@ -25,16 +25,16 @@ public static class Program
             Console.WriteLine(sb);
         }*/
 
-        var network = new NeuralNetwork(default, 4, 4, 3);
-        var output = network.FeedForward(completeData.Data[0]);
+        var network = new NeuralNetwork(default, 4, 3, 3);
+        var output = network.FeedForward(trainingData.Data[0]);
         foreach (var d in output)
         {
             Console.WriteLine(d);
         }
 
         Console.WriteLine();
-        network.Train(trainingData, 0.1, 500);
-        output = network.FeedForward(completeData.Data[^1]);
+        network.Train(trainingData, 0.1, errorAccuracy: 0.7);
+        output = network.FeedForward(trainingData.Data[^1]);
         for (int i = 0; i < output.Length; i++)
         {
             Console.WriteLine($"{output[i] * 100.0:n2}%");
