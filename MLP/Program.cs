@@ -39,6 +39,7 @@ public static class Program
         {
             Console.WriteLine($"{output[i] * 100.0:n3}%");
         }
+        network.Test(testingData);
 
         /*var networkFileManager = new NeuralNetworkFileManager("network.txt");
         var network = networkFileManager.Read();

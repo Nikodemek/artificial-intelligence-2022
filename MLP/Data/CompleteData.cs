@@ -2,14 +2,13 @@
 
 public class CompleteData<T>
 {
-    private static readonly Random rand = new();
-
     public double[][] Data { get; init; }
     public T[] Results { get; init; }
     public int Length { get; init; }
     public int DataColumns { get; init; }
+    public int Classes { get; init; }
 
-    private readonly int _uniqueResults;
+    private readonly Random _rand = new();
     private readonly double[][] _resultVectors;
 
     public CompleteData(double[][] data, T[] results)
@@ -18,11 +17,11 @@ public class CompleteData<T>
 
         Data = data;
         Results = results;
-        _uniqueResults = Results.CountUnique();
+        Classes = Results.CountUnique();
         Length = results.Length;
         DataColumns = Data[0].Length;
 
-        _resultVectors = CreateResultVectors(_uniqueResults);
+        _resultVectors = CreateResultVectors(Classes);
     }
 
     public (TrainingData<T> trainingData, TestingData<T> testingData) CreateTrainingAndTestingData(double trainingToTestingRation = 0.9)
@@ -51,7 +50,7 @@ public class CompleteData<T>
 
         for (int i = minLine; i < maxLine; i++)
         {
-            int index = rand.Next(minLine, maxLine);
+            int index = _rand.Next(minLine, maxLine);
             (Data[i], Data[index]) = (Data[index], Data[i]);
             (Results[i], Results[index]) = (Results[index], Results[i]);
         }
@@ -72,7 +71,7 @@ public class CompleteData<T>
     }
 }
 
-public class TrainingData<T>
+public struct TrainingData<T>
 {
     public ArraySegment<double[]> Data { get; init; }
     public ArraySegment<T> Results { get; init; }
@@ -104,6 +103,7 @@ public class TestingData<T>
     public ArraySegment<T> Results { get; init; }
     public int Length { get; init; }
     public int DataColumns { get; init; }
+    public int Classes { get; init; }
 
     private readonly CompleteData<T> _completeData;
     private readonly int _offset = 0;

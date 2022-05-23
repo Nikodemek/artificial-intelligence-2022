@@ -200,6 +200,29 @@ public class NeuralNetwork
 
         testData.Write(stringBuilder.ToString());
     }
+
+    public void Test<T>(TestingData<T> testingData, bool biasFlag = true) where T : IConvertible
+    {
+        int length = testingData.Length;
+        int mistakes = 0;
+        int correct = 0;
+
+        for (int i = 0; i < length; i++)
+        {
+            double[] output = FeedForward(testingData.Data[i], biasFlag);
+            int maxIndex = 0;
+            for (int j = 1; j < output.Length; j++)
+            {
+                if (output[j] > output[maxIndex]) maxIndex = j;
+            }
+            if (maxIndex == testingData.Results[i].ToInt32(NumberFormatInfo.InvariantInfo)) correct++;
+            else mistakes++;
+        }
+
+        Console.WriteLine($"Total guesses = {length}");
+        Console.WriteLine($"Correct = {correct}");
+        Console.WriteLine($"Mistakes = {mistakes}");
+    }
 }
 
 // Help materials:
