@@ -26,15 +26,10 @@ public static class Utils
         return (Iris)value;
     }
 
-    public static bool Between(this int value, int min, int max)
-    {
-        return value >= min && value <= max;
-    }
-
-    public static bool NotBetween(this int value, int min, int max)
-    {
-        return value < min || value > max;
-    }
+    public static bool Between(this int value, int min, int max) => value >= min && value <= max;
+    public static bool NotBetween(this int value, int min, int max) => value < min || value > max;
+    public static bool Between(this double value, double min, double max) => value >= min && value <= max;
+    public static bool NotBetween(this double value, double min, double max) => value < min || value > max;
 
     public static T[,] To2DArray<T>(this List<T[]> doublesList)
     {

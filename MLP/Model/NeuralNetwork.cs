@@ -6,12 +6,12 @@ namespace MLP.Model;
 
 public class NeuralNetwork
 {
+    private const string ErrorDataFileName = "errors.txt";
+
     public NeuronLayer[] Layers { get; init; }
 
     private readonly Random _random = new();
     private readonly ActivationFunction _activationFunction;
-
-    private const string ErrorDataFileName = "errors.txt";
 
     public NeuralNetwork(ActivationFunction? activationFunction = default, params int[] neuronsInLayer)
     {
@@ -162,13 +162,10 @@ public class NeuralNetwork
 
         double minError = Double.MaxValue;
         int minErrorEpoch = 0;
-        int i = 0;
-        int lastImprovement = 0;
 
-        while (true)
+        for (int i = 0, lastImprovement = 0; epochCount == 0 || i < epochCount; i++, lastImprovement++)
         {
-            if (epochCount > 0 && i >= epochCount) break;
-            if (errorAccuracy > 0 && errorAccuracy >= minError || errorAccuracy > 0 && lastImprovement > 100) break;
+            if (errorAccuracy > 0) if (errorAccuracy >= minError || lastImprovement > 100) break;
 
             if (shuffleFlag) data.Shuffle();
 
@@ -177,8 +174,8 @@ public class NeuralNetwork
             {
                 int resultVectorIndex = data.Results[j].ToInt32(NumberFormatInfo.InvariantInfo);
                 double[] expected = data.GetResultVector(resultVectorIndex);
-
                 double[] output = FeedForward(data.Data[j]);
+
                 BackPropagateErrors(expected);
                 UpdateWeights(learningRate);
                 for (var k = 0; k < expected.Length; k++)
@@ -198,8 +195,6 @@ public class NeuralNetwork
             }
 
             Console.WriteLine($"Epoch = {i}: learning rate: {learningRate}, error = {error:g4}");
-            i++;
-            lastImprovement++;
         }
         Console.WriteLine($"Min error = {minError} occured in epoch {minErrorEpoch}");
 
