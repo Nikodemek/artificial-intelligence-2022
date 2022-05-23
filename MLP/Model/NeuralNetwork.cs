@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics;
+using System.Globalization;
+using System.Text;
 using System.Xml;
 using MLP.Data;
 using MLP.Data.Interfaces;
@@ -11,6 +13,8 @@ public class NeuralNetwork
 
     private readonly Random _random = new();
     private readonly ActivationFunction _activationFunction;
+    
+    private const string ErrorDataFileName = "errors.txt";
 
     public NeuralNetwork(ActivationFunction? activationFunction = default, params int[] neuronsInLayer)
     {
@@ -156,6 +160,9 @@ public class NeuralNetwork
     {
         if (epochCount < 0 && errorAccuracy < 0) return;
         
+        var testData = new PlainDataFileManager(ErrorDataFileName);
+        var stringBuilder = new StringBuilder();
+        
         double minError = Double.MaxValue;
         int minErrorEpoch = 0;
         int i = 0;
@@ -164,7 +171,7 @@ public class NeuralNetwork
         for (;;)
         {
             if (epochCount > 0 && i >= epochCount) break;
-            if (errorAccuracy > 0 && errorAccuracy >= minError || lastImprovement > 100) break;
+            if (errorAccuracy > 0 && errorAccuracy >= minError || errorAccuracy > 0 && lastImprovement > 100) break;
 
             if (shuffleFlag) data.Shuffle();
             
@@ -181,7 +188,9 @@ public class NeuralNetwork
                     error += (expected[k] - output[k]) * (expected[k] - output[k]);
                 }
             }
-            
+
+            if (i % 10 == 0) stringBuilder.AppendLine(error.ToString(CultureInfo.InvariantCulture));
+                
             if (error < minError)
             {
                 minError = error;
@@ -194,6 +203,8 @@ public class NeuralNetwork
             lastImprovement++;
         }
         Console.WriteLine($"Min error = {minError} occured in epoch {minErrorEpoch}");
+        
+        testData.Write(stringBuilder.ToString());
     }
 }
 
