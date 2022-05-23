@@ -32,7 +32,7 @@ public static class Program
         }
 
         Console.WriteLine();
-        network.Train(trainingData, 0.1, 1000);
+        network.Train(trainingData, 0.1, 500);
         output = network.FeedForward(trainingData.Data[101]);
         foreach (var d in output)
         {
