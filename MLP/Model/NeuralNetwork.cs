@@ -134,7 +134,6 @@ public class NeuralNetwork
 
     public void UpdateWeights(double learningRate, double momentum = 0.9)
     {
-        bool first = true;
         for (var i = 1; i < Layers.Length; i++)
         {
             var currNeurons = Layers[i].Neurons;
@@ -142,12 +141,12 @@ public class NeuralNetwork
             for (var j = 0; j < currNeurons.Length; j++)
             {
                 var currNeuron = currNeurons[j];
+                currNeuron.Bias -= learningRate * currNeuron.Delta;
                 for (var k = 0; k < currNeuron.InputWeights.Length; k++)
                 {
                     var prevNeuron = prevNeurons[k];
-                    double momentumEffect = first ? 0 : momentum * (currNeuron.PrevDelta * prevNeuron.PrevValue);
+                    double momentumEffect = momentum * (currNeuron.PrevDelta * prevNeuron.PrevValue);
                     currNeuron.InputWeights[k] -= learningRate * currNeuron.Delta * prevNeuron.Value + momentumEffect;
-                    first = false;
                 }
             }
         }
