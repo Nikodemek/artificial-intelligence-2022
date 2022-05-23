@@ -7,11 +7,11 @@ public static class Program
 {
     public static void Main()
     {
-        Global.EnsureDirectoryIsValid(true);
+        Global.EnsureDirectoryIsValid();
 
-        var fileReader = new CompleteDataReader<Iris>("data.csv");
+        var dataReader = new CompleteDataReader<Iris>("data.csv");
         //var fileReader = new TrainingDataReader<int>("autoencoder.csv");
-        var completeData = fileReader.Read();
+        var completeData = dataReader.Read();
         var (trainingData, testingData) = completeData.CreateTrainingAndTestingData(0.8);
 
         /*for (int i = 0; i < trainingData.Length; i++)

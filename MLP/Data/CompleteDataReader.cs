@@ -1,13 +1,8 @@
 ﻿using MLP.Data.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MLP.Data;
 
-public class CompleteDataReader<T> : IFileReader<CompleteData<T>> where T : struct, IConvertible
+public class CompleteDataReader<T> : IFileReader<CompleteData<T>> where T : IConvertible
 {
     private readonly string _fileName;
     private readonly string _filePath;

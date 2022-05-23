@@ -1,10 +1,5 @@
 ﻿using MLP.Data;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MLP;
 
@@ -53,7 +48,7 @@ public static class Utils
             var arr = doublesList[i];
             if (arr.Length != columnLength) throw new ArgumentException("List of arrays is not rectangular!", nameof(doublesList));
 
-            for (int j = 0; j < columnLength; j++)
+            for (var j = 0; j < columnLength; j++)
             {
                 newArray[i, j] = arr[j];
             }
@@ -67,7 +62,7 @@ public static class Utils
         var set = new HashSet<T>(collection);
         return set.Count;
     }
-    
+
     // For matrices
     public static T[] GetRow<T>(this T[,] matrix, int row)
     {
@@ -91,7 +86,7 @@ public static class Utils
         return list;
     }
 
-    public static T[] gClone<T>(this T[] arr)
+    public static T[] GClone<T>(this T[] arr)
     {
         return (T[])arr.Clone();
     }

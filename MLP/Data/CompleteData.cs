@@ -25,12 +25,10 @@ public class CompleteData<T>
         _resultVectors = CreateResultVectors(_uniqueResults);
     }
 
-    public (TrainingData<T> trainingData, TestingData<T> testingData) CreateTrainingAndTestingData(double trainingToTestingRation = 0.8)
+    public (TrainingData<T> trainingData, TestingData<T> testingData) CreateTrainingAndTestingData(double trainingToTestingRation = 0.9)
     {
         double ratio = trainingToTestingRation;
         if (ratio < 0.0 || ratio > 1.0) throw new ArgumentException("Ration must be between 0 and 1!", nameof(trainingToTestingRation));
-
-        Shuffle();
 
         int trainingCount = (int)(Length * ratio);
         int testingCount = Length - trainingCount;

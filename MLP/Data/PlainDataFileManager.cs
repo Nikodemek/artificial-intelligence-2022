@@ -12,7 +12,7 @@ public class PlainDataFileManager : IFileManager<string>
 
         _filePath = Path.Combine(Global.BaseDataDirPath, fileName);
     }
-    
+
     public string Read() => File.ReadAllText(_filePath);
 
     public void Write(string obj) => File.WriteAllText(_filePath, obj);

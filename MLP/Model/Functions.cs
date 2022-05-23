@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MLP.Model;
+﻿namespace MLP.Model;
 
 public delegate double ActivationFunction(double value, bool deriv = false);
 

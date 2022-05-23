@@ -1,7 +1,6 @@
-﻿using System.Diagnostics;
+﻿using MLP.Data;
 using System.Globalization;
 using System.Text;
-using MLP.Data;
 
 namespace MLP.Model;
 
@@ -11,7 +10,7 @@ public class NeuralNetwork
 
     private readonly Random _random = new();
     private readonly ActivationFunction _activationFunction;
-    
+
     private const string ErrorDataFileName = "errors.txt";
 
     public NeuralNetwork(ActivationFunction? activationFunction = default, params int[] neuronsInLayer)
@@ -78,8 +77,8 @@ public class NeuralNetwork
                 currNeuron.Value = _activationFunction(value + (biasFlag ? currNeuron.Bias : 0));
             }
         }
-        
-        var lastLayer =  Layers[^1].Neurons;
+
+        var lastLayer = Layers[^1].Neurons;
         double[] output = new double[lastLayer.Length];
         for (var i = 0; i < lastLayer.Length; i++)
         {
@@ -93,13 +92,13 @@ public class NeuralNetwork
     {
         var lastLayer = Layers[^1].Neurons;
         List<double> errors = new List<double>();
-        
+
         double[] actualOutput = new double[lastLayer.Length];
         for (var i = 0; i < lastLayer.Length; i++)
         {
             actualOutput[i] = lastLayer[i].Value;
         }
-        
+
         for (var i = Layers.Length - 1; i >= 0; i--)
         {
             var currLayer = Layers[i];
@@ -157,22 +156,22 @@ public class NeuralNetwork
     public void Train<T>(TrainingData<T> data, double learningRate, int epochCount = 0, double errorAccuracy = 0, bool shuffleFlag = false) where T : IConvertible
     {
         if (epochCount < 0 && errorAccuracy < 0) return;
-        
+
         var testData = new PlainDataFileManager(ErrorDataFileName);
         var stringBuilder = new StringBuilder();
-        
+
         double minError = Double.MaxValue;
         int minErrorEpoch = 0;
         int i = 0;
         int lastImprovement = 0;
-        
+
         while (true)
         {
             if (epochCount > 0 && i >= epochCount) break;
             if (errorAccuracy > 0 && errorAccuracy >= minError || errorAccuracy > 0 && lastImprovement > 100) break;
 
             if (shuffleFlag) data.Shuffle();
-            
+
             double error = 0;
             for (var j = 0; j < data.Length; j++)
             {
@@ -190,7 +189,7 @@ public class NeuralNetwork
             }
 
             if (i % 10 == 0) stringBuilder.AppendLine(error.ToString(CultureInfo.InvariantCulture));
-                
+
             if (error < minError)
             {
                 minError = error;
@@ -203,7 +202,7 @@ public class NeuralNetwork
             lastImprovement++;
         }
         Console.WriteLine($"Min error = {minError} occured in epoch {minErrorEpoch}");
-        
+
         testData.Write(stringBuilder.ToString());
     }
 }
