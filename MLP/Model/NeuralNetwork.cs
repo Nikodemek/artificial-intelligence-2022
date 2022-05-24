@@ -133,7 +133,7 @@ public class NeuralNetwork
         }
     }
 
-    private void UpdateWeights(double learningRate, double momentum = 0.9)
+    private void UpdateWeights(double learningRate, double momentum)
     {
         for (var i = 1; i < Layers.Length; i++)
         {
@@ -153,7 +153,7 @@ public class NeuralNetwork
         }
     }
 
-    public void Train<T>(TrainingData<T> data, double learningRate, int epochCount = 0, double errorAccuracy = 0, bool shuffleFlag = false) where T : IConvertible
+    public void Train<T>(DataSet<T> data, double learningRate, int epochCount = 0, double errorAccuracy = 0, double momentum = 0.0, bool shuffleFlag = false) where T : IConvertible
     {
         if (epochCount < 0 && errorAccuracy < 0) return;
 
@@ -174,10 +174,10 @@ public class NeuralNetwork
             {
                 int resultVectorIndex = data.Results[j].ToInt32(NumberFormatInfo.InvariantInfo);
                 double[] expected = data.GetResultVector(resultVectorIndex);
-                double[] output = FeedForward(data.Data[j]);
 
+                double[] output = FeedForward(data.Data[j]);
                 BackPropagateErrors(expected);
-                UpdateWeights(learningRate);
+                UpdateWeights(learningRate, momentum);
                 for (var k = 0; k < expected.Length; k++)
                 {
                     double diff = expected[k] - output[k];
@@ -201,7 +201,7 @@ public class NeuralNetwork
         testData.Write(stringBuilder.ToString());
     }
 
-    public void Test<T>(TestingData<T> testingData, bool biasFlag = true) where T : IConvertible
+    public void Test<T>(DataSet<T> testingData, bool biasFlag = true) where T : IConvertible
     {
         int length = testingData.Length;
         int mistakes = 0;

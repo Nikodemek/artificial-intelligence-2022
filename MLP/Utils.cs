@@ -85,4 +85,15 @@ public static class Utils
     {
         return (T[])arr.Clone();
     }
+
+    public static T[][] GClone<T>(this T[][] arr)
+    {
+        int length = arr.Length;
+        T[][] newArr = new T[length][];
+        for (int i = 0; i < length; i++)
+        {
+            newArr[i] = arr[i].GClone();
+        }
+        return newArr;
+    }
 }

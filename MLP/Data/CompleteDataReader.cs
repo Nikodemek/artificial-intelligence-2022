@@ -2,7 +2,7 @@
 
 namespace MLP.Data;
 
-public class CompleteDataReader<T> : IFileReader<CompleteData<T>> where T : IConvertible
+public class CompleteDataReader<T> : IFileReader<DataSet<T>> where T : IConvertible
 {
     private readonly string _fileName;
     private readonly string _filePath;
@@ -23,7 +23,7 @@ public class CompleteDataReader<T> : IFileReader<CompleteData<T>> where T : ICon
         _converter = converter ?? DefaultConverter;
     }
 
-    public CompleteData<T> Read()
+    public DataSet<T> Read()
     {
         string[] fileData = File.ReadAllLines(_filePath);
 
@@ -46,7 +46,7 @@ public class CompleteDataReader<T> : IFileReader<CompleteData<T>> where T : ICon
             results.Add(result);
         }
 
-        return new CompleteData<T>(datas.ToArray(), results.ToArray());
+        return new DataSet<T>(datas.ToArray(), results.ToArray());
     }
 
     private T DefaultConverter(string s)
