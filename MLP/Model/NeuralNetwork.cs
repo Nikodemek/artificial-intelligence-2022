@@ -232,10 +232,10 @@ public class NeuralNetwork<T> where T : IConvertible
         int outputLayerLength = Layers[^1].Neurons.Length;
 
         int correct = 0;
-        Dictionary<T, int[]> classCorrect = new Dictionary<T, int[]>();
+        var classCorrect = new Dictionary<T, int[]>();
         var actualResults = new T[length];
-        double[] templateEntireError = new double[length];
-        double[][] templateIndividualErrors = new double[length][];
+        var templateEntireError = new double[length];
+        var templateIndividualErrors = new double[length][];
 
         for (int i = 0; i < length; i++)
         {
@@ -290,7 +290,7 @@ public class NeuralNetwork<T> where T : IConvertible
 
         var (hiddenNeuronsValues, hiddenNeuronsWeights) = HiddenLayersStats();
 
-        Dictionary<T, double> guessingClassesAccuracy = new Dictionary<T, double>();
+        var guessingClassesAccuracy = new Dictionary<T, double>();
         foreach (var (key, value) in classCorrect)
         {
             guessingClassesAccuracy.Add(key, (double) value[0] / value[1]);
