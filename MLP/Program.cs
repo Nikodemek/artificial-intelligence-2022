@@ -16,15 +16,15 @@ public static class Program
         var (trainingData, testingData) = completeData.CreateTrainingAndTestingData(0.8, false);
 
         var network = new NeuralNetwork<Iris>(default, 4, 4, 3);
-        var output = network.FeedForward(trainingData.Data[0]);
+        var output = network.FeedForward(testingData.Data[0]);
         foreach (var d in output)
         {
             Console.WriteLine(d);
         }
 
         Console.WriteLine();
-        network.Train(completeData, 0.1, errorAccuracy: 0.7, shuffleFlag: false);
-        output = network.FeedForward(trainingData.Data[^1]);
+        network.Train(trainingData, 0.1, errorAccuracy: 2, shuffleFlag: false);
+        output = network.FeedForward(testingData.Data[^1]);
         for (int i = 0; i < output.Length; i++)
         {
             Console.WriteLine($"{output[i] * 100.0:n3}%");

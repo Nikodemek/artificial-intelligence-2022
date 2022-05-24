@@ -57,7 +57,7 @@ public static class Utils
         var set = new HashSet<T>(collection);
         return set.Count;
     }
-
+    
     // For matrices
     public static T[] GetRow<T>(this T[,] matrix, int row)
     {
