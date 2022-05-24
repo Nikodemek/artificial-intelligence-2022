@@ -1,4 +1,5 @@
-﻿using MLP.Data;
+﻿using System.Diagnostics;
+using MLP.Data;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -215,21 +216,35 @@ public class NeuralNetwork<T> where T : IConvertible
     {
         int length = testingData.Length;
         int hiddenLayersCount = Layers.Length - 2;
+        int outputLayerLength = Layers[^1].Neurons.Length;
 
         int correct = 0;
         var actualResults = new T[length];
+        double[] templateEntireError = new double[length];
+        double[][] templateIndividualErrors = new double[length][];
         double[][] hiddenNeuronsValues = new double[hiddenLayersCount][];
         double[][][] hiddenNeuronsWeights = new double[hiddenLayersCount][][]; // yooooooooooooooooooooooo
 
         for (int i = 0; i < length; i++)
         {
+            int resultVectorIndex = testingData.Results[i].ToInt32(NumberFormatInfo.InvariantInfo);
+            templateIndividualErrors[i] = new double[outputLayerLength];
+
             double[] output = FeedForward(testingData.Data[i], biasFlag);
-            int maxIndex = 0;
-            for (int j = 1; j < output.Length; j++)
+            double[] expected = testingData.GetResultVector(resultVectorIndex);
+            double error = 0.0;
+            for (int j = 0; j < output.Length; j++)
             {
-                if (output[j] > output[maxIndex]) maxIndex = j;
+                double diff = expected[j] - output[j];
+                double individualError = diff * diff;
+                templateIndividualErrors[i][j] = individualError;
+
+                error += individualError;
             }
-            T result = _converter(maxIndex);
+
+            templateEntireError[i] = error;
+            
+            T result = _converter(resultVectorIndex);
             if (_comparer.Equals(result, testingData.Results[i])) correct++;
             actualResults[i] = result;
         }
@@ -256,8 +271,8 @@ public class NeuralNetwork<T> where T : IConvertible
             testingData.Results,
             actualResults,
             (double)correct / (double)length,
-            -1.0,                       // To trzeba wytrzasnąć
-            Array.Empty<double>(),                // To tesz
+            templateEntireError,
+            templateIndividualErrors,
             Layers[^1].Neurons.Select(n => n.InputWeights).ToArray(),
             hiddenNeuronsValues,
             hiddenNeuronsWeights
