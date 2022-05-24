@@ -35,34 +35,3 @@ public static class Program
         Console.ReadLine();
     }
 }
-
-
-
-// loops for searching best network
-
-/*for (double i = 0.1; i <= 1; i += .1)
-{
-    for (double j = 0.1; j <= 1; j += .1)
-    {
-        for (int k = 0; k < 10; k++)
-        {
-            network.Train(trainingData, i, epochCount: 300, momentum: j, shuffleFlag: false);
-        }
-    }
-    string[] files = Directory.GetFiles(Global.BaseDataDirPath, "best_network*");
-    for (var j = files.Length - 1; j > 0; j--)
-    {
-        File.Delete(files[j]);
-    }
-}*/
-
-/*for (int i = 0; i < 1000; i++)
-{
-    var network = new NeuralNetwork<Iris>(default, 4, 4, 3);
-    network.Train(trainingData, 0.4, epochCount: 300, momentum: 0.6, shuffleFlag: false);
-}
-string[] files = Directory.GetFiles(Global.BaseDataDirPath, "best_network*");
-for (var j = files.Length - 1; j > 0; j--)
-{
-    File.Delete(files[j]);
-}*/
