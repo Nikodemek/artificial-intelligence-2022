@@ -7,27 +7,25 @@ namespace MLP.Data;
 
 public class NeuralNetworkFileManager<T> : IFileManager<NeuralNetwork<T>> where T : IConvertible
 {
-    private readonly string _fileName;
-    private readonly string _filePath;
+    public string FileName { get; set; }
+    private string FilePath => Path.Combine(Global.BaseDataDirPath, FileName.Contains(".json") ? FileName : FileName + ".json");
 
     public NeuralNetworkFileManager(string fileName)
     {
-        if (String.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("FileName cannot be empty!", nameof(fileName));
+        if (String.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("Filename cannot be empty!", nameof(fileName));
 
-        _fileName = fileName;
-        _filePath = Path.Combine(Global.BaseDataDirPath, _fileName);
+        FileName = fileName;
     }
 
     public NeuralNetwork<T> Read()
     {
-        string fileData = File.ReadAllText(_filePath);
+        string fileData = File.ReadAllText(FilePath);
         return Serializer.Deserialize<NeuralNetwork<T>>(fileData);
     }
 
     public void Write(NeuralNetwork<T> network)
     {
-        if (!File.Exists(_filePath)) throw new FileNotFoundException("File not found!", _filePath);
         string data = Serializer.Serialize(network);
-        File.WriteAllText(_filePath, data);
+        File.WriteAllText(FilePath, data);
     }
 }

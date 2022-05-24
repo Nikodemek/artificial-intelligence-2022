@@ -3,6 +3,7 @@ using MLP.Data;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using MLP.Util;
 
 namespace MLP.Model;
 
@@ -18,8 +19,17 @@ public class NeuralNetwork<T> where T : IConvertible
     private readonly TypeCode _typeCode;
     private readonly EqualityComparer<T> _comparer;
 
-    public NeuralNetwork(ActivationFunction? activationFunction = default, params int[] neuronsInLayer)
+    public NeuralNetwork()
     {
+        Layers = Array.Empty<NeuronLayer>();
+        _activationFunction = Functions.SigmoidUnipolar;
+        _typeCode = Type.GetTypeCode(typeof(T));
+        _converter = IntToTypeDefaultConverter;
+        _comparer = EqualityComparer<T>.Default;
+    }
+
+    public NeuralNetwork(ActivationFunction? activationFunction = default, params int[] neuronsInLayer)
+    : this() {
         if (neuronsInLayer.Length < 1) throw new ArgumentException("Can not pass an empty neuron count", nameof(neuronsInLayer));
 
         Layers = new NeuronLayer[neuronsInLayer.Length];
@@ -49,16 +59,12 @@ public class NeuralNetwork<T> where T : IConvertible
                 neurons[j] = neuron;
             }
         }
-
+        
         _activationFunction = activationFunction ?? Functions.SigmoidUnipolar;
-        _typeCode = Type.GetTypeCode(typeof(T));
-        _converter = IntToTypeDefaultConverter;
-        _comparer = EqualityComparer<T>.Default;
     }
     public NeuralNetwork(NeuronLayer[] layers, ActivationFunction? activationFunction = default, Func<int, T>? intToTypeConverter = default)
-    {
+    : this() {
         Layers = layers;
-
         _activationFunction = activationFunction ?? Functions.SigmoidUnipolar; ;
         _typeCode = Type.GetTypeCode(typeof(T));
         _converter = intToTypeConverter ?? IntToTypeDefaultConverter;
@@ -168,8 +174,11 @@ public class NeuralNetwork<T> where T : IConvertible
     {
         if (epochCount <= 0 && errorAccuracy <= 0) return;
 
-        var testData = new PlainDataFileManager(ErrorDataFileName);
+        var errorDao = new PlainDataFileManager(ErrorDataFileName);
+        //var bestNetworkDao = new NeuralNetworkFileManager<T>("best_network");
         var stringBuilder = new StringBuilder();
+
+        //string bestNetworkSerialized = String.Empty;
 
         double minError = Double.MaxValue;
         int minErrorEpoch = 0;
@@ -202,6 +211,9 @@ public class NeuralNetwork<T> where T : IConvertible
             {
                 minError = error;
                 minErrorEpoch = i;
+
+                //bestNetworkSerialized = Serializer.Serialize(this);
+                
                 lastImprovement = 0;
             }
 
@@ -209,7 +221,9 @@ public class NeuralNetwork<T> where T : IConvertible
         }
         Console.WriteLine($"Min error = {minError} occured in epoch {minErrorEpoch}");
 
-        testData.Write(stringBuilder.ToString());
+        errorDao.Write(stringBuilder.ToString());
+        //bestNetworkDao.FileName += $"_{minError.ToString("n2", NumberFormatInfo.InvariantInfo)}";
+        //bestNetworkDao.Write(Serializer.Deserialize<NeuralNetwork<T>>(bestNetworkSerialized));
     }
 
     public TestResult<T> Test(DataSet<T> testingData, bool biasFlag = true)
