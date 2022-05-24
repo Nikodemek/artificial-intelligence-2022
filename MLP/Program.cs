@@ -15,10 +15,10 @@ public static class Program
         //var dataReader = new CompleteDataReader<int>("autoencoder.csv");
         var completeData = dataReader.Read();
         var (trainingData, testingData) = completeData.CreateTrainingAndTestingData(0.8, false);
-        var network = networkReader.Read();
-        //var network = new NeuralNetwork<Iris>(default, 4, 4, 3);
+        //var network = networkReader.Read();
+        var network = new NeuralNetwork<Iris>(default, 4, 4, 3);
 
-        //network.Train(trainingData, 0.4, errorAccuracy: 0.6, momentum: 0.6, shuffleFlag: false);
+        network.Train(trainingData, 0.4, errorAccuracy: 0.6, momentum: 0.6, shuffleFlag: false);
         
         Console.WriteLine();
         
