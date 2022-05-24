@@ -1,4 +1,6 @@
-﻿namespace MLP.Data;
+﻿using MLP.Util;
+
+namespace MLP.Data;
 
 public class DataSet<T>
 {

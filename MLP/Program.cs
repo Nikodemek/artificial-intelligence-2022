@@ -1,5 +1,6 @@
 ﻿using MLP.Data;
 using MLP.Model;
+using MLP.Util;
 
 namespace MLP;
 
@@ -14,7 +15,7 @@ public static class Program
         var completeData = dataReader.Read();
         var (trainingData, testingData) = completeData.CreateTrainingAndTestingData(0.8, false);
 
-        var network = new NeuralNetwork(default, 4, 4, 3);
+        var network = new NeuralNetwork<Iris>(default, 4, 4, 3);
         var output = network.FeedForward(trainingData.Data[0]);
         foreach (var d in output)
         {
@@ -28,7 +29,10 @@ public static class Program
         {
             Console.WriteLine($"{output[i] * 100.0:n3}%");
         }
-        network.Test(completeData);
+        var testResult = network.Test(completeData);
+
+        string testResultJson = Serializer.Serialize(testResult);
+        File.WriteAllText(Path.Combine(Global.BaseDataDirPath, "result.json"), testResultJson);
 
         /*var networkFileManager = new NeuralNetworkFileManager("network.txt");
         var network = networkFileManager.Read();

@@ -1,4 +1,5 @@
 ﻿using MLP.Data.Interfaces;
+using MLP.Util;
 
 namespace MLP.Data;
 
@@ -12,7 +13,7 @@ public class CompleteDataReader<T> : IFileReader<DataSet<T>> where T : IConverti
     public CompleteDataReader(string fileName, Func<string, T>? converter = default)
     {
         if (String.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("FileName cannot be empty!", nameof(fileName));
-        if (!fileName.EndsWith(".csv")) throw new ArgumentException("File must b of type .csv", nameof(fileName));
+        if (!fileName.EndsWith(".csv")) throw new ArgumentException("File must be of type .csv", nameof(fileName));
 
         _fileName = fileName;
         _filePath = Path.Combine(Global.BaseDataDirPath, _fileName);
@@ -20,7 +21,7 @@ public class CompleteDataReader<T> : IFileReader<DataSet<T>> where T : IConverti
         if (!File.Exists(_filePath)) throw new FileNotFoundException("File not found!", _filePath);
 
         _typeCode = Type.GetTypeCode(typeof(T));
-        _converter = converter ?? DefaultConverter;
+        _converter = converter ?? StringToTypeDefaultConverter;
     }
 
     public DataSet<T> Read()
@@ -49,7 +50,7 @@ public class CompleteDataReader<T> : IFileReader<DataSet<T>> where T : IConverti
         return new DataSet<T>(datas.ToArray(), results.ToArray());
     }
 
-    private T DefaultConverter(string s)
+    private T StringToTypeDefaultConverter(string s)
     {
         return (T)Convert.ChangeType(s, _typeCode);
     }

@@ -1,7 +1,7 @@
 ﻿using MLP.Data;
 using System.Globalization;
 
-namespace MLP;
+namespace MLP.Util;
 
 public static class Utils
 {

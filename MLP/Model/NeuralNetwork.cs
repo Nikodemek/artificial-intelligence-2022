@@ -1,10 +1,11 @@
 ﻿using MLP.Data;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 
 namespace MLP.Model;
 
-public class NeuralNetwork
+public class NeuralNetwork<T> where T : IConvertible
 {
     private const string ErrorDataFileName = "errors.txt";
 
@@ -12,6 +13,9 @@ public class NeuralNetwork
 
     private readonly Random _random = new();
     private readonly ActivationFunction _activationFunction;
+    private readonly Func<int, T> _converter;
+    private readonly TypeCode _typeCode;
+    private readonly EqualityComparer<T> _comparer;
 
     public NeuralNetwork(ActivationFunction? activationFunction = default, params int[] neuronsInLayer)
     {
@@ -46,12 +50,18 @@ public class NeuralNetwork
         }
 
         _activationFunction = activationFunction ?? Functions.SigmoidUnipolar;
+        _typeCode = Type.GetTypeCode(typeof(T));
+        _converter = IntToTypeDefaultConverter;
+        _comparer = EqualityComparer<T>.Default;
     }
-    public NeuralNetwork(NeuronLayer[] layers, ActivationFunction? activationFunction = default)
+    public NeuralNetwork(NeuronLayer[] layers, ActivationFunction? activationFunction = default, Func<int, T>? intToTypeConverter = default)
     {
         Layers = layers;
 
         _activationFunction = activationFunction ?? Functions.SigmoidUnipolar; ;
+        _typeCode = Type.GetTypeCode(typeof(T));
+        _converter = intToTypeConverter ?? IntToTypeDefaultConverter;
+        _comparer = EqualityComparer<T>.Default;
     }
 
     public double[] FeedForward(double[] inputs, bool biasFlag = true)
@@ -91,7 +101,7 @@ public class NeuralNetwork
     private void BackPropagateErrors(double[] desiredOutput)
     {
         var lastLayer = Layers[^1].Neurons;
-        List<double> errors = new List<double>();
+        var errors = new List<double>();
 
         double[] actualOutput = new double[lastLayer.Length];
         for (var i = 0; i < lastLayer.Length; i++)
@@ -107,7 +117,7 @@ public class NeuralNetwork
                 var prevLayer = Layers[i + 1].Neurons;
                 for (var j = 0; j < currLayer.Neurons.Length; j++)
                 {
-                    double error = 0d;
+                    double error = 0.0;
                     foreach (var neuron in prevLayer)
                     {
                         error += neuron.InputWeights[j] * neuron.Delta;
@@ -153,7 +163,7 @@ public class NeuralNetwork
         }
     }
 
-    public void Train<T>(DataSet<T> data, double learningRate, int epochCount = 0, double errorAccuracy = 0, double momentum = 0.0, bool shuffleFlag = false) where T : IConvertible
+    public void Train(DataSet<T> data, double learningRate, int epochCount = 0, double errorAccuracy = 0, double momentum = 0.0, bool shuffleFlag = false)
     {
         if (epochCount < 0 && errorAccuracy < 0) return;
 
@@ -169,7 +179,7 @@ public class NeuralNetwork
 
             if (shuffleFlag) data.Shuffle();
 
-            double error = 0;
+            double error = 0.0;
             for (var j = 0; j < data.Length; j++)
             {
                 int resultVectorIndex = data.Results[j].ToInt32(NumberFormatInfo.InvariantInfo);
@@ -201,11 +211,15 @@ public class NeuralNetwork
         testData.Write(stringBuilder.ToString());
     }
 
-    public void Test<T>(DataSet<T> testingData, bool biasFlag = true) where T : IConvertible
+    public TestResult<T> Test(DataSet<T> testingData, bool biasFlag = true)
     {
         int length = testingData.Length;
-        int mistakes = 0;
+        int hiddenLayersCount = Layers.Length - 2;
+
         int correct = 0;
+        var actualResults = new T[length];
+        double[][] hiddenNeuronsValues = new double[hiddenLayersCount][];
+        double[][][] hiddenNeuronsWeights = new double[hiddenLayersCount][][]; // yooooooooooooooooooooooo
 
         for (int i = 0; i < length; i++)
         {
@@ -215,13 +229,44 @@ public class NeuralNetwork
             {
                 if (output[j] > output[maxIndex]) maxIndex = j;
             }
-            if (maxIndex == testingData.Results[i].ToInt32(NumberFormatInfo.InvariantInfo)) correct++;
-            else mistakes++;
+            T result = _converter(maxIndex);
+            if (_comparer.Equals(result, testingData.Results[i])) correct++;
+            actualResults[i] = result;
         }
 
-        Console.WriteLine($"Total guesses = {length}");
-        Console.WriteLine($"Correct = {correct}");
-        Console.WriteLine($"Mistakes = {mistakes}");
+        for (int i = 1; i < hiddenLayersCount + 1; i++)
+        {
+            var currNeurons = Layers[i].Neurons;
+            int currNeuronsCount = currNeurons.Length;
+
+            var neuronsValues = new double[currNeuronsCount];
+            var neuronsWeights = new double[currNeuronsCount][];
+            for (int j = 0; j < currNeuronsCount; j++)
+            {
+                var currNeuron = currNeurons[j];
+                neuronsValues[j] = currNeuron.Value;
+                neuronsWeights[j] = currNeuron.InputWeights;
+            }
+            hiddenNeuronsValues[i-1] = neuronsValues;
+            hiddenNeuronsWeights[i-1] = neuronsWeights;
+        }
+
+        return new TestResult<T>(
+            testingData.Data,
+            testingData.Results,
+            actualResults,
+            (double)correct / (double)length,
+            -1.0,                       // To trzeba wytrzasnąć
+            Array.Empty<double>(),                // To tesz
+            Layers[^1].Neurons.Select(n => n.InputWeights).ToArray(),
+            hiddenNeuronsValues,
+            hiddenNeuronsWeights
+            );
+    }
+
+    private T IntToTypeDefaultConverter(int s)
+    {
+        return (T)Convert.ChangeType(s, _typeCode);
     }
 }
 
