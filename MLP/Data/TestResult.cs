@@ -11,7 +11,7 @@ public record class TestResult<T>(
     double[][] OutputNeuronsWeights,    // wag neuronów wyjściowych
     double[][] HiddenNeuronsValues,     // wartości wyjściowych neuronów ukrytych
     double[][][] HiddenNeuronsWeights   // wag neuronów ukrytych (w kolejności warstw od dalszych względem wejść sieci do bliższych)
-    );
+    ) where T : notnull;
 
 // Help materials:
 // --> https://home.agh.edu.pl/~vlsi/AI/backp_t_en/backprop.html
