@@ -16,9 +16,9 @@ public static class Program
         var completeData = dataReader.Read();
         var (trainingData, testingData) = completeData.CreateTrainingAndTestingData(0.8, false);
         //var network = networkReader.Read();
-        var network = new NeuralNetwork<Iris>(default, 4, 4, 3);
+        var network = new NeuralNetwork<Iris>(default, 4, 3, 3);
 
-        network.Train(trainingData, 0.4, errorAccuracy: 0.6, shuffleFlag: false, biasFlag: true);
+        network.Train(trainingData, 0.4, 125, momentum: 0.8, shuffleFlag: false, biasFlag: true);
         
         Console.WriteLine();
         

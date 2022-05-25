@@ -83,15 +83,17 @@ def main():
     # results : TestResult = as_test_result(json.loads(rawJson))
     
     errors = lines_to_list(read_file('errors.txt'), float)
-    errors = normalize_data(errors,6)
+    errors = normalize_data(errors,10)
     arguments = range(0, len(errors))
     
-    mymodel = np.poly1d(np.polyfit(arguments, errors, 9))
+    mymodel = np.poly1d(np.polyfit(arguments, errors, 20))
     myline = np.linspace(arguments[0], arguments[-1], 100)
 
     fig, ax = plt.subplots(figsize = (6, 6))
-    ax.scatter(arguments, errors, alpha=0.7, s=20)
+    ax.scatter(arguments, errors, alpha=0.7, s=10)
     ax.plot(myline, mymodel(myline), color='red')
+    ax.set_xlabel('Epoch')
+    ax.set_ylabel('Error')
     plt.show()
 
 

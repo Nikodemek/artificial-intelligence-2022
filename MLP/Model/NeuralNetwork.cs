@@ -177,10 +177,10 @@ public class NeuralNetwork<T> where T : IConvertible
         if (epochCount <= 0 && errorAccuracy <= 0) return;
 
         var errorDao = new PlainDataFileManager(ErrorDataFileName);
-        //var bestNetworkDao = new NeuralNetworkFileManager<T>("best_network");
+        //var bestNetworkDao = new NeuralNetworkFileManager<T>($"best_network");
         var stringBuilder = new StringBuilder();
 
-        //string bestNetworkSerialized = String.Empty;
+        string bestNetworkSerialized = String.Empty;
 
         double minError = Double.MaxValue;
         int minErrorEpoch = 0;
