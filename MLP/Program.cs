@@ -10,35 +10,35 @@ public static class Program
     {
         Global.EnsureDirectoryIsValid();
 
-        var dataReader = new CompleteDataReader<Iris>("data.csv");
+        //var dataReader = new CompleteDataReader<Iris>("data.csv");
         //var networkReader = new NeuralNetworkFileManager<Iris>("best_network_0.51.json");
-        //var dataReader = new CompleteDataReader<int>("autoencoder.csv");
+        var dataReader = new CompleteDataReader<int>("autoencoder.csv");
         var completeData = dataReader.Read();
         var (trainingData, testingData) = completeData.CreateTrainingAndTestingData(0.8, false);
         //var network = networkReader.Read();
-        var network = new NeuralNetwork<Iris>(
+        var network = new NeuralNetwork<int>(
             default,
             completeData.DataColumns, 
-            3,
+            2,
             completeData.Classes);
 
         network.Train(
-            trainingData, 
-            learningRate: 0.4, 
-            momentum: 0.8,
+            completeData, 
+            learningRate: 0.6, 
+            momentum: 0.0,
             errorAccuracy: 0.0,
-            epochCount: 125,
+            epochCount: 1000,
             shuffleFlag: false,
             biasFlag: true);
         
         Console.WriteLine();
         
-        var output = network.FeedForward(testingData.Data[^1]);
+        var output = network.FeedForward(completeData.Data[^1]);
         for (int i = 0; i < output.Length; i++)
         {
             Console.WriteLine($"{output[i] * 100.0:n3}%");
         }
-        var testResult = network.Test(testingData);
+        var testResult = network.Test(completeData);
 
         string testResultJson = Serializer.Serialize(testResult);
         File.WriteAllText(Path.Combine(Global.BaseDataDirPath, "result.json"), testResultJson);
