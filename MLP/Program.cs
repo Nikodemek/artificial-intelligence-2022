@@ -11,14 +11,25 @@ public static class Program
         Global.EnsureDirectoryIsValid();
 
         var dataReader = new CompleteDataReader<Iris>("data.csv");
-        var networkReader = new NeuralNetworkFileManager<Iris>("best_network_0.51.json");
+        //var networkReader = new NeuralNetworkFileManager<Iris>("best_network_0.51.json");
         //var dataReader = new CompleteDataReader<int>("autoencoder.csv");
         var completeData = dataReader.Read();
         var (trainingData, testingData) = completeData.CreateTrainingAndTestingData(0.8, false);
         //var network = networkReader.Read();
-        var network = new NeuralNetwork<Iris>(default, 4, 3, 3);
+        var network = new NeuralNetwork<Iris>(
+            default,
+            completeData.DataColumns, 
+            3,
+            completeData.Classes);
 
-        network.Train(trainingData, 0.4, 125, momentum: 0.8, shuffleFlag: false, biasFlag: true);
+        network.Train(
+            trainingData, 
+            learningRate: 0.4, 
+            momentum: 0.8,
+            errorAccuracy: 0.0,
+            epochCount: 125,
+            shuffleFlag: false,
+            biasFlag: true);
         
         Console.WriteLine();
         
