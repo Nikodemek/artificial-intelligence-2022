@@ -29,7 +29,8 @@ public class NeuralNetwork<T> where T : IConvertible
     }
 
     public NeuralNetwork(ActivationFunction? activationFunction = default, params int[] neuronsInLayer)
-    : this() {
+        : this()
+    {
         if (neuronsInLayer.Length < 1) throw new ArgumentException("Can not pass an empty neuron count", nameof(neuronsInLayer));
 
         Layers = new NeuronLayer[neuronsInLayer.Length];
@@ -59,16 +60,16 @@ public class NeuralNetwork<T> where T : IConvertible
                 neurons[j] = neuron;
             }
         }
-        
-        _activationFunction = activationFunction ?? Functions.SigmoidUnipolar;
+
+        _activationFunction = activationFunction ?? _activationFunction;
     }
     public NeuralNetwork(NeuronLayer[] layers, ActivationFunction? activationFunction = default, Func<int, T>? intToTypeConverter = default)
-    : this() {
+        : this()
+    {
         Layers = layers;
-        _activationFunction = activationFunction ?? Functions.SigmoidUnipolar; ;
-        _typeCode = Type.GetTypeCode(typeof(T));
+
+        _activationFunction = activationFunction ?? _activationFunction;
         _converter = intToTypeConverter ?? IntToTypeDefaultConverter;
-        _comparer = EqualityComparer<T>.Default;
     }
 
     public double[] FeedForward(double[] inputs, bool biasFlag = true)
@@ -205,7 +206,7 @@ public class NeuralNetwork<T> where T : IConvertible
                 }
             }
 
-            if (i % 10 == 0) stringBuilder.AppendLine(error.ToString(CultureInfo.InvariantCulture));
+            stringBuilder.AppendLine(error.ToString(CultureInfo.InvariantCulture));
 
             if (error < minError)
             {
@@ -213,7 +214,7 @@ public class NeuralNetwork<T> where T : IConvertible
                 minErrorEpoch = i;
 
                 //bestNetworkSerialized = Serializer.Serialize(this);
-                
+
                 lastImprovement = 0;
             }
 
@@ -249,7 +250,7 @@ public class NeuralNetwork<T> where T : IConvertible
             for (int j = 0; j < output.Length; j++)
             {
                 if (output[j] > output[maxIndex]) maxIndex = j;
-                
+
                 double diff = expected[j] - output[j];
                 double individualError = diff * diff;
                 templateIndividualErrors[i][j] = individualError;
@@ -258,7 +259,7 @@ public class NeuralNetwork<T> where T : IConvertible
             }
 
             templateEntireError[i] = error;
-            
+
             T result = _converter(maxIndex);
             if (_comparer.Equals(result, testingData.Results[i]))
             {
@@ -269,7 +270,7 @@ public class NeuralNetwork<T> where T : IConvertible
                 }
                 else
                 {
-                    classCorrect.Add(result, new[] {1, 1});
+                    classCorrect.Add(result, new[] { 1, 1 });
                 }
                 correct++;
             }
@@ -281,10 +282,10 @@ public class NeuralNetwork<T> where T : IConvertible
                 }
                 else
                 {
-                    classCorrect.Add(result, new[] {0, 1});
+                    classCorrect.Add(result, new[] { 0, 1 });
                 }
             }
-            
+
             actualResults[i] = result;
         }
 
@@ -293,7 +294,7 @@ public class NeuralNetwork<T> where T : IConvertible
         var guessingClassesAccuracy = new Dictionary<T, double>();
         foreach (var (key, value) in classCorrect)
         {
-            guessingClassesAccuracy.Add(key, (double) value[0] / value[1]);
+            guessingClassesAccuracy.Add(key, (double)value[0] / value[1]);
         }
 
         return new TestResult<T>(
@@ -315,7 +316,7 @@ public class NeuralNetwork<T> where T : IConvertible
         int hiddenLayersCount = Layers.Length - 2;
         double[][] hiddenNeuronsValues = new double[hiddenLayersCount][];
         double[][][] hiddenNeuronsWeights = new double[hiddenLayersCount][][];
-        
+
         for (int i = 1; i < hiddenLayersCount + 1; i++)
         {
             var currNeurons = Layers[i].Neurons;
@@ -329,10 +330,10 @@ public class NeuralNetwork<T> where T : IConvertible
                 neuronsValues[j] = currNeuron.Value;
                 neuronsWeights[j] = currNeuron.InputWeights;
             }
-            hiddenNeuronsValues[i-1] = neuronsValues;
-            hiddenNeuronsWeights[i-1] = neuronsWeights;
+            hiddenNeuronsValues[i - 1] = neuronsValues;
+            hiddenNeuronsWeights[i - 1] = neuronsWeights;
         }
-        
+
         return (hiddenNeuronsValues, hiddenNeuronsWeights);
     }
 
