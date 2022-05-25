@@ -171,7 +171,8 @@ public class NeuralNetwork<T> where T : IConvertible
         }
     }
 
-    public void Train(DataSet<T> data, double learningRate, int epochCount = 0, double errorAccuracy = 0, double momentum = 0.0, bool shuffleFlag = false)
+    public void Train(DataSet<T> data, double learningRate, int epochCount = 0, double errorAccuracy = 0,
+        double momentum = 0.0, bool shuffleFlag = false, bool biasFlag = true)
     {
         if (epochCount <= 0 && errorAccuracy <= 0) return;
 
@@ -196,7 +197,7 @@ public class NeuralNetwork<T> where T : IConvertible
                 int resultVectorIndex = data.Results[j].ToInt32(NumberFormatInfo.InvariantInfo);
                 double[] expected = data.GetResultVector(resultVectorIndex);
 
-                double[] output = FeedForward(data.Data[j]);
+                double[] output = FeedForward(data.Data[j], biasFlag);
                 BackPropagateErrors(expected);
                 UpdateWeights(learningRate, momentum);
                 for (var k = 0; k < expected.Length; k++)
