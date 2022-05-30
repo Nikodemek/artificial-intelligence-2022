@@ -97,7 +97,7 @@ public static class PuzzleGenerator
             currentBoard = boardsQueue.Dequeue();
             var directions = currentBoard.ClarifyMovement(exampleDirections);
 
-            var evacuationFlag = false;
+            bool evacuationFlag = false;
             foreach (var direction in directions)
             {
                 var nextBoard = currentBoard.Move(direction);

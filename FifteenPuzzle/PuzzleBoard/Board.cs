@@ -137,16 +137,18 @@ public class Board : ICloneable, IEquatable<Board>
     {
         const ulong Prime = 31ul;
 
-        ulong hash = 0;
-
-        if (rowSize == -1) rowSize = board.GetLength(0);
+        if (rowSize == -1) rowSize = board.GetLength(0);        
         if (columnSize == -1) columnSize = board.GetLength(1);
-        int boardSize = board.Length;
-        for (int i = 0; i < rowSize; i++)
+        
+        ulong hash = 0ul;
+        
+        ulong power = 1ul;
+        for (var i = rowSize - 1; i >= 0; i--)
         {
-            for (int j = 0; j < columnSize; j++)
+            for (var j = columnSize - 1; j >= 0; j--)
             {
-                hash += MathI.Power(Prime, --boardSize) * (ulong)board[i, j];
+                hash += power * (ulong)board[i, j];
+                power *= Prime;
             }
         }
 
@@ -160,38 +162,35 @@ public class Board : ICloneable, IEquatable<Board>
         int boardSize = board.Length;
         uint dist = 0;
 
-        if (parent is not null)
+        if (parent is null || parent._distanceHammings == 0)
         {
-            if (parent._distanceHammings != 0)
+            for (var i = 0; i < rowSize; i++)
             {
-                dist = parent._distanceHammings;
-                var parentCellRow = parent._emptyCellRow;
-                var parentCellColumn = parent._emptyCellColumn;
-                
-                var targetBefore = (_emptyCellRow * rowSize + _emptyCellColumn + 1) % boardSize;
-                var value = (int) board[parentCellRow, parentCellColumn];
-                var targetAfter = (parentCellRow * rowSize + parentCellColumn + 1) % boardSize;
+                int offset = i * rowSize;
+                for (var j = 0; j < columnSize; j++)
+                {
+                    int actualValue = board[i, j];
+                    int target = (offset + j + 1) % boardSize;
 
-                if (targetBefore == value) dist++;
-                else if (targetAfter == value) dist--;
-                if (targetBefore == 0) dist--;
-                if (targetAfter == 0) dist++;
-
-                return dist;
+                    if (actualValue != target) dist++;
+                }
             }
+
+            return dist;
         }
         
-        for (var i = 0; i < rowSize; i++)
-        {
-            int offset = i * rowSize;
-            for (var j = 0; j < columnSize; j++)
-            {
-                int value = board[i, j];
-                int target = (offset + j + 1) % boardSize;
+        dist = parent._distanceHammings;
+        short parentCellRow = parent._emptyCellRow;
+        short parentCellColumn = parent._emptyCellColumn;
 
-                if (value != target) dist++;
-            }
-        }
+        int targetBefore = (_emptyCellRow * rowSize + _emptyCellColumn + 1) % boardSize;
+        int value = board[parentCellRow, parentCellColumn];
+        int targetAfter = (parentCellRow * rowSize + parentCellColumn + 1) % boardSize;
+            
+        if (targetBefore == value) dist++;
+        else if (targetAfter == value) dist--;
+        if (targetBefore == 0) dist--;
+        if (targetAfter == 0) dist++;
 
         return dist;
     }

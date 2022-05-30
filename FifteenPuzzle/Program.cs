@@ -45,34 +45,36 @@ class Program
         //var board = readFile.Read();
 
 
-        //var board = PuzzleGenerator.Generate(4, 4, 0);
-        //PuzzleGenerator.GenerateAll(7);
+        //var board = PuzzleGenerator.Generate(4, 4, 60);
+        //PuzzleGenerator.GenerateAndWriteAll(7);
         short[,] game = {
             {2, 3, 4, 0},
             {6, 7, 12, 8},
             {1, 5, 10, 11 },
-            {9, 13, 14, 15 } 
+            {9, 13, 14, 15 }
         };
         var board = new Board(game);
         board.Print();
 
 
-        IPuzzleSolverDiagnostics solver = new AStar(Heur.Hamming);
+        IPuzzleSolverDiagnostics solver = new AStar(
+            Heur.Manhattan
+            );
 
-        /*IPuzzleSolverDiagnostics solver = new BFS(new[]
-        {
-            Dir.Up,
-            Dir.Down,
-            Dir.Left,
-            Dir.Right
-        });*/
+        /*IPuzzleSolverDiagnostics solver = new BFS(
+            new[] {
+                Dir.Up,
+                Dir.Down,
+                Dir.Left,
+                Dir.Right
+            });*/
 
         /*IPuzzleSolverDiagnostics solver = new DFS(
             new[] {
-            Dir.Up,
-            Dir.Down,
-            Dir.Left,
-            Dir.Right
+                Dir.Up,
+                Dir.Down,
+                Dir.Left,
+                Dir.Right
             },
             20);*/
 
