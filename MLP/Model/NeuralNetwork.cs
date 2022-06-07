@@ -65,7 +65,7 @@ public class NeuralNetwork<T> where T : IConvertible
 
         _activationFunction = activationFunction ?? _activationFunction;
     }
-    
+
     public NeuralNetwork(NeuronLayer[] layers, ActivationFunction? activationFunction = default, Func<int, T>? intToTypeConverter = default)
         : this()
     {
@@ -228,7 +228,7 @@ public class NeuralNetwork<T> where T : IConvertible
                 );
         }
     }
-    
+
     public double[] FeedForward(double[] inputs, bool biasFlag = true)
     {
         var firstLayer = Layers[0];

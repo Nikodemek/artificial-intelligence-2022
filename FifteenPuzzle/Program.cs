@@ -1,6 +1,5 @@
 ﻿using FifteenPuzzle.Dao;
 using FifteenPuzzle.PuzzleBoard;
-using FifteenPuzzle.Utils;
 
 namespace FifteenPuzzle;
 using Dir = Board.Direction;

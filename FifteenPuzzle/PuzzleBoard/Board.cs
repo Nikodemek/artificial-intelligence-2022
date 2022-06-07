@@ -107,7 +107,7 @@ public class Board : ICloneable, IEquatable<Board>
                 }
             }
         }
-        
+
         ColumnSize = (short)_board.GetLength(0);
         RowSize = (short)_board.GetLength(1);
 
@@ -137,11 +137,11 @@ public class Board : ICloneable, IEquatable<Board>
     {
         const ulong Prime = 31ul;
 
-        if (rowSize == -1) rowSize = board.GetLength(0);        
+        if (rowSize == -1) rowSize = board.GetLength(0);
         if (columnSize == -1) columnSize = board.GetLength(1);
-        
+
         ulong hash = 0ul;
-        
+
         ulong power = 1ul;
         for (var i = rowSize - 1; i >= 0; i--)
         {
@@ -178,7 +178,7 @@ public class Board : ICloneable, IEquatable<Board>
 
             return dist;
         }
-        
+
         dist = parent._distanceHammings;
         short parentCellRow = parent._emptyCellRow;
         short parentCellColumn = parent._emptyCellColumn;
@@ -186,7 +186,7 @@ public class Board : ICloneable, IEquatable<Board>
         int targetBefore = (_emptyCellRow * rowSize + _emptyCellColumn + 1) % boardSize;
         int value = board[parentCellRow, parentCellColumn];
         int targetAfter = (parentCellRow * rowSize + parentCellColumn + 1) % boardSize;
-            
+
         if (targetBefore == value) dist++;
         else if (targetAfter == value) dist--;
         if (targetBefore == 0) dist--;

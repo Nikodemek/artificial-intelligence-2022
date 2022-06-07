@@ -34,7 +34,12 @@ public class MnistDataReader : IFileReader<DataSet<int>>
         int labelsMagicNumber = labelsBr.ReadInt32(true);
         int labelsCount = labelsBr.ReadInt32(true);
 
-        int dataCount = imagesCount == labelsCount ? Math.Min(imagesCount, _maxData > 0 ? _maxData : Int32.MaxValue) : throw new ArgumentException("Data set and result set must be equal!");
+        int dataCount = imagesCount == labelsCount
+            ? Math.Min(
+                imagesCount, _maxData > 0
+                ? _maxData
+                : Int32.MaxValue)
+            : throw new ArgumentException("Data set and result set must be equal!");
         int pixelsCount = imagesRows * imagesColumns;
 
         var datas = new double[dataCount][];

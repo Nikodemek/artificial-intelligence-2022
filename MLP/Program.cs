@@ -1,7 +1,7 @@
 ﻿using MLP.Data;
+using MLP.Data.Managers;
 using MLP.Model;
 using MLP.Util;
-using MLP.Data.Managers;
 
 namespace MLP;
 
@@ -37,22 +37,22 @@ public static class Program
             epochCount: 2,
             shuffleFlag: true,
             biasFlag: true);
-        
+
         Console.WriteLine();
         var output = network.FeedForward(testData.Data[^1]);
         for (int i = 0; i < output.Length; i++)
         {
             Console.WriteLine($"{i}: {output[i] * 100.0:n3}%");
         }
-
+        
         Console.WriteLine($"Expected prediction: {testData.Results[^1]}");
         
         var testResult = network.Test(testData);
         string testResultJson = Serializer.Serialize(testResult);
-        
+
         var testResultDataManager = new PlainDataFileManager("result.json");
         testResultDataManager.Write(testResultJson);
-        
+
         Console.ReadLine();
     }
 }
