@@ -1,4 +1,5 @@
-﻿using MLP.Data;
+﻿using System.Diagnostics;
+using MLP.Data;
 using MLP.Data.Managers;
 using MLP.Model;
 using MLP.Util;
@@ -7,8 +8,12 @@ namespace MLP;
 
 public static class Program
 {
-    public static void Main()
+    public static void Main(string[] args)
     {
+        int epochCount = 10;
+        if (args.Length > 0 && int.TryParse(args[0], out var parsedInt))
+            epochCount = parsedInt;
+
         Global.EnsureDirectoryIsValid();
 
         var mnistTrainingDataReader = new MnistDataReader("train-images.idx3-ubyte");
@@ -31,10 +36,10 @@ public static class Program
 
         network.Train(
             trainingData,
-            learningRate: 0.4,
+            learningRate: 0.2,
             momentum: 0.9,
             errorAccuracy: 0.0,
-            epochCount: 2,
+            epochCount: epochCount,
             shuffleFlag: true,
             biasFlag: true);
 

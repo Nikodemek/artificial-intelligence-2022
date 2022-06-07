@@ -83,7 +83,7 @@ public class NeuralNetwork<T> where T : IConvertible
         var errorDao = new PlainDataFileManager(ErrorDataFileName);
         var stringBuilder = new StringBuilder();
 
-        string bestNetworkSerialized = String.Empty;
+        //string bestNetworkSerialized = String.Empty;
 
         double minError = Double.MaxValue;
         int minErrorEpoch = 0;
@@ -112,6 +112,7 @@ public class NeuralNetwork<T> where T : IConvertible
             }
 
             error /= data.Length * data.Classes;
+            error *= 100;
 
             stringBuilder.AppendLine(error.ToString(CultureInfo.InvariantCulture));
 
@@ -120,7 +121,7 @@ public class NeuralNetwork<T> where T : IConvertible
                 minError = error;
                 minErrorEpoch = i;
 
-                bestNetworkSerialized = Serializer.Serialize(this);
+                //bestNetworkSerialized = Serializer.Serialize(this);
 
                 lastImprovement = 0;
             }
@@ -131,8 +132,8 @@ public class NeuralNetwork<T> where T : IConvertible
         Console.WriteLine($"Min error = {minError} occured in epoch {minErrorEpoch}");
 
         errorDao.Write(stringBuilder.ToString());
-        var bestNetworkDao = new PlainDataFileManager($"best_network_{minError.ToString("n2", NumberFormatInfo.InvariantInfo)}");
-        bestNetworkDao.Write(bestNetworkSerialized);
+        //var bestNetworkDao = new PlainDataFileManager($"best_network_{minError.ToString("n2", NumberFormatInfo.InvariantInfo)}");
+        //bestNetworkDao.Write(bestNetworkSerialized);
     }
 
     public ITestResult<T> Test(DataSet<T> testingData, bool biasFlag = true)
