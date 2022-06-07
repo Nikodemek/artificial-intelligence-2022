@@ -111,6 +111,8 @@ public class NeuralNetwork<T> where T : IConvertible
                 }
             }
 
+            error /= data.Length;
+
             stringBuilder.AppendLine(error.ToString(CultureInfo.InvariantCulture));
 
             if (error < minError)

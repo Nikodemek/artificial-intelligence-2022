@@ -26,8 +26,7 @@ public static class Program
         var network = new NeuralNetwork<int>(
             Functions.SigmoidUnipolar,
             trainingData.DataColumns, 
-            120,
-            84,
+            16,
             trainingData.Classes);
 
         network.Train(
@@ -35,16 +34,18 @@ public static class Program
             learningRate: 0.4,
             momentum: 0.9,
             errorAccuracy: 0.0,
-            epochCount: 15,
+            epochCount: 2,
             shuffleFlag: true,
             biasFlag: true);
         
         Console.WriteLine();
-        var output = network.FeedForward(trainingData.Data[^1]);
+        var output = network.FeedForward(testData.Data[^1]);
         for (int i = 0; i < output.Length; i++)
         {
-            Console.WriteLine($"{output[i] * 100.0:n3}%");
+            Console.WriteLine($"{i}: {output[i] * 100.0:n3}%");
         }
+
+        Console.WriteLine($"Expected prediction: {testData.Results[^1]}");
         
         var testResult = network.Test(testData);
         string testResultJson = Serializer.Serialize(testResult);
