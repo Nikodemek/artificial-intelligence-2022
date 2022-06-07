@@ -10,24 +10,27 @@ public static class Program
     {
         Global.EnsureDirectoryIsValid();
 
+        var byteDataReader = new MnistDataReader("train-images.idx3-ubyte", true);
+        var completeData = byteDataReader.Read();
+        
         //var dataReader = new CompleteDataReader<Iris>("data.csv");
         //var networkReader = new NeuralNetworkFileManager<Iris>("best_network_0.51.json");
-        var dataReader = new CompleteDataReader<int>("autoencoder.csv");
-        var completeData = dataReader.Read();
-        var (trainingData, testingData) = completeData.CreateTrainingAndTestingData(0.8, false);
+        //var dataReader = new CsvDataReader<int>("autoencoder.csv");
+        //var completeData = dataReader.Read();
+        //var (trainingData, testingData) = completeData.CreateTrainingAndTestingData(0.8, false);
         //var network = networkReader.Read();
         var network = new NeuralNetwork<int>(
             default,
             completeData.DataColumns, 
-            2,
+            15,
             completeData.Classes);
 
         network.Train(
             completeData, 
-            learningRate: 0.6, 
-            momentum: 0.0,
+            learningRate: 0.2, 
+            momentum: 0.9,
             errorAccuracy: 0.0,
-            epochCount: 1000,
+            epochCount: 30,
             shuffleFlag: false,
             biasFlag: true);
         
