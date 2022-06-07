@@ -8,15 +8,29 @@ public static class Functions
 
     public static double SigmoidUnipolar(double x, bool deriv = false)
     {
-        return deriv ? x * (1 - x) : 1.0 / (1 + Math.Exp(-x * Beta));
+        return deriv
+            ? x * (1 - x)
+            : 1.0 / (1 + Math.Exp(-x * Beta));
     }
+    
     public static double SigmoidBipolar(double x, bool deriv = false)
     {
-        return deriv ? 1 - Math.Tanh(x) * Math.Tanh(x) : Math.Tanh(x * Beta);
+        return deriv
+            ? 1 - Math.Tanh(x) * Math.Tanh(x)
+            : Math.Tanh(x * Beta);
     }
 
     public static double Identity(double x, bool deriv = false)
     {
-        return deriv ? 1 : x;
+        return deriv
+            ? 1
+            : x;
+    }
+
+    public static double ReLU(double x, bool deriv = false)
+    {
+        return deriv
+            ? (x >= 0 ? 1 : 0)
+            : Math.Max(0, x);
     }
 }

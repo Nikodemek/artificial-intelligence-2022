@@ -96,4 +96,11 @@ public static class Utils
         }
         return newArr;
     }
+    
+    public static int ReadInt32(this BinaryReader br, bool bigEndian = false)
+    {
+        byte[] bytes = br.ReadBytes(4);
+        if (BitConverter.IsLittleEndian == bigEndian) Array.Reverse(bytes);
+        return BitConverter.ToInt32(bytes, 0);
+    }
 }

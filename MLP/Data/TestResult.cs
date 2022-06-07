@@ -1,6 +1,8 @@
-﻿namespace MLP.Data;
+﻿using MLP.Data.Interfaces;
 
-public record class TestResult<T>(
+namespace MLP.Data;
+
+public record class FullTestResult<T>(
     double[][] InputData,               // wzorca wejściowego
     T[] ExpectedResults,                // pożądanego wzorca odpowiedzi
     T[] ActualResults,                  // wartości wyjściowych neuronów wyjściowych
@@ -11,8 +13,4 @@ public record class TestResult<T>(
     double[][] OutputNeuronsWeights,    // wag neuronów wyjściowych
     double[][] HiddenNeuronsValues,     // wartości wyjściowych neuronów ukrytych
     double[][][] HiddenNeuronsWeights   // wag neuronów ukrytych (w kolejności warstw od dalszych względem wejść sieci do bliższych)
-    ) where T : notnull;
-
-// Help materials:
-// --> https://home.agh.edu.pl/~vlsi/AI/backp_t_en/backprop.html
-// Implementation follows -> https://machinelearningmastery.com/implement-backpropagation-algorithm-scratch-python/
+    ) : ITestResult<T> where T : notnull;

@@ -5,15 +5,20 @@ namespace MLP.Util;
 
 public static class Serializer
 {
-    public static string Serialize<T>(T obj)
+    private static readonly JsonSerializerOptions options = new()
     {
-        string data = JsonSerializer.Serialize(obj);
+        WriteIndented = true
+    };
+
+    public static string Serialize<T>(T obj) where T : notnull
+    {
+        string data = JsonSerializer.Serialize<object>(obj, options);
         return data;
     }
-
-    public static T Deserialize<T>(string data)
+    
+    public static T Deserialize<T>(string data) where T : notnull
     {
-        T obj = JsonSerializer.Deserialize<T>(data) ?? throw new JsonException("Json Deserialization went wrong!");
+        T obj = JsonSerializer.Deserialize<T>(data, options) ?? throw new JsonException("Json Deserialization went wrong!");
         return obj;
     }
 }

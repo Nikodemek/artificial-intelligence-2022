@@ -1,9 +1,9 @@
-﻿using System.Diagnostics;
-using MLP.Data;
+﻿using MLP.Data;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 using MLP.Util;
+using MLP.Data.Interfaces;
+using MLP.Data.Managers;
 
 namespace MLP.Model;
 
@@ -63,6 +63,7 @@ public class NeuralNetwork<T> where T : IConvertible
 
         _activationFunction = activationFunction ?? _activationFunction;
     }
+    
     public NeuralNetwork(NeuronLayer[] layers, ActivationFunction? activationFunction = default, Func<int, T>? intToTypeConverter = default)
         : this()
     {
@@ -74,9 +75,10 @@ public class NeuralNetwork<T> where T : IConvertible
 
     public double[] FeedForward(double[] inputs, bool biasFlag = true)
     {
+        var firstLayer = Layers[0];
         for (var i = 0; i < inputs.Length; i++)
         {
-            Layers[0].Neurons[i].Value = inputs[i];
+            firstLayer.Neurons[i].Value = inputs[i];
         }
 
         for (var i = 1; i < Layers.Length; i++)
@@ -181,10 +183,10 @@ public class NeuralNetwork<T> where T : IConvertible
         var stringBuilder = new StringBuilder();
 
         string bestNetworkSerialized = String.Empty;
-
+        
         double minError = Double.MaxValue;
         int minErrorEpoch = 0;
-
+        Console.WriteLine($"Neural Network ({String.Join('-', Layers.Select(l => l.Neurons.Length))}): learning rate: {learningRate}, momentum: {momentum}, bias: {biasFlag}, shuffle: {shuffleFlag}");
         for (int i = 0, lastImprovement = 0; epochCount == 0 || i < epochCount; i++, lastImprovement++)
         {
             if (errorAccuracy > 0) if (errorAccuracy >= minError || lastImprovement > 100) break;
@@ -219,7 +221,7 @@ public class NeuralNetwork<T> where T : IConvertible
                 lastImprovement = 0;
             }
 
-            Console.WriteLine($"Epoch = {i}: learning rate: {learningRate}, error = {error:g4}");
+            Console.WriteLine($"Epoch = {i}: error = {error:g4}");
         }
         Console.WriteLine($"Min error = {minError} occured in epoch {minErrorEpoch}");
 
@@ -228,7 +230,7 @@ public class NeuralNetwork<T> where T : IConvertible
         //bestNetworkDao.Write(Serializer.Deserialize<NeuralNetwork<T>>(bestNetworkSerialized));
     }
 
-    public TestResult<T> Test(DataSet<T> testingData, bool biasFlag = true)
+    public ITestResult<T> Test(DataSet<T> testingData, bool biasFlag = true)
     {
         int length = testingData.Length;
         int outputLayerLength = Layers[^1].Neurons.Length;
@@ -298,18 +300,27 @@ public class NeuralNetwork<T> where T : IConvertible
             guessingClassesAccuracy.Add(key, (double)value[0] / value[1]);
         }
 
-        return new TestResult<T>(
-            testingData.Data,
-            testingData.Results,
-            actualResults,
-            (double)correct / (double)length,
-            guessingClassesAccuracy,
-            templateEntireError,
-            templateIndividualErrors,
-            Layers[^1].Neurons.Select(n => n.InputWeights).ToArray(),
-            hiddenNeuronsValues,
-            hiddenNeuronsWeights
-            );
+        if (testingData.Length > 500)
+        {
+            return new BriefTestResult<T>(
+                (double)correct / (double)length,
+                guessingClassesAccuracy);
+        }
+        else
+        {
+            return new FullTestResult<T>(
+                testingData.Data,
+                testingData.Results,
+                actualResults,
+                (double)correct / (double)length,
+                guessingClassesAccuracy,
+                templateEntireError,
+                templateIndividualErrors,
+                Layers[^1].Neurons.Select(n => n.InputWeights).ToArray(),
+                hiddenNeuronsValues,
+                hiddenNeuronsWeights
+                );
+        }
     }
 
     private (double[][], double[][][]) HiddenLayersStats()

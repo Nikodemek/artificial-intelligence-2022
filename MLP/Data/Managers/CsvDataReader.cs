@@ -1,7 +1,7 @@
 ﻿using MLP.Data.Interfaces;
 using MLP.Util;
 
-namespace MLP.Data;
+namespace MLP.Data.Managers;
 
 public class CsvDataReader<T> : IFileReader<DataSet<T>> where T : IConvertible
 {
@@ -12,7 +12,7 @@ public class CsvDataReader<T> : IFileReader<DataSet<T>> where T : IConvertible
 
     public CsvDataReader(string fileName, Func<string, T>? converter = default)
     {
-        if (String.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("FileName cannot be empty!", nameof(fileName));
+        if (string.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("FileName cannot be empty!", nameof(fileName));
         if (!fileName.EndsWith(".csv")) throw new ArgumentException("File must be of type .csv", nameof(fileName));
 
         _fileName = fileName;

@@ -1,6 +1,6 @@
 ﻿using MLP.Data.Interfaces;
 
-namespace MLP.Data;
+namespace MLP.Data.Managers;
 
 public class PlainDataFileManager : IFileManager<string>
 {
@@ -8,7 +8,7 @@ public class PlainDataFileManager : IFileManager<string>
 
     public PlainDataFileManager(string filename)
     {
-        if (String.IsNullOrWhiteSpace(filename)) throw new ArgumentException("Filename cannot be empty!", nameof(filename));
+        if (string.IsNullOrWhiteSpace(filename)) throw new ArgumentException("Filename cannot be empty!", nameof(filename));
 
         _filePath = Path.Combine(Global.BaseDataDirPath, filename);
     }

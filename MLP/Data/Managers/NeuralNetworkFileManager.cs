@@ -3,7 +3,7 @@ using MLP.Model;
 using MLP.Util;
 using System.Text;
 
-namespace MLP.Data;
+namespace MLP.Data.Managers;
 
 public class NeuralNetworkFileManager<T> : IFileManager<NeuralNetwork<T>> where T : IConvertible
 {
@@ -12,7 +12,7 @@ public class NeuralNetworkFileManager<T> : IFileManager<NeuralNetwork<T>> where 
 
     public NeuralNetworkFileManager(string fileName)
     {
-        if (String.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("Filename cannot be empty!", nameof(fileName));
+        if (string.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("Filename cannot be empty!", nameof(fileName));
 
         FileName = fileName;
     }
