@@ -5,16 +5,16 @@ namespace MLP.Data.Managers;
 
 public class MnistDataReader : IFileReader<DataSet<int>>
 {
-    private const int MaxData = 500;
-    
+    private readonly int _maxData;
     private readonly string _filePath;
 
-    public MnistDataReader(string fileName)
+    public MnistDataReader(string fileName, int maxData = -1)
     {
-        if (string.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("FileName cannot be empty!", nameof(fileName));
+        if (String.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("FileName cannot be empty!", nameof(fileName));
+        if (!fileName.EndsWith(".idx3-ubyte")) throw new ArgumentException("FileName must end with .idx3-ubyte!", nameof(fileName));
 
+        _maxData = maxData;
         _filePath = Path.Combine(Global.BaseDataDirPath, fileName);
-
         if (!File.Exists(_filePath)) throw new FileNotFoundException("File not found!", _filePath);
     }
 
@@ -34,7 +34,7 @@ public class MnistDataReader : IFileReader<DataSet<int>>
         int labelsMagicNumber = labelsBr.ReadInt32(true);
         int labelsCount = labelsBr.ReadInt32(true);
 
-        int dataCount = imagesCount == labelsCount ? Math.Min(imagesCount, MaxData > 0 ? MaxData : Int32.MaxValue) : throw new ArgumentException("Data set and result set must be equal!"); ;
+        int dataCount = imagesCount == labelsCount ? Math.Min(imagesCount, _maxData > 0 ? _maxData : Int32.MaxValue) : throw new ArgumentException("Data set and result set must be equal!");
         int pixelsCount = imagesRows * imagesColumns;
 
         var datas = new double[dataCount][];

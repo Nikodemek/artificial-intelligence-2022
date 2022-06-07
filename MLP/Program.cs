@@ -11,9 +11,11 @@ public static class Program
     {
         Global.EnsureDirectoryIsValid();
 
-        var MnistTrainingDataReader = new MnistDataReader("train-images.idx3-ubyte");
-        var trainingData = MnistTrainingDataReader.Read();
-        
+        var mnistTrainingDataReader = new MnistDataReader("train-images.idx3-ubyte");
+        var mnistTestDataReader = new MnistDataReader("t10k-images.idx3-ubyte");
+        var trainingData = mnistTrainingDataReader.Read();
+        var testData = mnistTestDataReader.Read();
+
         //var dataReader = new CompleteDataReader<Iris>("data.csv");
         //var networkReader = new NeuralNetworkFileManager<Iris>("best_network_0.51.json");
         //var dataReader = new CsvDataReader<int>("autoencoder.csv");
@@ -43,10 +45,12 @@ public static class Program
         {
             Console.WriteLine($"{output[i] * 100.0:n3}%");
         }
-        var testResult = network.Test(trainingData);
-
+        
+        var testResult = network.Test(testData);
         string testResultJson = Serializer.Serialize(testResult);
-        File.WriteAllText(Path.Combine(Global.BaseDataDirPath, "result.json"), testResultJson);
+        
+        var testResultDataManager = new PlainDataFileManager("result.json");
+        testResultDataManager.Write(testResultJson);
         
         Console.ReadLine();
     }
