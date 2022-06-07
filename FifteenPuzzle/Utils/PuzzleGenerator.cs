@@ -72,7 +72,7 @@ public static class PuzzleGenerator
 
         return new Board(board);
     }
-    
+
     public static void GenerateAndWriteAll(uint maxDepth = 7)
     {
         var boards = new List<Board>();

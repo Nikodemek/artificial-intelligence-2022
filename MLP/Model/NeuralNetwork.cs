@@ -1,10 +1,10 @@
 ﻿using MLP.Data;
-using System.Globalization;
-using System.Text;
-using MLP.Util;
 using MLP.Data.Interfaces;
 using MLP.Data.Managers;
+using MLP.Util;
 using System.Diagnostics;
+using System.Globalization;
+using System.Text;
 
 namespace MLP.Model;
 
@@ -65,7 +65,7 @@ public class NeuralNetwork<T> where T : IConvertible
 
         _activationFunction = activationFunction ?? _activationFunction;
     }
-    
+
     public NeuralNetwork(NeuronLayer[] layers, ActivationFunction? activationFunction = default, Func<int, T>? intToTypeConverter = default)
         : this()
     {
@@ -226,7 +226,7 @@ public class NeuralNetwork<T> where T : IConvertible
                 );
         }
     }
-    
+
     public double[] FeedForward(double[] inputs, bool biasFlag = true)
     {
         var firstLayer = Layers[0];

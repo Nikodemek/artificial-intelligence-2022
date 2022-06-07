@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace MLP.Util;
 
@@ -15,7 +14,7 @@ public static class Serializer
         string data = JsonSerializer.Serialize<object>(obj, options);
         return data;
     }
-    
+
     public static T Deserialize<T>(string data) where T : notnull
     {
         T obj = JsonSerializer.Deserialize<T>(data, options) ?? throw new JsonException("Json Deserialization went wrong!");

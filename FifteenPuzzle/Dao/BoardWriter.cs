@@ -1,21 +1,21 @@
-﻿using System.Text;
-using FifteenPuzzle.PuzzleBoard;
+﻿using FifteenPuzzle.PuzzleBoard;
+using System.Text;
 
 namespace FifteenPuzzle.Dao;
 
 public class BoardWriter : IFileWriter<List<Board>>
 {
     private uint _counter;
-    
+
     public void Write(in List<Board> boards)
     {
         string testsDirectoryPath = Path.Combine(Global.TestingDataDirPath);
-        
+
         if (!Directory.Exists(testsDirectoryPath))
         {
             Directory.CreateDirectory(testsDirectoryPath);
         }
-        
+
         foreach (var board in boards)
         {
             short columnSize = board.ColumnSize;
@@ -47,20 +47,20 @@ public class BoardWriter : IFileWriter<List<Board>>
         sb.Append(board.RowSize);
         sb.Append('x');
         sb.Append(board.ColumnSize);
-        
+
         sb.Append('_');
-        
+
         int pathLength = board.PathLength;
         string number = pathLength.ToString("00");
         sb.Append(number);
-        
+
         sb.Append('_');
 
         string idNumber = _counter.ToString("0000");
         sb.Append(idNumber);
-        
+
         sb.Append(".txt");
-        
+
         return sb.ToString();
     }
 }

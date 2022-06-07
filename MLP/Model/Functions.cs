@@ -12,7 +12,7 @@ public static class Functions
             ? x * (1 - x)
             : 1.0 / (1 + Math.Exp(-x * Beta));
     }
-    
+
     public static double SigmoidBipolar(double x, bool deriv = false)
     {
         return deriv

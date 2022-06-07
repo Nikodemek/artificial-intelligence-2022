@@ -1,7 +1,7 @@
 ﻿using MLP.Data;
+using MLP.Data.Managers;
 using MLP.Model;
 using MLP.Util;
-using MLP.Data.Managers;
 
 namespace MLP;
 
@@ -25,7 +25,7 @@ public static class Program
 
         var network = new NeuralNetwork<int>(
             Functions.SigmoidUnipolar,
-            trainingData.DataColumns, 
+            trainingData.DataColumns,
             120,
             84,
             trainingData.Classes);
@@ -38,20 +38,20 @@ public static class Program
             epochCount: 15,
             shuffleFlag: true,
             biasFlag: true);
-        
+
         Console.WriteLine();
         var output = network.FeedForward(trainingData.Data[^1]);
         for (int i = 0; i < output.Length; i++)
         {
             Console.WriteLine($"{output[i] * 100.0:n3}%");
         }
-        
+
         var testResult = network.Test(testData);
         string testResultJson = Serializer.Serialize(testResult);
-        
+
         var testResultDataManager = new PlainDataFileManager("result.json");
         testResultDataManager.Write(testResultJson);
-        
+
         Console.ReadLine();
     }
 }
