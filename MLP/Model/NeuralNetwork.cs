@@ -4,12 +4,14 @@ using System.Text;
 using MLP.Util;
 using MLP.Data.Interfaces;
 using MLP.Data.Managers;
+using System.Diagnostics;
 
 namespace MLP.Model;
 
 public class NeuralNetwork<T> where T : IConvertible
 {
     private const string ErrorDataFileName = "errors.txt";
+    private const int BriefTestResultsThreshold = 500;
 
     public NeuronLayer[] Layers { get; init; }
 
@@ -73,6 +75,158 @@ public class NeuralNetwork<T> where T : IConvertible
         _converter = intToTypeConverter ?? IntToTypeDefaultConverter;
     }
 
+    public void Train(DataSet<T> data, double learningRate, int epochCount = 0, double errorAccuracy = 0,
+        double momentum = 0.0, bool shuffleFlag = false, bool biasFlag = true)
+    {
+        if (epochCount <= 0 && errorAccuracy <= 0) return;
+
+        var errorDao = new PlainDataFileManager(ErrorDataFileName);
+        var stringBuilder = new StringBuilder();
+
+        string bestNetworkSerialized = String.Empty;
+
+        double minError = Double.MaxValue;
+        int minErrorEpoch = 0;
+        Console.WriteLine($"Neural Network ({String.Join('-', Layers.Select(l => l.Neurons.Length))}): learning rate: {learningRate}, momentum: {momentum}, bias: {biasFlag}, shuffle: {shuffleFlag}");
+        var watch = Stopwatch.StartNew();
+        for (int i = 0, lastImprovement = 0; epochCount == 0 || i < epochCount; i++, lastImprovement++)
+        {
+            if (errorAccuracy > 0) if (errorAccuracy >= minError || lastImprovement > 100) break;
+
+            if (shuffleFlag) data.Shuffle();
+
+            double error = 0.0;
+            for (var j = 0; j < data.Length; j++)
+            {
+                int resultVectorIndex = data.Results[j].ToInt32(NumberFormatInfo.InvariantInfo);
+                double[] expected = data.GetResultVector(resultVectorIndex);
+
+                double[] output = FeedForward(data.Data[j], biasFlag);
+                BackPropagateErrors(expected);
+                UpdateWeights(learningRate, momentum);
+                for (var k = 0; k < expected.Length; k++)
+                {
+                    double diff = expected[k] - output[k];
+                    error += diff * diff;
+                }
+            }
+
+            stringBuilder.AppendLine(error.ToString(CultureInfo.InvariantCulture));
+
+            if (error < minError)
+            {
+                minError = error;
+                minErrorEpoch = i;
+
+                bestNetworkSerialized = Serializer.Serialize(this);
+
+                lastImprovement = 0;
+            }
+
+            Console.WriteLine($"Epoch = {i}: error = {error,-9:g5} (took {watch.ElapsedMilliseconds}ms)");
+            watch.Restart();
+        }
+        Console.WriteLine($"Min error = {minError} occured in epoch {minErrorEpoch}");
+
+        errorDao.Write(stringBuilder.ToString());
+        var bestNetworkDao = new PlainDataFileManager($"best_network_{minError.ToString("n2", NumberFormatInfo.InvariantInfo)}");
+        bestNetworkDao.Write(bestNetworkSerialized);
+    }
+
+    public ITestResult<T> Test(DataSet<T> testingData, bool biasFlag = true)
+    {
+        int length = testingData.Length;
+        int outputLayerLength = Layers[^1].Neurons.Length;
+
+        int correct = 0;
+        var classCorrect = new Dictionary<T, int[]>();
+        var actualResults = new T[length];
+        var templateEntireError = new double[length];
+        var templateIndividualErrors = new double[length][];
+
+        for (int i = 0; i < length; i++)
+        {
+            int resultVectorIndex = testingData.Results[i].ToInt32(NumberFormatInfo.InvariantInfo);
+            templateIndividualErrors[i] = new double[outputLayerLength];
+
+            double[] output = FeedForward(testingData.Data[i], biasFlag);
+            double[] expected = testingData.GetResultVector(resultVectorIndex);
+            double error = 0.0;
+            int maxIndex = 0;
+            for (int j = 0; j < output.Length; j++)
+            {
+                if (output[j] > output[maxIndex]) maxIndex = j;
+
+                double diff = expected[j] - output[j];
+                double individualError = diff * diff;
+                templateIndividualErrors[i][j] = individualError;
+
+                error += individualError;
+            }
+
+            templateEntireError[i] = error;
+
+            T result = _converter(maxIndex);
+            if (_comparer.Equals(result, testingData.Results[i]))
+            {
+                if (classCorrect.ContainsKey(result))
+                {
+                    classCorrect[result][0] += 1;
+                    classCorrect[result][1] += 1;
+                }
+                else
+                {
+                    classCorrect.Add(result, new[] { 1, 1 });
+                }
+                correct++;
+            }
+            else
+            {
+                if (classCorrect.ContainsKey(result))
+                {
+                    classCorrect[result][1] += 1;
+                }
+                else
+                {
+                    classCorrect.Add(result, new[] { 0, 1 });
+                }
+            }
+
+            actualResults[i] = result;
+        }
+
+        var (hiddenNeuronsValues, hiddenNeuronsWeights) = HiddenLayersStats();
+
+        var guessingClassesAccuracy = new Dictionary<T, double>();
+        foreach (var (key, value) in classCorrect)
+        {
+            guessingClassesAccuracy.Add(key, (double)value[0] / value[1]);
+        }
+        double guessingAccuracy = (double)correct / (double)length;
+
+        if (testingData.Length > NeuralNetwork<T>.BriefTestResultsThreshold)
+        {
+            return new BriefTestResult<T>(
+                guessingAccuracy,
+                guessingClassesAccuracy);
+        }
+        else
+        {
+            return new FullTestResult<T>(
+                testingData.Data,
+                testingData.Results,
+                actualResults,
+                guessingAccuracy,
+                guessingClassesAccuracy,
+                templateEntireError,
+                templateIndividualErrors,
+                Layers[^1].Neurons.Select(n => n.InputWeights).ToArray(),
+                hiddenNeuronsValues,
+                hiddenNeuronsWeights
+                );
+        }
+    }
+    
     public double[] FeedForward(double[] inputs, bool biasFlag = true)
     {
         var firstLayer = Layers[0];
@@ -170,156 +324,6 @@ public class NeuralNetwork<T> where T : IConvertible
                     currNeuron.InputWeights[k] -= learningRate * currNeuron.Delta * prevNeuron.Value + momentumEffect;
                 }
             }
-        }
-    }
-
-    public void Train(DataSet<T> data, double learningRate, int epochCount = 0, double errorAccuracy = 0,
-        double momentum = 0.0, bool shuffleFlag = false, bool biasFlag = true)
-    {
-        if (epochCount <= 0 && errorAccuracy <= 0) return;
-
-        var errorDao = new PlainDataFileManager(ErrorDataFileName);
-        //var bestNetworkDao = new NeuralNetworkFileManager<T>($"best_network");
-        var stringBuilder = new StringBuilder();
-
-        string bestNetworkSerialized = String.Empty;
-        
-        double minError = Double.MaxValue;
-        int minErrorEpoch = 0;
-        Console.WriteLine($"Neural Network ({String.Join('-', Layers.Select(l => l.Neurons.Length))}): learning rate: {learningRate}, momentum: {momentum}, bias: {biasFlag}, shuffle: {shuffleFlag}");
-        for (int i = 0, lastImprovement = 0; epochCount == 0 || i < epochCount; i++, lastImprovement++)
-        {
-            if (errorAccuracy > 0) if (errorAccuracy >= minError || lastImprovement > 100) break;
-
-            if (shuffleFlag) data.Shuffle();
-
-            double error = 0.0;
-            for (var j = 0; j < data.Length; j++)
-            {
-                int resultVectorIndex = data.Results[j].ToInt32(NumberFormatInfo.InvariantInfo);
-                double[] expected = data.GetResultVector(resultVectorIndex);
-
-                double[] output = FeedForward(data.Data[j], biasFlag);
-                BackPropagateErrors(expected);
-                UpdateWeights(learningRate, momentum);
-                for (var k = 0; k < expected.Length; k++)
-                {
-                    double diff = expected[k] - output[k];
-                    error += diff * diff;
-                }
-            }
-
-            stringBuilder.AppendLine(error.ToString(CultureInfo.InvariantCulture));
-
-            if (error < minError)
-            {
-                minError = error;
-                minErrorEpoch = i;
-
-                //bestNetworkSerialized = Serializer.Serialize(this);
-
-                lastImprovement = 0;
-            }
-
-            Console.WriteLine($"Epoch = {i}: error = {error:g4}");
-        }
-        Console.WriteLine($"Min error = {minError} occured in epoch {minErrorEpoch}");
-
-        errorDao.Write(stringBuilder.ToString());
-        //bestNetworkDao.FileName += $"_{minError.ToString("n2", NumberFormatInfo.InvariantInfo)}";
-        //bestNetworkDao.Write(Serializer.Deserialize<NeuralNetwork<T>>(bestNetworkSerialized));
-    }
-
-    public ITestResult<T> Test(DataSet<T> testingData, bool biasFlag = true)
-    {
-        int length = testingData.Length;
-        int outputLayerLength = Layers[^1].Neurons.Length;
-
-        int correct = 0;
-        var classCorrect = new Dictionary<T, int[]>();
-        var actualResults = new T[length];
-        var templateEntireError = new double[length];
-        var templateIndividualErrors = new double[length][];
-
-        for (int i = 0; i < length; i++)
-        {
-            int resultVectorIndex = testingData.Results[i].ToInt32(NumberFormatInfo.InvariantInfo);
-            templateIndividualErrors[i] = new double[outputLayerLength];
-
-            double[] output = FeedForward(testingData.Data[i], biasFlag);
-            double[] expected = testingData.GetResultVector(resultVectorIndex);
-            double error = 0.0;
-            int maxIndex = 0;
-            for (int j = 0; j < output.Length; j++)
-            {
-                if (output[j] > output[maxIndex]) maxIndex = j;
-
-                double diff = expected[j] - output[j];
-                double individualError = diff * diff;
-                templateIndividualErrors[i][j] = individualError;
-
-                error += individualError;
-            }
-
-            templateEntireError[i] = error;
-
-            T result = _converter(maxIndex);
-            if (_comparer.Equals(result, testingData.Results[i]))
-            {
-                if (classCorrect.ContainsKey(result))
-                {
-                    classCorrect[result][0] += 1;
-                    classCorrect[result][1] += 1;
-                }
-                else
-                {
-                    classCorrect.Add(result, new[] { 1, 1 });
-                }
-                correct++;
-            }
-            else
-            {
-                if (classCorrect.ContainsKey(result))
-                {
-                    classCorrect[result][1] += 1;
-                }
-                else
-                {
-                    classCorrect.Add(result, new[] { 0, 1 });
-                }
-            }
-
-            actualResults[i] = result;
-        }
-
-        var (hiddenNeuronsValues, hiddenNeuronsWeights) = HiddenLayersStats();
-
-        var guessingClassesAccuracy = new Dictionary<T, double>();
-        foreach (var (key, value) in classCorrect)
-        {
-            guessingClassesAccuracy.Add(key, (double)value[0] / value[1]);
-        }
-
-        if (testingData.Length > 500)
-        {
-            return new BriefTestResult<T>(
-                (double)correct / (double)length,
-                guessingClassesAccuracy);
-        }
-        else
-        {
-            return new FullTestResult<T>(
-                testingData.Data,
-                testingData.Results,
-                actualResults,
-                (double)correct / (double)length,
-                guessingClassesAccuracy,
-                templateEntireError,
-                templateIndividualErrors,
-                Layers[^1].Neurons.Select(n => n.InputWeights).ToArray(),
-                hiddenNeuronsValues,
-                hiddenNeuronsWeights
-                );
         }
     }
 

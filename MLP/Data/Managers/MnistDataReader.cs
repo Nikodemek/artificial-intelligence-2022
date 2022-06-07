@@ -5,10 +5,11 @@ namespace MLP.Data.Managers;
 
 public class MnistDataReader : IFileReader<DataSet<int>>
 {
-    private const int MaxData = Int32.MaxValue;
+    private const int MaxData = 500;
+    
     private readonly string _filePath;
 
-    public MnistDataReader(string fileName, bool trainingDataFlag)
+    public MnistDataReader(string fileName)
     {
         if (string.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("FileName cannot be empty!", nameof(fileName));
 
@@ -33,7 +34,7 @@ public class MnistDataReader : IFileReader<DataSet<int>>
         int labelsMagicNumber = labelsBr.ReadInt32(true);
         int labelsCount = labelsBr.ReadInt32(true);
 
-        int dataCount = imagesCount == labelsCount ? Math.Min(imagesCount, MaxData) : throw new ArgumentException("Data set and result set must be equal!"); ;
+        int dataCount = imagesCount == labelsCount ? Math.Min(imagesCount, MaxData > 0 ? MaxData : Int32.MaxValue) : throw new ArgumentException("Data set and result set must be equal!"); ;
         int pixelsCount = imagesRows * imagesColumns;
 
         var datas = new double[dataCount][];

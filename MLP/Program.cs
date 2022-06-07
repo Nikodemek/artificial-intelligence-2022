@@ -11,8 +11,8 @@ public static class Program
     {
         Global.EnsureDirectoryIsValid();
 
-        var byteDataReader = new MnistDataReader("train-images.idx3-ubyte", true);
-        var trainingData = byteDataReader.Read();
+        var MnistTrainingDataReader = new MnistDataReader("train-images.idx3-ubyte");
+        var trainingData = MnistTrainingDataReader.Read();
         
         //var dataReader = new CompleteDataReader<Iris>("data.csv");
         //var networkReader = new NeuralNetworkFileManager<Iris>("best_network_0.51.json");
@@ -31,7 +31,7 @@ public static class Program
         network.Train(
             trainingData,
             learningRate: 0.4,
-            momentum: 0.7,
+            momentum: 0.9,
             errorAccuracy: 0.0,
             epochCount: 15,
             shuffleFlag: true,
