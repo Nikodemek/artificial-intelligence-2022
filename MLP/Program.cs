@@ -31,20 +31,8 @@ public static class Program
         var network = new NeuralNetwork<int>(
             Functions.SigmoidUnipolar,
             networkLayers);
-
-        Task.Run(delegate
-        {
-            Thread.Sleep(500);
-            while (network.IsTraining)
-            {
-                char read = Console.ReadKey().KeyChar;
-                if (read is 'q' or 'Q')
-                {
-                    network.Interrupt();
-                    return;
-                }
-            }
-        });
+        
+        RunTrainingInterrupter(network);
 
         network.Train(
             trainingData,
@@ -62,7 +50,7 @@ public static class Program
             string correct = i == testData.Results[^1] ? "<--" : String.Empty;
             Console.WriteLine($"{i}: {output[i] * 100.0:n3}% {correct}");
         }
-        
+
         var testResult = network.Test(testData);
         string testResultJson = Serializer.Serialize(testResult);
 
@@ -71,7 +59,25 @@ public static class Program
 
         Console.ReadLine();
     }
-    
+
+    private static void RunTrainingInterrupter<T>(NeuralNetwork<T> network) where T : IConvertible
+    {
+        Task.Run(async delegate
+        {
+            await Task.Delay(500);
+            while (network.IsTraining)
+            {
+                char read = Console.ReadKey().KeyChar;
+                if (read is 'q' or 'Q')
+                {
+                    network.Interrupt();
+                    Console.WriteLine("Interrupted");
+                    return;
+                }
+            }
+        });
+    }
+
     private static (int, int[]) ParseInput<T>(string[] args, DataSet<T> data)
     {
         int argsLength = args.Length;

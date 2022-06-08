@@ -96,7 +96,7 @@ public class NeuralNetwork<T> where T : IConvertible
         var watch = Stopwatch.StartNew();
         for (int i = 0, lastImprovement = 0; epochCount == 0 || i < epochCount; i++, lastImprovement++)
         {
-            if (errorAccuracy > 0) if (errorAccuracy >= minError || lastImprovement > 100) break;
+            if (errorAccuracy > 0 && (errorAccuracy >= minError || lastImprovement > 100)) break;
 
             if (shuffleFlag) data.Shuffle();
 
