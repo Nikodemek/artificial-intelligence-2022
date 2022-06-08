@@ -45,7 +45,7 @@ public class DataSet<T>
     public (DataSet<T> trainingData, DataSet<T> testingData) CreateTrainingAndTestingData(double trainingToTestingRation = 0.8, bool shuffled = false)
     {
         double ratio = trainingToTestingRation;
-        if (ratio < 0.0 || ratio > 1.0) throw new ArgumentException("Ration must be between 0 and 1!", nameof(trainingToTestingRation));
+        if (ratio < 0.0 || ratio > 1.0) throw new ArgumentException("Ratio must be between 0 and 1!", nameof(trainingToTestingRation));
 
         if (shuffled) Shuffle();
 

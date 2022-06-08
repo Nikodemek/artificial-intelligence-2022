@@ -14,12 +14,15 @@ public class NeuralNetwork<T> where T : IConvertible
     private const int BriefTestResultsThreshold = 500;
 
     public NeuronLayer[] Layers { get; init; }
+    public bool IsTraining { get; private set; }
 
     private readonly Random _random = new();
     private readonly ActivationFunction _activationFunction;
     private readonly Func<int, T> _converter;
     private readonly TypeCode _typeCode;
     private readonly EqualityComparer<T> _comparer;
+
+    private volatile bool _interrupted = false;
 
     public NeuralNetwork()
     {
@@ -75,16 +78,18 @@ public class NeuralNetwork<T> where T : IConvertible
         _converter = intToTypeConverter ?? IntToTypeDefaultConverter;
     }
 
-    public void Train(DataSet<T> data, double learningRate, int epochCount = 0, double errorAccuracy = 0,
-        double momentum = 0.0, bool shuffleFlag = false, bool biasFlag = true)
+    public void Train(DataSet<T> data, double learningRate, int epochCount = 0, double errorAccuracy = 0, double momentum = 0.0, bool shuffleFlag = false, bool biasFlag = true)
     {
         if (epochCount <= 0 && errorAccuracy <= 0) return;
 
-        var errorDao = new PlainDataFileManager(ErrorDataFileName);
-        var stringBuilder = new StringBuilder();
+        var errorSb = new StringBuilder();
 
-        //string bestNetworkSerialized = String.Empty;
+        string bestNetworkSerialized = String.Empty;
 
+        IsTraining = true;
+        _interrupted = false;
+        
+        double errorScaler = 100.0 / (data.Length * data.Classes);
         double minError = Double.MaxValue;
         int minErrorEpoch = 0;
         Console.WriteLine($"Neural Network ({String.Join('-', Layers.Select(l => l.Neurons.Length))}): learning rate: {learningRate}, momentum: {momentum}, bias: {biasFlag}, shuffle: {shuffleFlag}");
@@ -110,30 +115,32 @@ public class NeuralNetwork<T> where T : IConvertible
                     error += diff * diff;
                 }
             }
-
-            error /= data.Length * data.Classes;
-            error *= 100;
-
-            stringBuilder.AppendLine(error.ToString(CultureInfo.InvariantCulture));
+            error *= errorScaler;
+            errorSb.AppendLine(error.ToString(CultureInfo.InvariantCulture));
 
             if (error < minError)
             {
                 minError = error;
                 minErrorEpoch = i;
-
-                //bestNetworkSerialized = Serializer.Serialize(this);
-
                 lastImprovement = 0;
-            }
 
-            Console.WriteLine($"Epoch = {i}: error = {error,-9:g5} (took {watch.ElapsedMilliseconds}ms)");
+                bestNetworkSerialized = Serializer.Serialize(this);
+            }
+            
+            Console.WriteLine($"Epoch {i, 3}: error = {error,-9:g5} (took {watch.ElapsedMilliseconds}ms)");
             watch.Restart();
+            
+            if (_interrupted) break;
         }
         Console.WriteLine($"Min error = {minError} occured in epoch {minErrorEpoch}");
+        
+        IsTraining = false;
+        _interrupted = false;
 
-        errorDao.Write(stringBuilder.ToString());
-        //var bestNetworkDao = new PlainDataFileManager($"best_network_{minError.ToString("n2", NumberFormatInfo.InvariantInfo)}");
-        //bestNetworkDao.Write(bestNetworkSerialized);
+        var errorDao = new PlainDataFileManager(ErrorDataFileName);
+        errorDao.Write(errorSb.ToString());
+        var bestNetworkDao = new PlainDataFileManager($"best_network_{minError.ToString("n2", NumberFormatInfo.InvariantInfo)}.json");
+        bestNetworkDao.Write(bestNetworkSerialized);
     }
 
     public ITestResult<T> Test(DataSet<T> testingData, bool biasFlag = true)
@@ -265,48 +272,41 @@ public class NeuralNetwork<T> where T : IConvertible
         return output;
     }
 
+    public void Interrupt()
+    {
+        _interrupted = true;
+    }
+
     private void BackPropagateErrors(double[] desiredOutput)
     {
-        var lastLayer = Layers[^1].Neurons;
-        var errors = new List<double>();
-
-        double[] actualOutput = new double[lastLayer.Length];
-        for (var i = 0; i < lastLayer.Length; i++)
+        var currNeurons = Layers[^1].Neurons;
+        for (var j = 0; j < currNeurons.Length; j++)
         {
-            actualOutput[i] = lastLayer[i].Value;
+            var currNeuron = currNeurons[j];
+            double error = Layers[^1].Neurons[j].Value - desiredOutput[j];
+            UpdateDeltas(currNeuron, error);
         }
 
-        for (var i = Layers.Length - 1; i >= 0; i--)
+        for (var i = Layers.Length - 2; i >= 0; i--)
         {
-            var currLayer = Layers[i];
-            if (i != Layers.Length - 1)
+            currNeurons = Layers[i].Neurons;
+            for (var j = 0; j < currNeurons.Length; j++)
             {
-                var prevLayer = Layers[i + 1].Neurons;
-                for (var j = 0; j < currLayer.Neurons.Length; j++)
+                var currNeuron = currNeurons[j];
+                var prevNeurons = Layers[i + 1].Neurons;
+                double error = 0.0;
+                foreach (var neuron in prevNeurons)
                 {
-                    double error = 0.0;
-                    foreach (var neuron in prevLayer)
-                    {
-                        error += neuron.InputWeights[j] * neuron.Delta;
-                    }
-                    errors.Add(error);
+                    error += neuron.InputWeights[j] * neuron.Delta;
                 }
+                UpdateDeltas(currNeuron, error);
             }
-            else
-            {
-                for (var j = 0; j < currLayer.Neurons.Length; j++)
-                {
-                    errors.Add(actualOutput[j] - desiredOutput[j]);
-                }
-            }
+        }
 
-            for (var j = 0; j < currLayer.Neurons.Length; j++)
-            {
-                var currNeuron = currLayer.Neurons[j];
-                currNeuron.PrevDelta = currNeuron.Delta;
-                currNeuron.Delta = errors[j] * _activationFunction(currNeuron.Value, true);
-            }
-            errors.Clear();
+        void UpdateDeltas(Neuron currNeuron, double error)
+        {
+            currNeuron.PrevDelta = currNeuron.Delta;
+            currNeuron.Delta = error * _activationFunction(currNeuron.Value, true);
         }
     }
 
@@ -319,12 +319,13 @@ public class NeuralNetwork<T> where T : IConvertible
             for (var j = 0; j < currNeurons.Length; j++)
             {
                 var currNeuron = currNeurons[j];
+                var currInputWeights = currNeuron.InputWeights;
                 currNeuron.Bias -= learningRate * currNeuron.Delta;
-                for (var k = 0; k < currNeuron.InputWeights.Length; k++)
+                for (var k = 0; k < currInputWeights.Length; k++)
                 {
                     var prevNeuron = prevNeurons[k];
                     double momentumEffect = momentum * (currNeuron.PrevDelta * prevNeuron.PrevValue);
-                    currNeuron.InputWeights[k] -= learningRate * currNeuron.Delta * prevNeuron.Value + momentumEffect;
+                    currInputWeights[k] -= learningRate * currNeuron.Delta * prevNeuron.Value + momentumEffect;
                 }
             }
         }

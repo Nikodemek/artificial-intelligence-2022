@@ -30,7 +30,7 @@ public static class Functions
     public static double ReLU(double x, bool deriv = false)
     {
         return deriv
-            ? (x >= 0 ? 1 : 0)
+            ? (x > 0 ? 1 : 0)
             : Math.Max(0, x);
     }
 }

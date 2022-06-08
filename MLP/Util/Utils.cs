@@ -9,13 +9,13 @@ public static class Utils
 
     public static double ToDouble(this string number)
     {
-        if (double.TryParse(number, NumberStyles.Float, NumberFormatInfo.InvariantInfo, out double value)) return value;
+        if (Double.TryParse(number, NumberStyles.Float, NumberFormatInfo.InvariantInfo, out double value)) return value;
         else return -1.0;
     }
 
     public static int ToInt32(this string number)
     {
-        if (int.TryParse(number, NumberStyles.Integer, NumberFormatInfo.InvariantInfo, out int value)) return value;
+        if (Int32.TryParse(number, NumberStyles.Integer, NumberFormatInfo.InvariantInfo, out int value)) return value;
         else return -1;
     }
 
